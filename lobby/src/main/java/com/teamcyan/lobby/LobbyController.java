@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 public class LobbyController {
@@ -29,6 +30,21 @@ public class LobbyController {
 
     @FXML
     private Button guest;
+
+    @FXML
+    void createNewUser(MouseEvent event) {
+
+    }
+
+    @FXML
+    void exitGame(MouseEvent event) {
+
+    }
+
+    @FXML
+    void playGame(MouseEvent event) {
+
+    }
 
 
 
