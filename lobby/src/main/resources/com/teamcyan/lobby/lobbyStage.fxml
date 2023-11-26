@@ -16,8 +16,8 @@
     <AnchorPane fx:id="card" layoutX="653.0" layoutY="599.0" prefHeight="296.0" prefWidth="484.0" styleClass="card">
         <TextField fx:id="usernameField" layoutX="77.0" layoutY="36.0" prefWidth="444" promptText="Username" />
         <PasswordField fx:id="passwordField" layoutX="77.0" layoutY="85.0" prefWidth="444" promptText="Password" />
-        <Button fx:id="sign_in" layoutX="23.0" layoutY="161.0" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Sign In" />
-        <Button fx:id="exit" layoutX="356.0" layoutY="161.0" styleClass="sign-in-button" text="Exit" />
-        <Button fx:id="guest" layoutX="167.0" layoutY="161.0" styleClass="sign-in-button" text="Play as a Guest" />
+        <Button fx:id="sign_in" layoutX="23.0" layoutY="161.0" onMouseClicked="#createNewUser" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Sign In" />
+        <Button fx:id="exit" layoutX="356.0" layoutY="161.0" onMouseClicked="#exitGame" styleClass="sign-in-button" text="Exit" />
+        <Button fx:id="guest" layoutX="167.0" layoutY="161.0" onMouseClicked="#playGame" styleClass="sign-in-button" text="Play as a Guest" />
     </AnchorPane>
 </AnchorPane>
