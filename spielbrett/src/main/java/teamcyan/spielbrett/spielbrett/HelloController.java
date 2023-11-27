@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
@@ -20,8 +21,9 @@ public class HelloController implements Initializable {
     @FXML
     private Button but;
 
+
     @FXML
-    ImageView im;
+    private ImageView im;
     @FXML
     ImageView im1;
     @FXML
@@ -39,14 +41,13 @@ public class HelloController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        im.setImage(
-                new Image("file:C:\\Users\\arint\\Documents\\team-cyan\\spielbrett\\src\\main\\resources\\image\\Ei.jpg")
-        ); //deck Bild
+
+        playerhand.setHgap(15); // gap bestimmen
         playerhand.setHgap(15); // gap bestimmen
         playerhand.setVgap(15); // gap bestimmen
         playerhand.setPadding(new Insets(15, 15, 15, 15)); // zwischen karten gap bestimmen
         im.setOnMouseClicked(mouseEvent -> {
-            ImageView img= new ImageView("file:C:\\Users\\arint\\Documents\\team-cyan\\spielbrett\\src\\main\\resources\\image\\eie.jpg");
+            ImageView img= new ImageView(getClass().getResource("/image/eie.jpg").toExternalForm());
             img.setFitHeight(50);
             img.setFitWidth(35);
             playerhand.getChildren().add(img);
