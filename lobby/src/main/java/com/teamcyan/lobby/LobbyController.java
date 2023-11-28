@@ -7,6 +7,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
+import java.util.Objects;
+
 public class LobbyController {
 
     @FXML
@@ -32,8 +34,21 @@ public class LobbyController {
 
     @FXML
     void createNewUser(MouseEvent event) {
+        // Display a confirmation dialog
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        if (!Objects.equals(usernameField.getText(), "") && !Objects.equals(passwordField.getText(), "")) {
+            alert.setTitle("New User Created");
+            alert.setHeaderText(null);
+            alert.setContentText("Welcome " + usernameField.getText());
+            alert.showAndWait();
 
+        }else{
+            alert.setContentText("Please enter Username and password, !Mugu");
+            alert.showAndWait();
+            }
+        // I will add the logic that puts the player´s name on the table here
     }
+
 
     @FXML
     void exitGame(MouseEvent event) {
@@ -56,7 +71,18 @@ public class LobbyController {
 
     @FXML
     void playGame(MouseEvent event) {
+        startGame();
+    }
 
+    // Helper method to start the game
+    private void startGame() {
+        // Should display a message
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Game Started");
+        alert.setHeaderText(null);
+        alert.setContentText("The game is starting!");
+        alert.showAndWait();
+        // I will add logic to take the player to the game table
     }
 
 }
