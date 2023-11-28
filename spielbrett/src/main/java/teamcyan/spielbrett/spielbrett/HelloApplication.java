@@ -13,6 +13,11 @@ public class HelloApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 638, 451);
         stage.setTitle("Ei oder Zwei ");
+        stage.setMaxHeight(1440);
+        stage.setMinHeight(1000);
+        stage.setMaxWidth(2560);
+        stage.setMinWidth(1000);
+        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
 
