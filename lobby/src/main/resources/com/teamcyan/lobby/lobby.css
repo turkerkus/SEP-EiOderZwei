@@ -1,0 +1,42 @@
+.root {
+    -fx-background-color: white;
+}
+
+#backgroundView {
+    fitWidth: 0.0;
+    fitHeight: 0.0;
+    AnchorPane.topAnchor: 0;
+    AnchorPane.bottomAnchor: 0;
+    AnchorPane.leftAnchor: 0;
+    AnchorPane.rightAnchor: 0;
+}
+
+.card {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 10;
+    -fx-padding: 20;
+    -fx-pref-width: 300px; /* Or any fixed size you want */
+    -fx-pref-height: 250px; /* Or any fixed size you want */
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 0);
+}
+
+.lobby-label {
+    -fx-font-size: 24px;
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-pref-width: 300px;
+}
+
+.sign-in-button, .guest-button {
+    -fx-background-color: #ff9900;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-padding: 10 20;
+}
+
+.sign-in-button:hover, .guest-button:hover {
+    -fx-background-color: #e68a00;
+}
