@@ -13,11 +13,10 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/spielbrett" />
-        <option name="gradleJvm" value="19" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/SpieltischA" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$/spielbrett" />
+            <option value="$PROJECT_DIR$/SpieltischA" />
           </set>
         </option>
       </GradleProjectSettings>
