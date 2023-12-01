@@ -21,9 +21,6 @@ public class LobbyController {
     private TextField usernameField;
 
     @FXML
-    private PasswordField passwordField;
-
-    @FXML
     private Button sign_in;
 
     @FXML
@@ -36,16 +33,16 @@ public class LobbyController {
     void createNewUser(MouseEvent event) {
         // Display a confirmation dialog
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if (!Objects.equals(usernameField.getText(), "") && !Objects.equals(passwordField.getText(), "")) {
+        if (!Objects.equals(usernameField.getText(), "") ) {
             alert.setTitle("New User Created");
             alert.setHeaderText(null);
             alert.setContentText("Welcome " + usernameField.getText());
             alert.showAndWait();
 
         }else{
-            alert.setContentText("Please enter Username and password, !Mugu");
+            alert.setContentText("Please enter Username, !Mugu");
             alert.showAndWait();
-            }
+        }
         // I will add the logic that puts the player´s name on the table here
     }
 

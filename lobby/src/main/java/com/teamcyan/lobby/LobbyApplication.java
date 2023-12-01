@@ -28,6 +28,10 @@ public class LobbyApplication extends Application {
         // Create the Scene with the loaded FXML root
         Scene scene = new Scene(root);
 
+        // Set preferred window size
+        primaryStage.setMinWidth(800); // Minimum width of the window
+        primaryStage.setMinHeight(600); // Minimum height of the window
+
         // Set and show the Stage
         primaryStage.setTitle("Lobby");
         primaryStage.setScene(scene);
