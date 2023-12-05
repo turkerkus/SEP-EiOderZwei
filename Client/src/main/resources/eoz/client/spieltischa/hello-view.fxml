@@ -1,15 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/21" fx:controller="eoz.client.spieltischa.HelloController">
-  <padding>
-    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-  </padding>
+<!-- Import Label class -->
 
-  <Label fx:id="welcomeText" />
-  <Button text="Hello!" />
-</VBox>
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.spieltischa.HelloController">
+   <children>
+      <ImageView fx:id="myImageView" fitHeight="1080.0" fitWidth="1920.0">
+         <image>
+            <Image url="@../../../images/bg.png" />
+         </image>
+      </ImageView>
+      <StackPane prefHeight="150.0" prefWidth="200.0">
+         <children>
+            <ImageView fitHeight="1200.0" fitWidth="1200.0" preserveRatio="true">
+               <image>
+                  <Image url="@../../../images/table.png" />
+               </image>
+            </ImageView>
+            <Label fx:id="p1" text="Player 1" textFill="WHITE" StackPane.alignment="BOTTOM_CENTER">
+               <font>
+                  <Font size="55.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="40.0" top="900.0" />
+               </StackPane.margin>
+            </Label>
+            <Label fx:id="p4" text="Player 4" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+               <font>
+                  <Font size="55.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="900.0" top="40.0" />
+               </StackPane.margin>
+            </Label>
+         </children>
+      </StackPane>
+      <StackPane prefHeight="150.0" prefWidth="200.0" rotate="-60.0">
+         <children>
+            <Label fx:id="p2" text="Player 2" textFill="WHITE" StackPane.alignment="BOTTOM_CENTER">
+               <font>
+                  <Font size="55.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="40.0" top="900.0" />
+               </StackPane.margin>
+            </Label>
+            <Label fx:id="p5" text="Player 5" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+               <font>
+                  <Font size="55.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="900.0" top="40.0" />
+               </StackPane.margin>
+            </Label>
+         </children>
+      </StackPane>
+      <StackPane prefHeight="150.0" prefWidth="200.0" rotate="60.0">
+         <children>
+            <Label fx:id="p6" text="Player 6" textFill="WHITE" StackPane.alignment="BOTTOM_CENTER">
+               <font>
+                  <Font size="55.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="40.0" top="900.0" />
+               </StackPane.margin>
+            </Label>
+            <Label fx:id="p3" text="Player 3" textFill="WHITE" StackPane.alignment="TOP_CENTER">
+               <font>
+                  <Font size="55.0" />
+               </font>
+               <StackPane.margin>
+                  <Insets bottom="900.0" top="40.0" />
+               </StackPane.margin>
+            </Label>
+         </children>
+      </StackPane>
+      <Line endX="100.0" startX="-336.92529296875" startY="761.4133911132812" stroke="#00000054" strokeWidth="5.0" />
+      <Line endX="-787.434814453125" endY="3.9777603149414062" startX="-349.92669677734375" startY="762.789794921875" stroke="#00000054" strokeWidth="5.0" />
+      <Line endX="-1224.336669921875" endY="765.5365600585938" startX="-349.92669677734375" startY="762.789794921875" stroke="#00000054" strokeWidth="5.0" />
+   </children>
+</StackPane>
