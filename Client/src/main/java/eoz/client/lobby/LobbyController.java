@@ -1,5 +1,7 @@
 package eoz.client.lobby;
 
+import eoz.client.spieltischa.tableApplication;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -38,6 +40,12 @@ public class LobbyController {
             alert.setHeaderText(null);
             alert.setContentText("Welcome " + usernameField.getText());
             alert.showAndWait();
+            UsernameHolder.setUsername(usernameField.getText());
+
+            // Lauch tableApplication
+            new Thread(() -> {
+                Application.launch(tableApplication.class);
+            }).start();
 
         }else{
             alert.setContentText("Please enter Username, !Mugu");

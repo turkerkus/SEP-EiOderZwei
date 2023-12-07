@@ -23,4 +23,10 @@ public class tableController {
         // Bind ImageView height to stage height
         myImageView.fitHeightProperty().bind(primaryStage.heightProperty());
     }
+
+    public void setPlayerName(String username) {
+        // Assuming you have a Label to display the username
+        //playerNameLabel.setText(username);
+    }
+
 }
