@@ -63,6 +63,7 @@ public class LobbyController {
            // root = FXMLLoader.load(getClass().getResource(("tableView.fxml")));
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
             scene = new Scene(root);
+            root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
             stage.setScene(scene);
             stage.show();
 
