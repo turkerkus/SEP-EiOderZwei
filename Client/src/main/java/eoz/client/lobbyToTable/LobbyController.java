@@ -69,52 +69,9 @@ public class LobbyController {
     }
 
    /* @FXML
-    void createNewUser(MouseEvent event) {
-        // Display a confirmation dialog
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if (!Objects.equals(usernameField.getText(), "") ) {
-            alert.setTitle("New User Created");
-            alert.setHeaderText(null);
-            alert.setContentText("Welcome " + usernameField.getText());
-
-        }else{
-            alert.setContentText("Please enter Username, !Mugu");
-            alert.showAndWait();
-        }
-
-
-    }*/
-
-
-
-
-   /* @FXML
     void playGame(MouseEvent event) {
         switchToTableScene();
     }*/
 
-    // Helper method to start the game
-  /*  private void switchToTableScene() {
-        try {
-            // Load the table scene
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
-            Parent tableView = loader.load();
-
-            // Get the current stage
-            Stage stage = (Stage) sign_in.getScene().getWindow();
-
-            stage.setScene(new Scene(tableView));
-
-            // Pass data to the table scene if needed
-            tableController controller = loader.getController();
-            controller.setPlayerName(usernameField.getText());
-
-            stage.show();
-
-        } catch (Exception e) {
-            e.printStackTrace(); // Print the exception if there's an error
-
-        }
-    }*/
 
 }
