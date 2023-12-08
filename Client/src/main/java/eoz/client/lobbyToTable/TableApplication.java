@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
 import java.io.IOException;
+import java.util.Objects;
 
 // Programm, um den Spieltisch für das Spiel anzuzeigen.
 public class TableApplication extends Application {
@@ -32,7 +33,7 @@ public class TableApplication extends Application {
         // Setting up the scene
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
-        scene.getStylesheets().add(getClass().getResource("tablestyle.css").toExternalForm());
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
         // Binding ImageView size to stage size
         controller.bindImageViewSize();
         primaryStage.show();
