@@ -4,11 +4,9 @@ module eoz.client.client {
 
 
     opens eoz.client.client to javafx.fxml;
-    opens eoz.client.lobby to javafx.fxml;
+    opens eoz.client.lobbyToTable to javafx.fxml;
     opens eoz.client.spielbrett to javafx.fxml;
-    opens eoz.client.spieltischa to javafx.fxml;
     exports eoz.client.client;
-    exports eoz.client.lobby;
+    exports eoz.client.lobbyToTable;
     exports eoz.client.spielbrett;
-    exports eoz.client.spieltischa;
 }

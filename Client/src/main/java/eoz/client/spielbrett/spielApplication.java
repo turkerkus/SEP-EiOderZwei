@@ -10,7 +10,7 @@ import java.io.IOException;
 public class spielApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(spielApplication.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(spielApplication.class.getResource("tableView.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         stage.setTitle("Ei oder Zwei ");
         stage.setMaxHeight(1440);
