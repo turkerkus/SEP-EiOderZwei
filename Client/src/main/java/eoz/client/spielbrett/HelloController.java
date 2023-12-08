@@ -3,6 +3,7 @@ package eoz.client.spielbrett;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
@@ -10,7 +11,7 @@ import javafx.scene.layout.FlowPane;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class spielController implements Initializable {
+public class HelloController implements Initializable {
 
     @FXML
     private ImageView im;

@@ -9,7 +9,7 @@ import javafx.scene.Parent;
 import java.io.IOException;
 
 // Programm, um den Spieltisch für das Spiel anzuzeigen.
-public class tableApplication extends Application {
+public class table extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -26,7 +26,7 @@ public class tableApplication extends Application {
         Parent root = loader.load();
 
         // Accessing controller and setting the primary stage
-        tableController controller = loader.getController();
+        HelloController controller = loader.getController();
         controller.setPrimaryStage(primaryStage);
 
         // Setting up the scene
