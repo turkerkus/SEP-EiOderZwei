@@ -57,7 +57,7 @@ public class LobbyController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
             root = loader.load();
 
-            TableController tableController = loader.getController();
+            tableController tableController = loader.getController();
             tableController.displayName(username);
 
            // root = FXMLLoader.load(getClass().getResource(("tableView.fxml")));
