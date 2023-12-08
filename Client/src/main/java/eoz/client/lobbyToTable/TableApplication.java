@@ -16,12 +16,12 @@ public class TableApplication extends Application {
         // Die Bilder werden aus dem Ressources Ordner importiert und ihre Größe wird verändert.
         // Durch StackPane sind die Bilder zentriert postioniert.
         primaryStage.setTitle("Ei oder Zwei!");
-        primaryStage.setMaxHeight(1440);
-        primaryStage.setMinHeight(1000);
-        primaryStage.setMaxWidth(2560);
-        primaryStage.setMinWidth(1000);
-        primaryStage.setFullScreen(true);
-        primaryStage.setFullScreenExitHint("");
+       // primaryStage.setMaxHeight(1440);
+        primaryStage.setMinHeight(600);
+        //primaryStage.setMaxWidth(2560);
+        primaryStage.setMinWidth(800);
+        //primaryStage.setFullScreen(true);
+        //primaryStage.setFullScreenExitHint("");
         FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
         Parent root = loader.load();
 
