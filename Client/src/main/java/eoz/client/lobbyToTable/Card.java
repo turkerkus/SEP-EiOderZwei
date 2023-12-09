@@ -7,11 +7,11 @@ public class Card {
     // Variables
     private int id; // Unique Cards in the deck.
     private String type; // Give cards unique effects
-    private Image image; // To display the card in JavaFX
+    private String image; // To display the card in JavaFX
     private int value; // Card's value, especially for seed cards
 
     // Construct
-    public Card(int id, String type, Image image, int value){
+    public Card(int id, String type, String image, int value){
         this.id = id;
         this.type = type;
         this.image = image;
@@ -27,7 +27,7 @@ public class Card {
         return type;
     }
 
-    public Image getImage(){
+    public String getImage(){
         return image;
     }
 
