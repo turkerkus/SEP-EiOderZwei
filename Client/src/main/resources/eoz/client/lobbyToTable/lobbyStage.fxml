@@ -17,6 +17,6 @@
         <Button fx:id="exit" layoutX="185.0" layoutY="198.0" onMouseClicked="#exitGame" styleClass="sign-in-button" text="Exit" />
         <Button fx:id="guest" layoutX="284.0" layoutY="117.0" onMouseClicked="#switchToScene2" styleClass="sign-in-button" text="Play as a Guest" />
       <Label layoutX="78.0" layoutY="48.0" prefHeight="18.0" prefWidth="107.0" text="Enter Username:" />
-      <Button fx:id="sign_in1" layoutX="161.0" layoutY="119.0" onAction="#switchToScene2" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Sign up" />
+      <Button fx:id="sign_up" layoutX="161.0" layoutY="119.0" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Sign up" />
     </AnchorPane>
 </AnchorPane>
