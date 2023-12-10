@@ -7,10 +7,11 @@ import javafx.scene.image.Image;
 
 
 public class Deck {
+    private Card[] deck;
 
 
-    public Deck( Card[] deck) {
-        deck =new  Card[76];
+    public Deck( ) {
+        Card [] deck =new  Card[76];
         int index=1;
 
         for (int i=1; i<11; i++){
@@ -36,6 +37,14 @@ public class Deck {
 
 
     }
+    public Card getCardAtIndex(int index) {
+        if (index >= 0 && index < deck.length) {
+            return deck[index];
+        } else {
+            throw new IndexOutOfBoundsException("Ungültiger Index");
+        }
+    }
+
 
 
 }
