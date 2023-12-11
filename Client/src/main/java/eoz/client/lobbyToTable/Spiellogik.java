@@ -1,22 +1,27 @@
 package eoz.client.lobbyToTable;
 
+import java.util.Collection;
 import java.util.Scanner;
 import java.util.Random;
+import java.util.Stack;
 
 public class Spiellogik {
     // Initialisierung
-    Spieler spieler1 = new Spieler(1,"spieler1", 0, new Card [20] , false );
-    Spieler spieler2 = new Spieler(2,"spieler2", 0, new Card [20], false );
-    Spieler spieler3 = new Spieler(3,"spieler3", 0, new Card [20], false );
-    Spieler spieler4 = new Spieler(4,"spieler4", 0, new Card [20], false );
-    Spieler spieler5 = new Spieler(5,"spieler5", 0, new Card [20], false );
-    Spieler spieler6 = new Spieler(6,"spieler6", 0, new Card [20], true ); //Der letzte Spieler bekommt die Hahnkarte
+    Spieler spieler1 = new Spieler(1,"spieler1", 0, new Stack<Card>() , false );
+    Spieler spieler2 = new Spieler(2,"spieler2", 0, new Stack<Card>(), false );
+    Spieler spieler3 = new Spieler(3,"spieler3", 0, new Stack<Card>(), false );
+    Spieler spieler4 = new Spieler(4,"spieler4", 0, new Stack<Card>(), false );
+    Spieler spieler5 = new Spieler(5,"spieler5", 0, new Stack<Card>(), false );
+    Spieler spieler6 = new Spieler(6,"spieler6", 0, new Stack<Card>(), true ); //Der letzte Spieler bekommt die Hahnkarte
     Spieler[] spielerArray = {spieler1, spieler2, spieler3, spieler4, spieler5, spieler6};
 
     int n = 0; //Zählvariable, nach 1000 Zügen terminiert es einfach
 
     public Deck getKartendeck(){
-        return new Deck();
+
+
+        return  new Deck();
+
     }
 
     // Methoden
@@ -96,19 +101,19 @@ public class Spiellogik {
                 zieheKarte(aktuelspieler);
             }
         }
-        if (antwort == "hahnklau"){                                //Wenn der Spieler den Hahn klauen will wird Hahnklaumethode aufgerufen
-            hahnklauen();
+        if (antwort=="hahnklau"){                                //Wenn der Spieler den Hahn klauen will wird Hahnklaumethode aufgerufen
+            hahnklauen(aktuelspieler);
         }
     }
     public void zieheKarte(Spieler spieler){
         Deck kartendeck = getKartendeck();
-        Card temp = kartendeck.getCardAtIndex(0);                                         //Die oberste Karte wird gezogen und zwischengespeichert
+        Card temp = kartendeck.pop();                                         //Die oberste Karte wird gezogen und zwischengespeichert
         //kartendeck.remove(0);
         if (temp.getType() == "Fuchs"){                                           //Wenn die oberste Karte ein Fuchs ist wird die Methode fuchsklau aufgerufen
             fuchsklau();
         }
         if (temp.getType() == "Koerner"){                                            //Wenn die oberste Karte eine Kornkarte ist wird diese dem Spieler hinzugefügt
-            //spieler.setHand(temp);
+            spieler.push(temp);
         }
         if (temp.getType() == "Kuckuck") {                                        //Wenn die oberste Karte eine Kuckuckskarte ist erhält der Spieler einen Punkt
             spieler.setPunkte(spieler.getPunkte()+ 1);
@@ -174,7 +179,9 @@ public class Spiellogik {
 
 
     }
-    public void hahnklauen(){
+    public void hahnklauen(Spieler aktuelSpieler){
+        aktuelSpieler.setHahnkarte(true);
+
 
     }
     public void fuchsklau(){
