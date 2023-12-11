@@ -68,11 +68,12 @@ public class LobbyController2 {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("GameSetup.fxml"));
             root = loader.load();
 
-            // GameSetupController gameSetupController = loader.getController();
+            GameSetupController gameSetupController = loader.getController();
+            gameSetupController.username = username;
 
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
-            Scene scene3 = new Scene(root,800,600);
+            Scene scene3 = new Scene(root,800,800);
             stage.setScene(scene3);
             stage.show();
             stage.setTitle("Lobby");
@@ -98,7 +99,7 @@ public class LobbyController2 {
                 // Bind the card's layoutXProperty to keep it centered
                 card.layoutXProperty().bind(scene3.widthProperty().subtract(card.widthProperty()).divide(2));
                 // Bind the card's layoutYProperty to keep it at the same relative position from the top
-                card.layoutYProperty().bind(scene3.heightProperty().multiply(599.0 / 1080.0));
+                card.layoutYProperty().bind(scene3.heightProperty().multiply(480.0 / 1080.0));
             }
 
         } catch (IOException e) {

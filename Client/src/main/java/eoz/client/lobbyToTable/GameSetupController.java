@@ -25,13 +25,15 @@ public class GameSetupController {
     @FXML
     public TextField gameName;
 
+    public  String username;
+
 
     private Stage stage;
     private Scene scene;
 
     private Parent root;
 
-    public String username;
+
 
     @FXML
     void exitGame(MouseEvent event) {
@@ -51,29 +53,17 @@ public class GameSetupController {
     }
 
     public void switchBackToScene2(ActionEvent event) throws IOException {
-        root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(("lobbyStage2.fxml"))));
-        stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    public void switchToScene4(ActionEvent event) {
-
-
         try {
 
-
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
             root = loader.load();
 
-            tableController tableController = loader.getController();
-            tableController.displayName(username);
-
+            LobbyController2 LobbyController2 = loader.getController();
+            LobbyController2.welcome.setText("Welcome " + username);
 
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
-            Scene scene2 = new Scene(root,800,600);
+            Scene scene2 = new Scene(root,800,800);
             stage.setScene(scene2);
             stage.show();
             stage.setTitle(gameName.getText());
@@ -105,7 +95,33 @@ public class GameSetupController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void switchToScene4(ActionEvent event) {
+
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
+            root = loader.load();
+
+            tableController tableController = loader.getController();
+            tableController.displayName(username);
+
+            // root = FXMLLoader.load(getClass().getResource(("tableView.fxml")));
+            stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+            tableController.setPrimaryStage(stage);
+            tableController.bindImageViewSize();
+            scene = new Scene(root);
+            root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
+
 
 }

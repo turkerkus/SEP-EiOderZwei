@@ -71,7 +71,7 @@ public class LobbyController {
             LobbyController2.username = username;
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
-            Scene scene2 = new Scene(root,800,600);
+            Scene scene2 = new Scene(root,800,800);
             stage.setScene(scene2);
             stage.show();
             stage.setTitle("Lobby");

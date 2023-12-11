@@ -20,7 +20,7 @@ public class LobbyApplication extends Application {
         try {
             // Set and show the Stage
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("lobbyStage.fxml")));
-            Scene scene1 = new Scene(root,800,600);
+            Scene scene1 = new Scene(root,800,800);
             stage.setScene(scene1);
             stage.show();
             stage.setTitle("Lobby");
