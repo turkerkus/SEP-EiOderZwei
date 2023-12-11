@@ -18,7 +18,6 @@ public class Spieler {
         return id;
     }
 
-
     public String getName() {
         return name;
     }
