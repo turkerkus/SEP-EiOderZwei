@@ -45,15 +45,16 @@ public class LobbyController {
         });
     }
 
-    public void switchToScene1(ActionEvent event) throws IOException {
+    // Since this is the scene 1, i dont´t think i need a button or method to return to itself.
+    /*public void switchToScene1(ActionEvent event) throws IOException {
         root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(("lobbyStage.fxml"))));
         stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
-    }
+    } */
 
-    public void switchToScene2(ActionEvent event) throws IOException {
+    public void switchToScene2(ActionEvent event){
 
 
 

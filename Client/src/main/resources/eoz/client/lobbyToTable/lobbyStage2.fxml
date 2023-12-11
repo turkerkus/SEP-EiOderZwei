@@ -14,7 +14,7 @@
     <AnchorPane fx:id="card" layoutX="653.0" layoutY="599.0" prefHeight="296.0" prefWidth="484.0" styleClass="card">
         <Button fx:id="join_game" layoutX="25.0" layoutY="132.0" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Join Game" />
         <Button fx:id="exit" layoutX="341.0" layoutY="132.0" onMouseClicked="#exitGame" styleClass="sign-in-button" text="Exit" />
-        <Button fx:id="new_game" layoutX="188.0" layoutY="132.0" onAction="#switchToScene2" onMouseClicked="#switchToScene2" styleClass="sign-in-button" text="New Game" />
+        <Button fx:id="new_game" layoutX="188.0" layoutY="132.0" onAction="#switchToScene3" onMouseClicked="#switchToScene3" styleClass="sign-in-button" text="New Game" />
         <Label fx:id="welcome" layoutX="84.0" layoutY="66.0" prefHeight="38.0" prefWidth="306.0" text="Welcome ">
             <font>
                 <Font name="System Bold" size="18.0" />
