@@ -3,10 +3,13 @@ package eoz.client.lobbyToTable;
 import javafx.scene.image.Image;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CardTest{
-    Card test = new Card(1999,"test","resources/image/Ei.jpg",42);
+    ImageIcon img= new ImageIcon(getClass().getResource("/cards/zwei.png").toString());
+    Card test = new Card(1999,"test", img,42);
 
     @Test
     void getID() {
@@ -20,7 +23,7 @@ class CardTest{
 
     @Test
     void getImage() {
-        assertEquals(test.getImage(), "resources/image/Ei.jpg");
+        assertEquals(test.getImage(),img);
     }
 
     @Test
