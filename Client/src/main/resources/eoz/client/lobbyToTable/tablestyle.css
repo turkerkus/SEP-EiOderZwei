@@ -1,3 +1,8 @@
+#background{
+    -fx-background-image: url("bg.png");
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+}
 .label{
     -fx-background-color: rgba(0, 0, 0, 0.6);
     -fx-padding: 5;

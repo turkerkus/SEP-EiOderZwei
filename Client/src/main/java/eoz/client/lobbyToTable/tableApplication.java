@@ -28,14 +28,14 @@ public class tableApplication extends Application {
 
         // Accessing controller and setting the primary stage
         tableController controller = loader.getController();
-        controller.setPrimaryStage(primaryStage);
 
         // Setting up the scene
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
         // Binding ImageView size to stage size
-        controller.bindImageViewSize();
+        primaryStage.setMinWidth(1280);
+        primaryStage.setMinHeight(720);
         primaryStage.show();
     }
 
