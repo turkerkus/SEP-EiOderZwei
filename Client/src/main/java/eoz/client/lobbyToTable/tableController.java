@@ -3,6 +3,7 @@ package eoz.client.lobbyToTable;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -26,7 +27,8 @@ public class tableController {
     private Label p4;
 
     @FXML
-    private ImageView myImageView;
+    private StackPane background;
+
     private Stage primaryStage;
 
     @FXML
@@ -55,18 +57,6 @@ public class tableController {
             // zwischen der aktuellen Mausposition und der ursprünglichen Position der Karte für die X- und Y-Achse.
             img.setTranslateY(mouseEvent1.getSceneY() - yAchse);
         });
-    }
-
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-    }
-
-    public void bindImageViewSize() {
-        // Bind ImageView width to stage width
-        myImageView.fitWidthProperty().bind(primaryStage.widthProperty());
-
-        // Bind ImageView height to stage height
-        myImageView.fitHeightProperty().bind(primaryStage.heightProperty());
     }
 
     public void displayName(String username){
