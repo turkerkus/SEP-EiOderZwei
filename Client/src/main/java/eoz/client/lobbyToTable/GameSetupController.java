@@ -1,6 +1,5 @@
 package eoz.client.lobbyToTable;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,10 +7,9 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -25,35 +23,34 @@ public class GameSetupController {
     @FXML
     public TextField gameName;
 
+    @FXML
+    private Slider numOfPlayers;
+
     public  String username;
 
 
     private Stage stage;
-    private Scene scene;
 
     private Parent root;
 
-
-
     @FXML
-    void exitGame(MouseEvent event) {
-        // Display a confirmation dialog before exiting the game
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Exit Game");
-        alert.setHeaderText("Are you sure you want to exit the game?");
-        alert.setContentText("Any unsaved progress may be lost.");
+    public void initialize() {
+        final int maxLength = 32;
 
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                // User clicked OK, exit the game gracefully
-                Platform.exit();
+        gameName.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > maxLength) {
+                String limitedText = newValue.substring(0, maxLength);
+                gameName.setText(limitedText);
             }
-            // User clicked Cancel or closed the dialog, do nothing
         });
+
+
     }
 
-    public void switchBackToScene2(ActionEvent event) throws IOException {
+
+    public void switchBackToScene2(ActionEvent event) {
         try {
+
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
             root = loader.load();
@@ -61,12 +58,12 @@ public class GameSetupController {
             LobbyController2 LobbyController2 = loader.getController();
             LobbyController2.welcome.setText("Welcome " + username);
 
-            stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+            stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            Scene scene2 = new Scene(root,800,800);
+            Scene scene2 = new Scene(root, 800, 800);
             stage.setScene(scene2);
             stage.show();
-            stage.setTitle(gameName.getText());
+            stage.setTitle("Lobby");
 
             // Assuming the ImageView has the fx:id="backgroundView" in your FXML file
             ImageView backgroundView = (ImageView) root.lookup("#backgroundView");
@@ -92,36 +89,45 @@ public class GameSetupController {
                 card.layoutYProperty().bind(scene2.heightProperty().multiply(599.0 / 1080.0));
             }
 
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
 
     public void switchToScene4(ActionEvent event) {
-
-
         try {
+            // Check if gameName TextField is empty
+            if (gameName.getText().isEmpty()) {
+                // Show alert if the game name is empty
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Invalid Game Name");
+                alert.setHeaderText("You have to set the Game Name!");
+                alert.setContentText("You can not leave the Game name empty.");
+                alert.showAndWait();
+            } else {
+                // If gameName is not empty, proceed to switch scenes
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
+                root = loader.load();
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
-            root = loader.load();
+                tableController tableController = loader.getController();
+                tableController.displayName(username, numOfPlayers.getValue());
 
-            tableController tableController = loader.getController();
-            tableController.displayName(username);
-
-            // root = FXMLLoader.load(getClass().getResource(("tableView.fxml")));
-            stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-            tableController.setPrimaryStage(stage);
-            tableController.bindImageViewSize();
-            scene = new Scene(root);
-            root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-
+                stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+                tableController.setPrimaryStage(stage);
+                tableController.bindImageViewSize();
+                Scene scene = new Scene(root);
+                root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
+                stage.setScene(scene);
+                stage.show();
+                stage.setTitle(gameName.getText());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
+
 
 
 }

@@ -15,7 +15,7 @@
     </ImageView>
     <AnchorPane fx:id="card" layoutX="735.0" layoutY="433.0" prefHeight="380.0" prefWidth="455.0" styleClass="card">
         <Button fx:id="back" layoutX="42.0" layoutY="303.0" onAction="#switchBackToScene2" prefHeight="37.0" prefWidth="110.0" styleClass="sign-in-button" text="Back" />
-      <Slider blockIncrement="1.0" layoutX="42.0" layoutY="246.0" majorTickUnit="1.0" max="6.0" min="1.0" minorTickCount="0" prefHeight="49.0" prefWidth="245.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0" />
+      <Slider fx:id="numOfPlayers" blockIncrement="1.0" layoutX="42.0" layoutY="246.0" majorTickUnit="1.0" max="6.0" min="1.0" minorTickCount="0" prefHeight="49.0" prefWidth="245.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="1.0" />
       <Label layoutX="42.0" layoutY="211.0" prefHeight="24.0" prefWidth="185.0" text="Number of Players:">
          <font>
             <Font name="Georgia Pro Cond Semibold" size="20.0" />
