@@ -55,8 +55,9 @@ public class GameSetupController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
             root = loader.load();
 
-            LobbyController2 LobbyController2 = loader.getController();
-            LobbyController2.welcome.setText("Welcome " + username);
+            LobbyController2 lobbyController2 = loader.getController();
+            lobbyController2.welcome.setText("Welcome " + username);
+            lobbyController2.username = username;
 
             stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
