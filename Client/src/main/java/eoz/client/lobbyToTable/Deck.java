@@ -42,14 +42,4 @@ public class Deck {
        return  deck.pop();
     }
 
-    public Card getCardAtIndex(int index) {
-        if ((index >= 0) && (index < deck.size())) {
-            return deck.get(index);
-        } else {
-            throw new IndexOutOfBoundsException("Ungültiger Index");
-        }
-    }
-
-
-
 }
