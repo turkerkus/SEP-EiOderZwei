@@ -1,14 +1,15 @@
 package eoz.client.lobbyToTable;
 
+import java.util.List;
 import java.util.Stack;
 
 public class Spieler {
     private int  id;
     private  String name;
     private int punkte;
-    private Stack<Card> hand;
+    private List<Card> hand;
     private  boolean  hahnkarte;
-    public Spieler(int id, String name, int punkte, Stack<Card> hand, boolean hahnkarte) {
+    public Spieler(int id, String name, int punkte, List<Card> hand, boolean hahnkarte) {
         this.id = id;
         this.name = name;
         this.punkte = punkte;
@@ -36,12 +37,12 @@ public class Spieler {
         this.punkte = punkte;
     }
 
-    public Stack<Card> getHand() {
+    public List<Card> getHand() {
         return hand;
     }
 
-    public void push( Card card) {
-         hand.push(card);
+    public void add( Card card) {
+         hand.add(card);
     }
 
 

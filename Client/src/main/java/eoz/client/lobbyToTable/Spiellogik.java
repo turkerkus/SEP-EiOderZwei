@@ -1,27 +1,24 @@
 package eoz.client.lobbyToTable;
 
-import java.util.Collection;
-import java.util.Scanner;
-import java.util.Random;
-import java.util.Stack;
+import javax.swing.*;
+import java.util.*;
 
 public class Spiellogik {
     // Initialisierung
-    Spieler spieler1 = new Spieler(1,"spieler1", 0, new Stack<Card>() , false );
-    Spieler spieler2 = new Spieler(2,"spieler2", 0, new Stack<Card>(), false );
-    Spieler spieler3 = new Spieler(3,"spieler3", 0, new Stack<Card>(), false );
-    Spieler spieler4 = new Spieler(4,"spieler4", 0, new Stack<Card>(), false );
-    Spieler spieler5 = new Spieler(5,"spieler5", 0, new Stack<Card>(), false );
-    Spieler spieler6 = new Spieler(6,"spieler6", 0, new Stack<Card>(), true ); //Der letzte Spieler bekommt die Hahnkarte
+    Spieler spieler1 = new Spieler(1,"spieler1", 0, new ArrayList<Card>() , false );
+    Spieler spieler2 = new Spieler(2,"spieler2", 0, new ArrayList<Card>(), false );
+    Spieler spieler3 = new Spieler(3,"spieler3", 0, new ArrayList<Card>(), false );
+    Spieler spieler4 = new Spieler(4,"spieler4", 0, new ArrayList<Card>(), false );
+    Spieler spieler5 = new Spieler(5,"spieler5", 0, new ArrayList<Card>(), false );
+    Spieler spieler6 = new Spieler(6,"spieler6", 0, new ArrayList<Card>(), true ); //Der letzte Spieler bekommt die Hahnkarte
     Spieler[] spielerArray = {spieler1, spieler2, spieler3, spieler4, spieler5, spieler6};
 
     int n = 0; //Zählvariable, nach 1000 Zügen terminiert es einfach
 
+    Card hahnKarte= new Card(0,"Hahn",new ImageIcon(getClass().getResource("/cards/hahn.png").toString()),0);
+
     public Deck getKartendeck(){
-
-
         return  new Deck();
-
     }
 
     // Methoden
@@ -96,13 +93,13 @@ public class Spiellogik {
             }
         }
         if (antwort=="umtauschen"){                              //Wenn der Spieler Koerner umtauschen will wird die Multiselectmethode aufgerufen
-            multiselect();
+            multiselect(aktuelspieler);
             if (aktuelspieler.isHahnkarte()) {                                  //Wenn die Hahnkarte im Besitz ist wird die Kartenziehmethode aufgerufen
                 zieheKarte(aktuelspieler);
             }
         }
         if (antwort=="hahnklau"){                                //Wenn der Spieler den Hahn klauen will wird Hahnklaumethode aufgerufen
-            hahnklauen(aktuelspieler);
+            hahnklauen(aktuelspieler,hahnKarte);
         }
     }
     public void zieheKarte(Spieler spieler){
@@ -113,14 +110,16 @@ public class Spiellogik {
             fuchsklau();
         }
         if (temp.getType() == "Koerner"){                                            //Wenn die oberste Karte eine Kornkarte ist wird diese dem Spieler hinzugefügt
-            spieler.push(temp);
+            spieler.add(temp);
         }
         if (temp.getType() == "Kuckuck") {                                        //Wenn die oberste Karte eine Kuckuckskarte ist erhält der Spieler einen Punkt
+            spieler.add(temp);
             spieler.setPunkte(spieler.getPunkte()+ 1);
+
         }
 
     }
-    public void multiselect() {
+    public void multiselect(Spieler spieler) {
 
     }
     public String spieleranfrage(boolean hahn ,boolean tausch){
@@ -179,12 +178,35 @@ public class Spiellogik {
 
 
     }
-    public void hahnklauen(Spieler aktuelSpieler){
+    public void hahnklauen(Spieler aktuelSpieler,Card hahnKarte){
+        aktuelSpieler.add(hahnKarte);
         aktuelSpieler.setHahnkarte(true);
-
 
     }
     public void fuchsklau(){
+
+    }
+    public  void  eilegen(Spieler spieler){ //noch nicht fertig
+        List<Card> hand=spieler.getHand();
+        int bioges=0;
+        int gesamt=0;
+        for (Card card : hand) {
+            if ("Biokörner".equals(card.getType())) {
+                bioges=+ card.getValue();
+            }
+        }
+        int bioei=(bioges/5)*2;
+        for (Card card : hand) {
+            if ("Koerner".equals(card.getType()) | "Biokörner".equals(card.getType())) {
+                gesamt=+ card.getValue();
+            }
+        }
+        int korner=gesamt/5;
+        System.out.println(" Bitte wählen Sie eine der folgenden Optionen (Geben Sie nur die Nummer der gewählten Option an)\nSie haben folgende Möglichkeiten:");
+        System.out.println("1.)Sie können Ihre Körnerkarten in" +bioei+ "Eier umwandeln \n2-)oder Sie können Körnerkarten in" +korner+ "Eier umwandeln\n");
+        Scanner scan = new Scanner(System.in);
+        int x = scan.nextInt();
+
 
     }
 }
