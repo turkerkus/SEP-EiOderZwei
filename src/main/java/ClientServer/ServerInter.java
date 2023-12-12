@@ -6,4 +6,8 @@ import java.rmi.RemoteException;
 // Hier wird nichts gestartet, dieser wird vom Server beim Start in die Registry geladen
 public interface ServerInter extends Remote {
     String sayHello() throws RemoteException;
+
+    boolean checkUsernameExists(String username) throws RemoteException;
+
+    void addNewUser(String username) throws RemoteException;
 }

@@ -11,11 +11,12 @@
     <ImageView fx:id="backgroundView">
         <Image url="@images/lobby_background.png" />
     </ImageView>
-    <AnchorPane fx:id="card" layoutX="653.0" layoutY="599.0" prefHeight="296.0" prefWidth="484.0" styleClass="card">
+    <AnchorPane fx:id="card" layoutX="661.0" layoutY="600.0" prefHeight="296.0" prefWidth="484.0" styleClass="card">
         <TextField fx:id="usernameField" layoutX="78.0" layoutY="74.0" prefWidth="444" promptText="Username" />
-        <Button fx:id="sign_in" layoutX="23.0" layoutY="161.0" onAction="#switchToScene2" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Sign In" />
-        <Button fx:id="exit" layoutX="356.0" layoutY="161.0" onMouseClicked="#exitGame" styleClass="sign-in-button" text="Exit" />
-        <Button fx:id="guest" layoutX="167.0" layoutY="161.0" onMouseClicked="#switchToScene2" styleClass="sign-in-button" text="Play as a Guest" />
+        <Button fx:id="sign_in" layoutX="36.0" layoutY="117.0" onAction="#switchToScene2" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Log in" />
+        <Button fx:id="exit" layoutX="185.0" layoutY="198.0" onMouseClicked="#exitGame" styleClass="sign-in-button" text="Exit" />
+        <Button fx:id="guest" layoutX="284.0" layoutY="117.0" onMouseClicked="#switchToScene2" styleClass="sign-in-button" text="Play as a Guest" />
       <Label layoutX="78.0" layoutY="48.0" prefHeight="18.0" prefWidth="107.0" text="Enter Username:" />
+      <Button fx:id="sign_up" layoutX="161.0" layoutY="119.0" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Sign up" />
     </AnchorPane>
 </AnchorPane>

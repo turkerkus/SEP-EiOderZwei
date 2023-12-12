@@ -2,14 +2,7 @@
     -fx-background-color: white;
 }
 
-#backgroundView {
-    fitWidth: 0.0;
-    fitHeight: 0.0;
-    AnchorPane.topAnchor: 0;
-    AnchorPane.bottomAnchor: 0;
-    AnchorPane.leftAnchor: 0;
-    AnchorPane.rightAnchor: 0;
-}
+
 
 .card {
     -fx-background-color: rgba(255, 255, 255, 0.9);

@@ -20,19 +20,19 @@ public class LobbyApplication extends Application {
         try {
             // Set and show the Stage
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("lobbyStage.fxml")));
-            Scene scene1 = new Scene(root,800,600);
+            Scene scene1 = new Scene(root,800,800);
             stage.setScene(scene1);
             stage.show();
             stage.setTitle("Lobby");
 
-            // Assuming the ImageView has the fx:id="backgroundView" in your FXML file
+            // The ImageView has the fx:id="backgroundView" in my FXML file
             ImageView backgroundView = (ImageView) root.lookup("#backgroundView");
 
-            // Ensure the image covers the entire StackPane area
+            // This ensures the image covers the entire StackPane area
             backgroundView.fitWidthProperty().bind(stage.widthProperty());
             backgroundView.fitHeightProperty().bind(stage.heightProperty());
 
-            // Remove the preserveRatio to allow the image to cover the entire area
+            // This removes the preserveRatio to allow the image to cover the entire area
             backgroundView.setPreserveRatio(false);
 
             // Set preferred window size
