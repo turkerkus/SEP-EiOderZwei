@@ -6,7 +6,6 @@
       <GradleProjectSettings>
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="C:/Gradle/gradle-8.2" />
         <option name="gradleJvm" value="19" />
         <option name="modules">
           <set>
@@ -15,9 +14,7 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
-        <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/Client" />
-        <option name="gradleHome" value="C:/Gradle/gradle-8.2" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/Client" />
@@ -26,37 +23,9 @@
       </GradleProjectSettings>
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/Server" />
-        <option name="gradleHome" value="C:/Gradle/gradle-8.2" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/Server" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/SpieltischA" />
-        <option name="gradleHome" value="C:/Gradle/gradle-8.2" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/SpieltischA" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/lobby" />
-        <option name="gradleHome" value="C:/Gradle/gradle-8.2" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/lobby" />
-          </set>
-        </option>
-      </GradleProjectSettings>
-      <GradleProjectSettings>
-        <option name="externalProjectPath" value="$PROJECT_DIR$/spielbrett" />
-        <option name="gradleHome" value="C:/Gradle/gradle-8.2" />
-        <option name="modules">
-          <set>
-            <option value="$PROJECT_DIR$/spielbrett" />
           </set>
         </option>
       </GradleProjectSettings>
