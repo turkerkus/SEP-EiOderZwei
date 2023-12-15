@@ -19,10 +19,19 @@ public class Client {
             // Der Server erhält Anfragen über eine Registry, die als Schnittstelle dient
             // ServerInter ist das Serverinterface und gibt der Registry die Methoden, die an den Server weitergegeben werden dürfen.
             // sayHello ist eine Methode, die in der Registry vorhanden ist, wir erwarten also eine Begrüßung.
-            // IP-Adresse des Servers ist "131.246.169.160". Mit localhost ersetzen
+            // IP-Adresse des Servers ist "131.246.169.160" und der Port lautet 15000 zum Erreichen der Registry. Mit localhost ersetzen zum lokalen Testen
+
+            // Mit Registry des Servers verbinden
             Registry registry = LocateRegistry.getRegistry("localhost", 15000);
+            System.out.println("Verbindung zum Server hergestellt");
+
+            // Vergleiche Interface der Registry mit der des Clients (Muss 1:1 eindeutig sein)
             ServerInter stub = (ServerInter) registry.lookup("ServerInter");
+            System.out.println("Registry-Bibliothek gefunden");
+
+            // Speichere die Antwort des Servers als response
             String response = stub.sayHello();
+
             // Die Antwort wird anschließend in der Konsole ausgegeben
             System.out.println("Server says: " + response);
 
