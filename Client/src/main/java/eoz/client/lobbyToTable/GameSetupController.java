@@ -108,13 +108,13 @@ public class GameSetupController {
                 alert.showAndWait();
             } else {
                 // If gameName is not empty, proceed to switch scenes
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("newTableView2.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
                 root = loader.load();
 
                 //create the Table Application and TableController
-                newTableApplication newTableApplication = new newTableApplication();
-                newTableController newTableController = loader.getController();
-                newTableController.displayName(username, numOfPlayers.getValue());
+                tableApplication tableApplication = new tableApplication();
+                tableController tableController = loader.getController();
+                tableController.displayName(username, numOfPlayers.getValue());
 
                 // set up the stage
                 stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -124,7 +124,7 @@ public class GameSetupController {
                 stage.setTitle(gameName.getText());
 
                 // bind the elements of the table to the window
-                newTableApplication.initializeBind(newTableController,root);
+                tableApplication.initializeBind(tableController,root);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
