@@ -14,7 +14,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class GameSetupController {
 
@@ -109,20 +108,23 @@ public class GameSetupController {
                 alert.showAndWait();
             } else {
                 // If gameName is not empty, proceed to switch scenes
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("newTableView2.fxml"));
                 root = loader.load();
 
-                tableController tableController = loader.getController();
-                tableController.displayName(username, numOfPlayers.getValue());
+                //create the Table Application and TableController
+                newTableApplication newTableApplication = new newTableApplication();
+                newTableController newTableController = loader.getController();
+                newTableController.displayName(username, numOfPlayers.getValue());
 
+                // set up the stage
                 stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-                tableController.setPrimaryStage(stage);
-                tableController.bindImageViewSize();
                 Scene scene = new Scene(root);
-                root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
                 stage.setScene(scene);
                 stage.show();
                 stage.setTitle(gameName.getText());
+
+                // bind the elements of the table to the window
+                newTableApplication.initializeBind(newTableController,root);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

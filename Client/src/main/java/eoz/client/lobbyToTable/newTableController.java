@@ -68,6 +68,7 @@ public class newTableController {
     @FXML
     public Button leaveLobbyButton;
 
+
     private int currentRow = 1; // Start from the first row
     private int currentCol = 0; // Start from the first column
     Map<String, ImageView> imageViewMap = new HashMap<>();
@@ -134,6 +135,40 @@ public class newTableController {
 
 
 
+
+
+
+    public void displayName(String username, double numOfPlayers){
+        p1.setText(username);
+
+        switch ((int) numOfPlayers){
+            case 1:
+                p2.setText("Bot 1");
+                p3.setText("Bot 2");
+                p4.setText("Bot 3");
+                p5.setText("Bot 4");
+                p6.setText("Bot 5");
+                break;
+            case 2:
+                p3.setText("Bot 1");
+                p4.setText("Bot 2");
+                p5.setText("Bot 3");
+                p6.setText("Bot 4");
+                break;
+            case 3:
+                p4.setText("Bot 1");
+                p5.setText("Bot 2");
+                p6.setText("Bot 3");
+                break;
+            case 4:
+                p5.setText("Bot 1");
+                p6.setText("Bot 2");
+                break;
+            case 5:
+                p6.setText("Bot 1");
+                break;
+        }
+    }
 
 
 
