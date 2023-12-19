@@ -1,10 +1,12 @@
-package ClientServer;
+package eoz.server.server;
+
 import java.rmi.Naming;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -42,6 +44,26 @@ public class Server extends UnicastRemoteObject implements Remote, ServerInter {
     public void addNewUser(String username) throws RemoteException {
         usernames.add(username);
         System.out.println("New user added: " + username);
+    }
+
+    @Override
+    public void registerClient(String username, ServerInter client) throws RemoteException {
+        //TODO Frank and Jerry
+    }
+
+    @Override
+    public void unregisterClient(String username) throws RemoteException {
+        //TODO Frank and Jerry
+    }
+
+    @Override
+    public void sendChatMessage(String sender, String message) throws RemoteException {
+        //TODO Frank and Jerry
+    }
+
+    @Override
+    public List<String> getChatMessages() throws RemoteException {
+        return null;  //TODO Frank and Jerry
     }
 
     public static void main(String[] args) {

@@ -1,8 +1,8 @@
-package ClientServer;
-import eoz.client.lobbyToTable.LobbyApplication;
+package eoz.client.client;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+
 
 
 // Programm für den Client, dieser schickt Anfragen an den Server (zur Demonstration eine Methode, die eine Begrüßungsnachricht vom Server erwartet)
@@ -26,7 +26,7 @@ public class Client {
             System.out.println("Verbindung zum Server hergestellt");
 
             // Vergleiche Interface der Registry mit der des Clients (Muss 1:1 eindeutig sein)
-            ServerInter stub = (ServerInter) registry.lookup("ServerInter");
+            ClientInter stub = (ClientInter) registry.lookup("ServerInter");
             System.out.println("Registry-Bibliothek gefunden");
 
             // Speichere die Antwort des Servers als response

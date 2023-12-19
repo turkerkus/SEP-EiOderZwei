@@ -2,6 +2,7 @@ module eoz.client.client {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.desktop;
+    requires java.rmi;
 
 
     opens eoz.client.client to javafx.fxml;
