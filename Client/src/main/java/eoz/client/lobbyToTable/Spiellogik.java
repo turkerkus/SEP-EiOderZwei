@@ -86,19 +86,19 @@ public class Spiellogik {
     }
     public void Spielzug(Spieler aktuelspieler,boolean boolwert1,boolean boolwert2){          //Übergeben wird der aktuelle Spieler
         String antwort=spieleranfrage(boolwert1,boolwert2);                                   //Frage an spieler was getan werden soll
-        if (antwort == "karte"){                                   //Wenn der Spieler Karte ziehen will wird die Kartenziehmethode aufgerufen
+        if (Objects.equals(antwort, "karte")){                                   //Wenn der Spieler Karte ziehen will wird die Kartenziehmethode aufgerufen
             zieheKarte(aktuelspieler);
             if (aktuelspieler.isHahnkarte()){                                   //Wenn die Hahnkarte im Besitz ist wird die Kartenziehmethode erneut aufgerufen
                 zieheKarte(aktuelspieler);
             }
         }
-        if (antwort=="umtauschen"){                              //Wenn der Spieler Koerner umtauschen will wird die Multiselectmethode aufgerufen
+        if (Objects.equals(antwort, "umtauschen")){                              //Wenn der Spieler Koerner umtauschen will wird die Multiselectmethode aufgerufen
             multiselect(aktuelspieler);
             if (aktuelspieler.isHahnkarte()) {                                  //Wenn die Hahnkarte im Besitz ist wird die Kartenziehmethode aufgerufen
                 zieheKarte(aktuelspieler);
             }
         }
-        if (antwort=="hahnklau"){                                //Wenn der Spieler den Hahn klauen will wird Hahnklaumethode aufgerufen
+        if (Objects.equals(antwort, "hahnklau")){                                //Wenn der Spieler den Hahn klauen will wird Hahnklaumethode aufgerufen
             hahnklauen(aktuelspieler,hahnKarte);
         }
     }
@@ -120,7 +120,7 @@ public class Spiellogik {
 
     }
     public void multiselect(Spieler spieler) {
-
+        // TODO
     }
     public String spieleranfrage(boolean hahn ,boolean tausch){
         if (hahn && tausch) {
@@ -174,18 +174,17 @@ public class Spiellogik {
         } else {
             return "karte";
         }
-
-
-
     }
+
     public void hahnklauen(Spieler aktuelSpieler,Card hahnKarte){
         aktuelSpieler.add(hahnKarte);
         aktuelSpieler.setHahnkarte(true);
 
     }
     public void fuchsklau(){
-
+        // TODO
     }
+
     public  void  eilegen(Spieler spieler){ //noch nicht fertig
         List<Card> hand=spieler.getHand();
         int bioges=0;
