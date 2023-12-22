@@ -1,9 +1,9 @@
-module eoz.server.server {
+module eoz.rmi {
     requires javafx.controls;
     requires javafx.fxml;
     requires java.rmi;
 
 
-    opens eoz.server.server to javafx.fxml;
-    exports eoz.server.server;
+    opens eoz.rmi to javafx.fxml;
+    exports eoz.rmi;
 }

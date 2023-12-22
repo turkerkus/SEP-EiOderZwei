@@ -25,8 +25,8 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-  mainModule = 'eoz.server.server'
-  mainClass = 'eoz.server.server.HelloApplication'
+  mainModule = 'eoz.rmi'
+  mainClass = 'eoz.rmi.HelloApplication'
 }
 
 javafx {

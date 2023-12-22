@@ -1,14 +1,13 @@
-package eoz.client.client;
+package eoz.rmi;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 
-
 // Programm für den Client, dieser schickt Anfragen an den Server (zur Demonstration eine Methode, die eine Begrüßungsnachricht vom Server erwartet)
 // Zum Starten die Main-Methode ausführen. Der Server sollte zuvor gestartet werden und laufen.
 // Hinweis: Dies ist keine JavaFX-Implementierung, da wir annehmen, dass dieser Prozess im Hintergrund läuft und für den Nutzer nicht sichtbar sein sollte.
-public class Client {
+public class Client{
     //Constructor
     private Client() {}
 
@@ -22,11 +21,11 @@ public class Client {
             // IP-Adresse des Servers ist "131.246.169.160" und der Port lautet 15000 zum Erreichen der Registry. Mit localhost ersetzen zum lokalen Testen
 
             // Mit Registry des Servers verbinden
-            Registry registry = LocateRegistry.getRegistry("localhost", 15000);
+            Registry registry = LocateRegistry.getRegistry( 15000);
             System.out.println("Verbindung zum Server hergestellt");
 
             // Vergleiche Interface der Registry mit der des Clients (Muss 1:1 eindeutig sein)
-            ClientInter stub = (ClientInter) registry.lookup("ServerInter");
+            ServerInter stub = (ServerInter) registry.lookup("ServerInter");
             System.out.println("Registry-Bibliothek gefunden");
 
             // Speichere die Antwort des Servers als response
@@ -42,4 +41,5 @@ public class Client {
             e.printStackTrace();
         }
     }
+
 }
