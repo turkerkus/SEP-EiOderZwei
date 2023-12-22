@@ -42,7 +42,7 @@ public class Spiellogik {
         }
     }
 
-    public void SpielzugMoeglichkeiten(Spieler aktuelplayer) {
+    private void SpielzugMoeglichkeiten(Spieler aktuelplayer) {
         for (Spieler spieler : spielerArray) {
             if (spieler.isHahnkarte()) {
                 if (aktuelplayer.getPunkte() < spieler.getPunkte()){
@@ -84,7 +84,7 @@ public class Spiellogik {
         //    }
         //}
     }
-    public void Spielzug(Spieler aktuelspieler,boolean boolwert1,boolean boolwert2){          //Übergeben wird der aktuelle Spieler
+    private void Spielzug(Spieler aktuelspieler,boolean boolwert1,boolean boolwert2){          //Übergeben wird der aktuelle Spieler
         String antwort=spieleranfrage(boolwert1,boolwert2);                                   //Frage an spieler was getan werden soll
         if (antwort == "karte"){                                   //Wenn der Spieler Karte ziehen will wird die Kartenziehmethode aufgerufen
             zieheKarte(aktuelspieler);
@@ -102,7 +102,7 @@ public class Spiellogik {
             hahnklauen(aktuelspieler,hahnKarte);
         }
     }
-    public void zieheKarte(Spieler spieler){
+    private void zieheKarte(Spieler spieler){
         Deck kartendeck = getKartendeck();
         Card temp = kartendeck.pop();                                         //Die oberste Karte wird gezogen und zwischengespeichert
         //kartendeck.remove(0);
@@ -119,10 +119,83 @@ public class Spiellogik {
         }
 
     }
-    public void multiselect(Spieler spieler) {
+    private void multiselect(Spieler spieler){
+        String antwort = umwandelnOptionen(spieler);
+        if (antwort == "Biokornumwandlung"){
+            biokornumwandlung(spieler);
+        }
+        if (antwort == "Gemischtumwandlung"){
+            kornumwandlung(spieler);
+        }
 
     }
-    public String spieleranfrage(boolean hahn ,boolean tausch){
+    private String umwandelnOptionen(Spieler spieler) {
+        List<Card> hand=spieler.getHand();
+        int bioges=0;
+        int gesamt=0;
+        for (Card card : hand) {
+            if ("Biokörner".equals(card.getType())) {
+                bioges=+ card.getValue();
+            }
+        }
+        for (Card card : hand) {
+            if ("Koerner".equals(card.getType()) | "Biokörner".equals(card.getType())) {
+                gesamt=+ card.getValue();
+            }
+        }
+        if (bioges >= 5){
+            System.out.println("1.)Biokörner umwandeln?\n2-)Körner gemischt umwandeln? \n3-)Nichts weiter umwandeln?");
+            Scanner scan = new Scanner(System.in);
+            int x = scan.nextInt();
+            switch (x){
+                case 1 :
+                    return "Biokornumwandlung";
+
+                case 2 :
+                    return "Gemischtumwandlung";
+
+                case 3 :
+                    return "Nichts";
+
+                default:
+                    return "Ungültige Auswahl";
+            }
+        }
+        if (gesamt >= 5) {
+            System.out.println("1.)Körner gemischt umwandeln? \n2-)Nichts weiter umwandeln?");
+            Scanner scan = new Scanner(System.in);
+            int x = scan.nextInt();
+            switch (x){
+                case 1 :
+                    return "Gemischtumwandlung";
+
+                case 2 :
+                    return "Nichts";
+
+                default:
+                    return "Ungültige Auswahl";
+            }
+
+        }
+        return "Nichts";
+
+
+    }
+    private void biokornumwandlung(Spieler spieler){        //Die Methode wandelt Biokörner in Eier um
+
+    }
+    private int biokornauswahl(Spieler spieler){            //Die Methode sammelt die Biokartenauswahl vom Spieler
+        List<Card> hand=spieler.getHand();
+        Scanner scan = new Scanner(System.in);
+        return scan.nextInt();
+
+    }
+
+    private void kornumwandlung(Spieler spieler){
+
+    }
+
+    private String spieleranfrage(boolean hahn ,boolean tausch){
         if (hahn && tausch) {
             System.out.println(" Bitte wählen Sie eine der folgenden Optionen (Geben Sie nur die Nummer der gewählten Option an)\nSie haben folgende Möglichkeiten:");
             System.out.println("1.) Karte umtauschen\n2-) Neue Karte ziehen\n3-)Hahn klauen");
@@ -178,7 +251,7 @@ public class Spiellogik {
 
 
     }
-    public void hahnklauen(Spieler aktuelSpieler,Card hahnKarte){
+    private void hahnklauen(Spieler aktuelSpieler,Card hahnKarte){
         aktuelSpieler.add(hahnKarte);
         aktuelSpieler.setHahnkarte(true);
 
@@ -186,6 +259,8 @@ public class Spiellogik {
     public void fuchsklau(){
 
     }
+
+    
     public  void  eilegen(Spieler spieler){ //noch nicht fertig
         List<Card> hand=spieler.getHand();
         int bioges=0;
