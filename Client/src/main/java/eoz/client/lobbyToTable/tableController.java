@@ -1,77 +1,142 @@
 package eoz.client.lobbyToTable;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
-import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+
+import java.util.*;
 
 public class tableController {
-    @FXML
-    private Label p1;
 
     @FXML
-    private Label p2;
+    public Label p1;
+    @FXML
+    public Label p4;
+    @FXML
+    public Label p2;
+    @FXML
+    public Label p5;
+    @FXML
+    public Label p6;
+    @FXML
+    public Label p3;
 
     @FXML
-    private Label p3;
+    public AnchorPane anchorPane1;
+    @FXML
+    public AnchorPane anchorPane2;
+    @FXML
+    public SplitPane splitPane;
+    @FXML
+    public SplitPane splitPane2;
+    @FXML
+    public AnchorPane anchorPane3;
+    @FXML
+    public AnchorPane anchorPane4;
+    @FXML
+    public ImageView backgroundView;
+    @FXML
+    public GridPane tableGridPane1;
+    @FXML
+    public ImageView recTable;
+    @FXML
+    public GridPane buttonGridPane;
+    public GridPane recTableGridPane;
+    public GridPane mainCardsGridPane;
+    public ImageView mainCard;
+    public GridPane player4GridPane;
+    public GridPane player6GridPane;
+    public GridPane player3GridPane;
+    public GridPane player5GridPane;
+    public GridPane player1GridPane;
+    public GridPane player2GridPane;
 
     @FXML
-    private Label p4;
+    public Button drawCardButton;
     @FXML
-    private Label p5;
+    public Button getEggsButton;
     @FXML
-    private Label p6;
-
+    public Button takeRoosterButton;
     @FXML
-    private ImageView myImageView;
-    private Stage primaryStage;
-
+    public Button startButton;
     @FXML
-    private ImageView im;
+    public Button leaveLobbyButton;
 
-    @FXML
-    private FlowPane playerhand;
-    double xAchse;
-    double yAchse;
 
-    @FXML
-    void maus(MouseEvent event) {// Wenn auf das Deck geklickt wird, löst sich das folgende Ereignis aus.
-        ImageView img = new ImageView(getClass().getResource("eie.jpg").toExternalForm());//Dummy Kart als imageView erstellen
-        img.setFitHeight(75); //Höhe von Dummy Karte
-        img.setFitWidth(55); //Breite von Dummy Karte
-        playerhand.getChildren().add(img); // Die Karte wird an die Spielerhand gesendet
-        playerhand.layout();
+    private int currentRow = 1; // Start from the first row
+    private int currentCol = 0; // Start from the first column
+    Map<String, ImageView> imageViewMap = new HashMap<>();
+    private int nameIncrement = 1;
 
-        img.setOnMousePressed(mouseEvent1 -> {//Es wird angerufen ,wenn man die Maustaste auf die Karte drückt
-            xAchse= mouseEvent1.getSceneX() - img.getTranslateX(); //Speicherung der Anfangsposition der X-Achse der Karte
-            yAchse = mouseEvent1.getSceneY() - img.getTranslateY(); //Speicherung der Anfangsposition der Y-Achse der Karte
-        });
+    // create a list of player grid panes
+    List<GridPane> gridPanes = new ArrayList<>();
 
-        img.setOnMouseDragged(mouseEvent1 -> {//-Verschiebung-Es wird angerufen,wenn die Maus bewegt wird
-            img.setTranslateX(mouseEvent1.getSceneX() - xAchse);// Bestimmung der neuen Position des Bildes unter Berücksichtigung der Differenz
-            // zwischen der aktuellen Mausposition und der ursprünglichen Position der Karte für die X- und Y-Achse.
-            img.setTranslateY(mouseEvent1.getSceneY() - yAchse);
-        });
+    public void initialize(){
+        gridPanes.add(player1GridPane);
+        gridPanes.add(player2GridPane);
+        gridPanes.add(player3GridPane);
+        gridPanes.add(player4GridPane);
+        gridPanes.add(player5GridPane);
+        gridPanes.add(player6GridPane);
     }
 
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
+    Integer gridPanesIdx = 0;
+
+
+
+
+
+
+    // Assume this is called when the main card is clicked to start distribution
+    public void distributeCards() {
+        String cardName = "card " + nameIncrement;
+        // Create a new card ImageView for distribution
+        imageViewMap.put(cardName, new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/cards/kuckuck.png")).toString())));
+        imageViewMap.get(cardName).setFitHeight(50);
+        imageViewMap.get(cardName).setFitWidth(80);
+
+        // Add the card to the grid, then update the position for the next card
+        gridPanes.get(gridPanesIdx).add(imageViewMap.get(cardName), currentCol, currentRow);
+        gridPanesIdx++;
+
+        // Check if the card has been distributed to all panes at the current cell
+        if (gridPanesIdx >= gridPanes.size()) {
+            // Reset the distribution counter
+            gridPanesIdx = 0;
+
+            // Update the position for the next card using your existing logic
+            incrementPosition();
+            nameIncrement++;
+
+            // Increment the index to cycle through the GridPanes
+            gridPanesIdx = (gridPanesIdx ) % gridPanes.size();
+        }
     }
 
-    public void bindImageViewSize() {
-        // Bind ImageView width to stage width
-        myImageView.fitWidthProperty().bind(primaryStage.widthProperty());
+    private void incrementPosition() {
+        // Move to the next column, wrap to the next row if at the end
+        currentCol++;
+        if (currentCol > 4) { // Assuming 5 columns indexed from 0 to 4
+            currentCol = 0;
+            currentRow++;
+        }
 
-        // Bind ImageView height to stage height
-        myImageView.fitHeightProperty().bind(primaryStage.heightProperty());
+        // Wrap back to the first row if at the end
+        if (currentRow > 4) { // Assuming 5 rows indexed from 0 to 4
+            currentRow = 1; // Reset to the start position for rows
+        }
     }
+
+
+
+
+
 
     public void displayName(String username, double numOfPlayers){
         p1.setText(username);
@@ -104,6 +169,11 @@ public class tableController {
                 break;
         }
     }
+
+
+
+
+
 
 
 }

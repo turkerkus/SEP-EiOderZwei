@@ -260,7 +260,7 @@ public class Spiellogik {
 
     }
 
-    
+
     public  void  eilegen(Spieler spieler){ //noch nicht fertig
         List<Card> hand=spieler.getHand();
         int bioges=0;

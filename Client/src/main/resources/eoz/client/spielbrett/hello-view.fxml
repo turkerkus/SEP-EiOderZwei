@@ -7,28 +7,26 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="1440.0" maxWidth="2560.0" minHeight="786.0" minWidth="980.0" prefHeight="1164.0" prefWidth="1179.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.spielbrett.spielController">
-  <children>
-    <ImageView fitHeight="1186.0" fitWidth="2095.0" layoutX="-390.0" layoutY="-6.0" pickOnBounds="true" preserveRatio="true">
-      <image>
-        <Image url="@../lobbyToTable/bg.png" />
-      </image>
-    </ImageView>
-    <ImageView fitHeight="973.0" fitWidth="1200.0" layoutX="210.0" layoutY="-66.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="210.0" AnchorPane.rightAnchor="-153.111572265625">
-      <image>
-        <Image url="@../../../images/table.png" />
-      </image>
-    </ImageView>
-    <ImageView fx:id="im" fitHeight="137.0" fitWidth="152.0" layoutX="727.0" layoutY="267.0" onMouseClicked="#maus" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="727.0" AnchorPane.rightAnchor="351.3817443847656">
-      <image>
-        <Image url="@../../../image/Ei.jpg" />
-      </image>
-    </ImageView>
-    <FlowPane fx:id="playerhand" layoutX="550.0" layoutY="525.0" prefHeight="199.0" prefWidth="442.0" />
-    <Label layoutX="735.0" layoutY="706.0" prefHeight="74.0" prefWidth="116.0" text="name" textFill="#29abd7">
-      <font>
-        <Font name="Arial Narrow Bold" size="40.0" />
-      </font>
-    </Label>
-  </children>
+<AnchorPane maxHeight="1440.0" maxWidth="2560.0" minHeight="786.0" minWidth="980.0" prefHeight="1164.0"
+            prefWidth="1179.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="eoz.client.spielbrett.spielController">
+  <ImageView fitHeight="1186.0" fitWidth="2095.0" layoutX="-390.0" layoutY="-6.0" pickOnBounds="true"
+             preserveRatio="true">
+    <Image url="@../lobbyToTable/images/bg.png"/>
+  </ImageView>
+  <ImageView fitHeight="973.0" fitWidth="1200.0" layoutX="210.0" layoutY="-66.0" pickOnBounds="true"
+             preserveRatio="true" AnchorPane.leftAnchor="210.0" AnchorPane.rightAnchor="-153.111572265625">
+    <Image url="@../../../images/table.png"/>
+  </ImageView>
+  <ImageView fx:id="im" fitHeight="137.0" fitWidth="152.0" layoutX="727.0" layoutY="267.0" onMouseClicked="#maus"
+             pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="727.0"
+             AnchorPane.rightAnchor="351.3817443847656">
+    <Image url="@../../../image/Ei.jpg"/>
+  </ImageView>
+  <FlowPane fx:id="playerhand" layoutX="550.0" layoutY="525.0" prefHeight="199.0" prefWidth="442.0"/>
+  <Label layoutX="735.0" layoutY="706.0" prefHeight="74.0" prefWidth="116.0" text="name" textFill="#29abd7">
+    <font>
+      <Font name="Arial Narrow Bold" size="40.0"/>
+    </font>
+  </Label>
 </AnchorPane>

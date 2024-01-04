@@ -14,7 +14,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class GameSetupController {
 
@@ -112,17 +111,20 @@ public class GameSetupController {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
                 root = loader.load();
 
+                //create the Table Application and TableController
+                tableApplication tableApplication = new tableApplication();
                 tableController tableController = loader.getController();
                 tableController.displayName(username, numOfPlayers.getValue());
 
+                // set up the stage
                 stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-                tableController.setPrimaryStage(stage);
-                tableController.bindImageViewSize();
                 Scene scene = new Scene(root);
-                root.getStylesheets().add(Objects.requireNonNull(getClass().getResource("tablestyle.css")).toExternalForm());
                 stage.setScene(scene);
                 stage.show();
                 stage.setTitle(gameName.getText());
+
+                // bind the elements of the table to the window
+                tableApplication.initializeBind(tableController,root);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
