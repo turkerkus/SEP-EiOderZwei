@@ -25,6 +25,9 @@ public class GameSetupController {
     @FXML
     private Slider numOfPlayers;
 
+    @FXML
+    private Slider numOfBots;
+
     public  String username;
 
 
@@ -95,6 +98,12 @@ public class GameSetupController {
         }
     }
 
+    private int determineNumberOfHumanPlayers(int totalPlayers, int numOfBots) {
+        // The number of human players is the total players minus the number of bots
+        return totalPlayers - numOfBots;
+    }
+
+
 
     public void switchToScene4(ActionEvent event) {
         try {
@@ -113,8 +122,8 @@ public class GameSetupController {
 
                 //create the Table Application and TableController
                 tableApplication tableApplication = new tableApplication();
-                tableController tableController = loader.getController();
-                tableController.displayName(username, numOfPlayers.getValue());
+                eoz.client.lobbyToTable.tableController tableController = getTableController(loader);
+
 
                 // set up the stage
                 stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -131,6 +140,31 @@ public class GameSetupController {
         }
     }
 
+    private tableController getTableController(FXMLLoader loader) {
+        tableController tableController = loader.getController();
+        int totalNumOfPlayers = (int) numOfPlayers.getValue();
+        int bots = getBots(totalNumOfPlayers);
+
+        int numOfHumanPlayers = determineNumberOfHumanPlayers(totalNumOfPlayers, bots);
+
+        // Setup players in the tableController
+        tableController.displayName(username,numOfPlayers.getValue() );
+        return tableController;
+    }
+
+    private int getBots(int totalNumOfPlayers) {
+        int bots = (int) numOfBots.getValue();
+
+        // Ensure the total number of players is at least equal to the number of bots
+        if (totalNumOfPlayers < bots) {
+            //This automatically adjust the total number of players to match the number of bots
+            totalNumOfPlayers = bots;
+            // and update the numOfPlayers slider to reflect this change
+            numOfPlayers.setValue(totalNumOfPlayers);
+
+        }
+        return bots;
+    }
 
 
 }
