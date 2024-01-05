@@ -10,11 +10,11 @@ public interface ServerInter extends Remote {
     String sayHello() throws RemoteException;
 
     /* Speicher die Chatnachricht auf dem Server*/
-    void sendMessage(String message, String id)throws RemoteException;
+    void sendMessage(String message, String playerId)throws RemoteException;
 
     /* @return Liste der Chatnachrichten und deren Absender
      */
-    List<List<String>> getChat(boolean cen) throws RemoteException;
+    List<List<String>> getChat(boolean mes) throws RemoteException;
 
     Map<String, String> getClients() throws RemoteException;
 

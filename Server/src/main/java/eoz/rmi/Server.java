@@ -34,10 +34,10 @@ public class Server implements Remote, ServerInter {
     }
 
     @Override
-    public void sendMessage(String message, String id) throws RemoteException {
+    public void sendMessage(String message, String playerId) throws RemoteException {
         List<String> zeile = new LinkedList<>();
 
-        zeile.add(clients.get(id));
+        zeile.add(clients.get(playerId));
         if(!message.isEmpty()){
             zeile.add(message);
             chatrecord.add(zeile);
