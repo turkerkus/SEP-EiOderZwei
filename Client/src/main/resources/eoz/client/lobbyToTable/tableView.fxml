@@ -3,17 +3,39 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <SplitPane fx:id="splitPane" dividerPositions="0.173" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.tableController">
-    <AnchorPane fx:id="anchorPane1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="980.0" prefWidth="255.0" SplitPane.resizableWithParent="false" />
+    <AnchorPane fx:id="anchorPane1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="980.0" prefWidth="255.0" SplitPane.resizableWithParent="false">
+      <children>
+         <VBox fx:id="background" prefHeight="937.0" prefWidth="255.0">
+            <children>
+               <ScrollPane fx:id="scroll" prefHeight="937.0" prefWidth="255.0">
+                  <content>
+                     <VBox fx:id="message" prefHeight="938.0" prefWidth="240.0" />
+                  </content>
+               </ScrollPane>
+            </children>
+         </VBox>
+         <TextField fx:id="input" layoutY="936.0" prefHeight="45.0" prefWidth="193.0" />
+         <Button fx:id="sendButton" alignment="CENTER" layoutX="193.0" layoutY="938.0" mnemonicParsing="false" onAction="#onEnter" prefHeight="45.0" prefWidth="61.0" style="-fx-background-color: linear-gradient(#e68400, #ffd65b),            linear-gradient(#f2ba44, #ffef84),            linear-gradient(#efaa22, #ffea6a),            linear-gradient(#ffe657 0%, #f8c202 50%, #eea10b 100%),            linear-gradient(from 0% 0% to 15% 50%, rgba(255,255,255,0.9), rgba(255,255,255,0)); -fx-background-radius: 10; -fx-background-insets: 0,1,2,3,0; -fx-padding: 10 10 10 5;" text="Senden">
+            <font>
+               <Font name="System Bold" size="12.0" />
+            </font>
+            <opaqueInsets>
+               <Insets />
+            </opaqueInsets></Button>
+      </children></AnchorPane>
     <AnchorPane fx:id="anchorPane2" minHeight="0.0" minWidth="0.0" prefHeight="980.0">
         <SplitPane fx:id="splitPane2" dividerPositions="0.5" orientation="VERTICAL" prefHeight="980.0" prefWidth="1446.0">
             <AnchorPane fx:id="anchorPane3" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="935.0" prefWidth="1444.0" stylesheets="@tableStyle.css">

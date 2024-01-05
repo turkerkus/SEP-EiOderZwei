@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.*;
 
 
 // Programm für den Server, dieser erhält vom Client über die Registry Anfragen, verarbeitet diese und schickt dann eine Antwort zurück an den Client.
@@ -13,6 +14,8 @@ import java.rmi.server.UnicastRemoteObject;
 public class Server implements Remote, ServerInter {
     //Variables
 
+    static Map<String, String> clients = new LinkedHashMap<>();
+    static ArrayList<List<String>> chatrecord;
     //Die Registry wird erstellt
     public static Registry registry = null;
 
@@ -28,6 +31,27 @@ public class Server implements Remote, ServerInter {
     public String sayHello() throws RemoteException {
         // Diese Antwort wird an den Client geschickt, wenn dieser sich mit sayHello() verbindet
         return "Connection to Server successful. Hello Client!";
+    }
+
+    @Override
+    public void sendMessage(String message, String id) throws RemoteException {
+        List<String> zeile = new LinkedList<>();
+
+        zeile.add(clients.get(id));
+        if(!message.isEmpty()){
+            zeile.add(message);
+            chatrecord.add(zeile);
+        }
+    }
+
+    @Override
+    public List<List<String>> getChat(boolean cen) throws RemoteException {
+        return chatrecord;
+    }
+
+    @Override
+    public Map<String, String> getClients() throws RemoteException {
+        return clients;
     }
 
     public static void main(String[] args) {

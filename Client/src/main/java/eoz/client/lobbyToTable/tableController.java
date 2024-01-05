@@ -2,17 +2,32 @@ package eoz.client.lobbyToTable;
 
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 import java.util.*;
 
 public class tableController {
+
+    /** Chat Vars **/
+    @FXML
+    TextField input = new TextField();
+    @FXML
+    public ScrollPane scroll = new ScrollPane();
+    @FXML
+    public VBox messagesBox = new VBox();
+    @FXML
+    Button sendButton = new Button("Senden");
+    @FXML
+    VBox background = new VBox();
+
+    public static String uID = UUID.randomUUID().toString();
+    /**Chat Vars end**/
 
     @FXML
     public Label p1;
@@ -89,6 +104,18 @@ public class tableController {
     Integer gridPanesIdx = 0;
 
 
+
+   public void onEnter(){
+       sendButton.setOnAction(actionEvent -> {
+           send(input.getText(), messagesBox);
+       });
+    }
+
+    void send(String mes, VBox messagesBox){
+           messagesBox.getChildren().add(new javafx.scene.control.Label(mes));
+
+       input.clear();
+    }
 
 
 
