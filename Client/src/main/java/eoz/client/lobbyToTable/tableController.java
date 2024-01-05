@@ -10,23 +10,25 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
+
 import java.util.*;
+import java.util.random.RandomGenerator;
 
 public class tableController {
 
     /** Chat Vars **/
     @FXML
-    TextField input = new TextField();
+    TextField input;
     @FXML
-    public ScrollPane scroll = new ScrollPane();
+    public ScrollPane scroll;
     @FXML
-    public VBox messagesBox = new VBox();
+    public VBox messagesBox;
     @FXML
-    Button sendButton = new Button("Senden");
+    Button sendButton;
     @FXML
-    VBox background = new VBox();
+    VBox background;
 
-    public static String uID = UUID.randomUUID().toString();
+    public String uID = UUID.randomUUID().toString().substring(0,3);
     /**Chat Vars end**/
 
     @FXML
@@ -89,6 +91,7 @@ public class tableController {
     Map<String, ImageView> imageViewMap = new HashMap<>();
     private int nameIncrement = 1;
 
+
     // create a list of player grid panes
     List<GridPane> gridPanes = new ArrayList<>();
 
@@ -106,17 +109,15 @@ public class tableController {
 
 
    public void onEnter(){
-       input.setOnKeyPressed(
-               keyEvent -> {
-                   if(keyEvent.getCode() == KeyCode.ENTER){
-                       send(input.getText(), messagesBox);
-                   }
+       input.setOnAction(
+               actionEvent -> {
+                       send(uID + ": " + input.getText() , messagesBox);
                }
        );
     }
 
     void send(String mes, VBox messagesBox){
-           messagesBox.getChildren().add(new javafx.scene.control.Label(mes));
+           messagesBox.getChildren().add( new javafx.scene.control.Label(mes) );
 
        input.clear();
     }

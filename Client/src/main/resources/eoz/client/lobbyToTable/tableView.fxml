@@ -28,7 +28,7 @@
             </children>
          </VBox>
          <TextField fx:id="input" layoutY="936.0" prefHeight="45.0" prefWidth="193.0" />
-         <Button fx:id="sendButton" alignment="CENTER" layoutX="193.0" layoutY="938.0" mnemonicParsing="false" onAction="#onEnter" prefHeight="45.0" prefWidth="61.0" style="-fx-background-color: linear-gradient(#e68400, #ffd65b),            linear-gradient(#f2ba44, #ffef84),            linear-gradient(#efaa22, #ffea6a),            linear-gradient(#ffe657 0%, #f8c202 50%, #eea10b 100%),            linear-gradient(from 0% 0% to 15% 50%, rgba(255,255,255,0.9), rgba(255,255,255,0)); -fx-background-radius: 10; -fx-background-insets: 0,1,2,3,0; -fx-padding: 10 10 10 5;" text="Senden">
+         <Button fx:id="sendButton" alignment="CENTER" layoutX="193.0" layoutY="938.0" mnemonicParsing="false" onAction="#onEnter" onMouseClicked="#onEnter" prefHeight="45.0" prefWidth="61.0" style="-fx-background-color: linear-gradient(#e68400, #ffd65b),            linear-gradient(#f2ba44, #ffef84),            linear-gradient(#efaa22, #ffea6a),            linear-gradient(#ffe657 0%, #f8c202 50%, #eea10b 100%),            linear-gradient(from 0% 0% to 15% 50%, rgba(255,255,255,0.9), rgba(255,255,255,0)); -fx-background-radius: 10; -fx-background-insets: 0,1,2,3,0; -fx-padding: 10 10 10 5;" text="Senden">
             <font>
                <Font name="System Bold" size="12.0" />
             </font>
