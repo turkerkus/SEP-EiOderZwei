@@ -106,9 +106,13 @@ public class tableController {
 
 
    public void onEnter(){
-       sendButton.setOnAction(actionEvent -> {
-           send(input.getText(), messagesBox);
-       });
+       input.setOnKeyPressed(
+               keyEvent -> {
+                   if(keyEvent.getCode() == KeyCode.ENTER){
+                       send(input.getText(), messagesBox);
+                   }
+               }
+       );
     }
 
     void send(String mes, VBox messagesBox){
