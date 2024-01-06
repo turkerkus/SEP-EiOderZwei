@@ -3,8 +3,9 @@ package eoz.client.lobbyToTable;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javax.swing.ImageIcon;
+import java.io.Serializable;
 
-public class Card {
+public class Card implements Serializable {
 
     // Variables
     private int id; // Unique Cards in the deck.

@@ -79,7 +79,7 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                                 </rowConstraints>
                                 <ImageView fx:id="mainCard" fitHeight="116.0" fitWidth="97.0" pickOnBounds="true" GridPane.columnIndex="1">
-                                    <Image url="@../../../cards/rear.png" />
+                                    <Image url="@../../../cards/EiKarte.png" />
                                 </ImageView>
                             </GridPane>
                             <GridPane fx:id="player4GridPane" GridPane.columnIndex="1" GridPane.rowIndex="1">
