@@ -44,6 +44,7 @@ public class Spieler {
     public List<Card> getHand() {
         return hand;
     }
+    public void  setHand(List<Card> hand){this.hand=hand;}
 
     public void add( Card card) {
          hand.add(card);
