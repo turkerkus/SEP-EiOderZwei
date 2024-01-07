@@ -5,12 +5,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class tableController {
 
@@ -72,12 +77,21 @@ public class tableController {
     private int currentRow = 1; // Start from the first row
     private int currentCol = 0; // Start from the first column
     Map<String, ImageView> imageViewMap = new HashMap<>();
-    private int nameIncrement = 1;
+    private ImageView draggedImage;
+    private GridPane sourceGridPane;
 
     // create a list of player grid panes
     List<GridPane> gridPanes = new ArrayList<>();
 
     public void initialize(){
+        // Setup drag and drop for each player grid pane
+        setupGridPaneForDrop(player1GridPane);
+        setupGridPaneForDrop(player2GridPane);
+        setupGridPaneForDrop(player3GridPane);
+        setupGridPaneForDrop(player4GridPane);
+        setupGridPaneForDrop(player5GridPane);
+        setupGridPaneForDrop(player6GridPane);
+
         gridPanes.add(player1GridPane);
         gridPanes.add(player2GridPane);
         gridPanes.add(player3GridPane);
@@ -95,11 +109,21 @@ public class tableController {
 
     // Assume this is called when the main card is clicked to start distribution
     public void distributeCards() {
-        String cardName = "card " + nameIncrement;
+
+        Deck deck = new Deck();
+        Card card = deck.pop();
+
+
+        String cardName = card.getType() + card.getID();
         // Create a new card ImageView for distribution
-        imageViewMap.put(cardName, new ImageView(new Image(Objects.requireNonNull(getClass().getResource("/cards/kuckuck.png")).toString())));
-        imageViewMap.get(cardName).setFitHeight(50);
-        imageViewMap.get(cardName).setFitWidth(80);
+        ImageView cardView = new ImageView(String.valueOf(card.getImage()));
+        cardView.setId(cardName);
+        imageViewMap.put(cardName, cardView);
+        // Set a unique ID for the ImageView
+        cardView.setFitHeight(50);
+        cardView.setFitWidth(80);
+        setupCardDragEvents(cardView);
+
 
         // Add the card to the grid, then update the position for the next card
         gridPanes.get(gridPanesIdx).add(imageViewMap.get(cardName), currentCol, currentRow);
@@ -112,7 +136,6 @@ public class tableController {
 
             // Update the position for the next card using your existing logic
             incrementPosition();
-            nameIncrement++;
 
             // Increment the index to cycle through the GridPanes
             gridPanesIdx = (gridPanesIdx ) % gridPanes.size();
@@ -131,6 +154,65 @@ public class tableController {
         if (currentRow > 4) { // Assuming 5 rows indexed from 0 to 4
             currentRow = 1; // Reset to the start position for rows
         }
+    }
+
+    private void setupCardDragEvents(ImageView cardView) {
+        cardView.setOnMousePressed(event -> {
+            // Record a delta distance for the drag and drop operation.
+            draggedImage = cardView;
+            sourceGridPane = (GridPane) cardView.getParent();
+        });
+        cardView.setOnDragDetected(event -> {
+            // Start drag-and-drop gesture
+            Dragboard db = cardView.startDragAndDrop(TransferMode.MOVE);
+
+            // Put a string on dragboard
+            ClipboardContent content = new ClipboardContent();
+            content.putString(cardView.getId());
+            db.setContent(content);
+
+            draggedImage = cardView;
+            sourceGridPane = (GridPane) cardView.getParent();
+
+            event.consume();
+        });
+    }
+
+    private void setupGridPaneForDrop(GridPane gridPane) {
+        gridPane.setOnDragOver(event -> {
+            // Accept it only if it is not being dragged from the same node
+            // and if it has a string data
+            if (event.getGestureSource() != gridPane && event.getDragboard().hasString()) {
+                event.acceptTransferModes(TransferMode.MOVE);
+            }
+
+            event.consume();
+        });
+
+        gridPane.setOnDragDropped(event -> {
+            Dragboard db = event.getDragboard();
+            boolean success = false;
+
+            if (db.hasString()) {
+                // Remove the image from the source grid pane
+                sourceGridPane.getChildren().remove(draggedImage);
+
+                // Find the cell in the grid where the drop occurred
+                Integer colIndex = GridPane.getColumnIndex(draggedImage);
+                Integer rowIndex = GridPane.getRowIndex(draggedImage);
+
+                // Add image to the target grid pane at the same cell
+                // If dropping on an empty grid cell, you might need to calculate the cell indices based on drop location
+                gridPane.add(draggedImage, colIndex, rowIndex);
+
+                success = true;
+            }
+            /* let the source know whether the string was successfully
+             * transferred and used */
+            event.setDropCompleted(success);
+
+            event.consume();
+        });
     }
 
 
