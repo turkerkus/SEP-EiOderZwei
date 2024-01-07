@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.util.*;
 
 public class Spiellogik {
+
     // Initialisierung
     Spieler spieler1 = new Spieler(1,"spieler1", 0, new ArrayList<Card>() , false );
     Spieler spieler2 = new Spieler(2,"spieler2", 0, new ArrayList<Card>(), false );

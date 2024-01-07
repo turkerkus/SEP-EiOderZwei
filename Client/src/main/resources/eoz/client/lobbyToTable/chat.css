@@ -1,0 +1,13 @@
+/* CSS Stylesheet for the chat */
+
+.sent-message {
+    -fx-background-color: #Blue; /* Light Blue for sent messages */
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+
+.received-message {
+    -fx-background-color: #D3D3D3; /* Light Gray for received messages */
+    -fx-text-fill: black;
+    -fx-padding: 5px;
+}

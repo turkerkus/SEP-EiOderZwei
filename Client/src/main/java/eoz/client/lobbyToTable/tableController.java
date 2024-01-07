@@ -2,6 +2,7 @@ package eoz.client.lobbyToTable;
 
 
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -108,19 +109,39 @@ public class tableController {
 
 
 
-   public void onEnter(){
-       input.setOnAction(
-               actionEvent -> {
-                       send(uID + ": " + input.getText() , messagesBox);
-               }
-       );
-    }
+   public void sendMessage(){
+       String messageText = input.getText().trim();
+       if(!messageText.isEmpty()){
+           String senderID = messageText.split(":")[0].trim();
+           MessageLabel messageLabel = new MessageLabel(uID + ": " + messageText);
 
-    void send(String mes, VBox messagesBox){
-           messagesBox.getChildren().add( new javafx.scene.control.Label(mes) );
+           // Sets my messages to the right and received messages to the left
+           if (senderID.startsWith(uID)){
+               messageLabel.setAlignment(Pos.BASELINE_RIGHT);
+               messageLabel.getStyleClass().add("sent-message");
 
-       input.clear();
-    }
+           } else {
+               messageLabel.setAlignment(Pos.BASELINE_LEFT);
+               messageLabel.getStyleClass().add("received-message");
+           }
+
+           messagesBox.getChildren().add(messageLabel);
+
+           input.clear(); //clears the textField after I send my message
+
+
+
+           scroll.setVvalue(1.0); // auto scroll to newest messages
+       }
+   }
+
+   private static class MessageLabel extends javafx.scene.control.Label{
+       public MessageLabel(String message){
+           super(message);
+           setWrapText(true);
+           setMaxWidth(200);
+       }
+   }
 
 
 
