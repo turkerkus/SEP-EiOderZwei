@@ -120,6 +120,7 @@ public class Spiellogik {
             spieler.add(temp);
             int xyz = spieler.getKornzahl() + temp.getValue();
             spieler.setKornzahl(xyz);
+
         }
         if (temp.getType() == "Kuckuck") {                                        //Wenn die oberste Karte eine Kuckuckskarte ist erhält der Spieler einen Punkt
             spieler.add(temp);
