@@ -7,12 +7,12 @@ import java.util.*;
 public class Spiellogik {
     // Initialisierung
 
-    Spieler spieler1 = new Spieler(1, "spieler1", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler2 = new Spieler(2, "spieler2", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler3 = new Spieler(3, "spieler3", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler4 = new Spieler(4, "spieler4", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler5 = new Spieler(5, "spieler5", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler6 = new Spieler(6, "spieler6", 0, 0, new ArrayList<Card>(), true); //Der letzte Spieler bekommt die Hahnkarte
+    Spieler spieler1 = new Spieler(1, "spieler1", 0, 0, new ArrayList<Card>(), false,0);
+    Spieler spieler2 = new Spieler(2, "spieler2", 0, 0, new ArrayList<Card>(), false,0);
+    Spieler spieler3 = new Spieler(3, "spieler3", 0, 0, new ArrayList<Card>(), false,0);
+    Spieler spieler4 = new Spieler(4, "spieler4", 0, 0, new ArrayList<Card>(), false,0);
+    Spieler spieler5 = new Spieler(5, "spieler5", 0, 0, new ArrayList<Card>(), false,0);
+    Spieler spieler6 = new Spieler(6, "spieler6", 0, 0, new ArrayList<Card>(), true,0); //Der letzte Spieler bekommt die Hahnkarte
     Spieler[] spielerArray = {spieler1, spieler2, spieler3, spieler4, spieler5, spieler6};
 
     int n = 0; //Zählvariable, nach 1000 Zügen terminiert es einfach

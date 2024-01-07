@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #181516;" stylesheets="@SpielauswertungStyle.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.SpielauswertungController">
+   <children>
+      <Label layoutX="233.0" layoutY="44.0" style="-fx-text-fill: #F9F9F7;" text="Das Spiel ist vorbei!">
+         <font>
+            <Font name="Lucida Bright Demibold Italic" size="54.0" />
+         </font>
+      </Label>
+       <TableView fx:id="table" layoutY="137.0" prefHeight="410.0" prefWidth="1000.0" style="-fx-background-color: #9E9A9A;">
+           <columns>
+               <TableColumn fx:id="platz" editable="false" prefWidth="100.0" sortable="false" text="Platz" />
+               <TableColumn fx:id="spieler" editable="false" prefWidth="700.0" sortable="false" text="Spieler" />
+               <TableColumn fx:id="score" editable="false" minWidth="20.0" prefWidth="200.0" sortType="DESCENDING" text="Score" />
+           </columns>
+       </TableView>
+      <Button layoutX="350.0" layoutY="561.0" mnemonicParsing="false" text="Zurück zur Lobby" />
+      <Button layoutX="550.0" layoutY="561.0" mnemonicParsing="false" text="Neues Spiel starten" />
+   </children>
+</Pane>
