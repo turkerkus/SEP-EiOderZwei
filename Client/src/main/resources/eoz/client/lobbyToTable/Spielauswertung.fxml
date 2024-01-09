@@ -21,7 +21,7 @@
                <TableColumn fx:id="score" editable="false" minWidth="20.0" prefWidth="200.0" sortType="DESCENDING" text="Score" />
            </columns>
        </TableView>
-      <Button layoutX="350.0" layoutY="561.0" mnemonicParsing="false" text="Zurück zur Lobby" />
-      <Button layoutX="550.0" layoutY="561.0" mnemonicParsing="false" text="Neues Spiel starten" />
+      <Button fx:id="blobby" layoutX="350.0" layoutY="561.0" mnemonicParsing="false" onAction="#backtolobby" text="Zurück zur Lobby" />
+      <Button fx:id="newgame" layoutX="550.0" layoutY="561.0" mnemonicParsing="false" text="Neues Spiel starten" />
    </children>
 </Pane>

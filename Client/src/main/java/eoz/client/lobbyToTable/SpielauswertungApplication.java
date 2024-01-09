@@ -17,7 +17,12 @@ public class SpielauswertungApplication extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("Spielauswertung.fxml")));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("Spielauswertung.fxml"));
+        Parent root = loader.load();
+
+        SpielauswertungController controller = loader.getController();
+        controller.setPrimaryStage(primaryStage);
+
         Scene scene1 = new Scene(root,1000,600);
         primaryStage.setScene(scene1);
         primaryStage.setResizable(false);

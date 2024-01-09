@@ -10,6 +10,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,8 +22,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.ResourceBundle;
+import java.util.concurrent.TimeUnit;
 
 public class SpielauswertungController implements Initializable {
+    private Stage primaryStage; // Variable zur Speicherung der PrimaryStage
+
+    // Methode zum Setzen der PrimaryStage
+    public void setPrimaryStage(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+    }
+
     @FXML
     private TableColumn<Integer, Integer> platz;
 
@@ -35,6 +44,17 @@ public class SpielauswertungController implements Initializable {
     @FXML
     private TableView<Spieler> table; // Use Spieler type for TableView
 
+    //Eine Funktion um bei Knopfdruck zurück zur Lobby zu gelangen.
+    @FXML
+    void backtolobby(){
+        if (primaryStage != null) {
+            primaryStage.close();
+        }
+        LobbyApplication backlobby = new LobbyApplication();
+        Stage stage = new Stage();
+        backlobby.start(stage);
+
+    }
     ObservableList<Spieler> data = FXCollections.observableArrayList(
             new Spieler(1, "spieler1", 0, 0, new ArrayList<>(), false,0),
             new Spieler(2, "spieler2", 1, 0, new ArrayList<>(), false,0),
