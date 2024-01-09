@@ -1,5 +1,8 @@
 package eoz.client.lobbyToTable;
 
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -7,15 +10,18 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Slider;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import rmi.*;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 public class GameSetupController {
+    ServerInter server;
 
     public ImageView backgroundView;
 
@@ -23,10 +29,10 @@ public class GameSetupController {
     public TextField gameName;
 
     @FXML
-    private Slider numOfPlayers;
+    private ComboBox<Integer> numOfPlayers;
 
     @FXML
-    private Slider numOfBots;
+    private ComboBox<String> typeOfBot;
 
     public  String username;
 
@@ -34,6 +40,8 @@ public class GameSetupController {
     private Stage stage;
 
     private Parent root;
+
+
 
     @FXML
     public void initialize() {
@@ -52,6 +60,7 @@ public class GameSetupController {
 
     public void switchBackToScene2(ActionEvent event) {
         try {
+
 
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
@@ -98,9 +107,21 @@ public class GameSetupController {
         }
     }
 
-    private int determineNumberOfHumanPlayers(int totalPlayers, int numOfBots) {
-        // The number of human players is the total players minus the number of bots
-        return totalPlayers - numOfBots;
+
+
+    private void determineNumberOfPlayers() {
+        // Select number of Players
+        ObservableList<Integer> playerOptions =
+                FXCollections.observableArrayList(2,3,4,5,6);
+        numOfPlayers = new ComboBox<>(playerOptions);
+
+        // Bot Difficulty
+        ObservableList<String> botOptions =
+                FXCollections.observableArrayList("Easy", "Average", "Hard");
+        typeOfBot = new ComboBox<>(botOptions);
+
+
+
     }
 
 
@@ -142,29 +163,29 @@ public class GameSetupController {
 
     private tableController getTableController(FXMLLoader loader) {
         tableController tableController = loader.getController();
-        int totalNumOfPlayers = (int) numOfPlayers.getValue();
-        int bots = getBots(totalNumOfPlayers);
+        //int totalNumOfPlayers = (int) numOfPlayers.getValue();
+       // int bots = getBots(totalNumOfPlayers);
 
-        int numOfHumanPlayers = determineNumberOfHumanPlayers(totalNumOfPlayers, bots);
+
 
         // Setup players in the tableController
-        tableController.displayName(username,numOfPlayers.getValue() );
+       // tableController.displayName(username,numOfPlayers.getValue() );
         return tableController;
     }
 
-    private int getBots(int totalNumOfPlayers) {
-        int bots = (int) numOfBots.getValue();
-
-        // Ensure the total number of players is at least equal to the number of bots
-        if (totalNumOfPlayers < bots) {
-            //This automatically adjust the total number of players to match the number of bots
-            totalNumOfPlayers = bots;
-            // and update the numOfPlayers slider to reflect this change
-            numOfPlayers.setValue(totalNumOfPlayers);
-
-        }
-        return bots;
-    }
+//    private int getBots(int totalNumOfPlayers) {
+//        int bots = (int) numOfBots.;
+//
+//        // Ensure the total number of players is at least equal to the number of bots
+//        if (totalNumOfPlayers < bots) {
+//            //This automatically adjust the total number of players to match the number of bots
+//            totalNumOfPlayers = bots;
+//            // and update the numOfPlayers slider to reflect this change
+//            numOfPlayers.setValue(totalNumOfPlayers);
+//
+//        }
+//        return bots;
+//    }
 
 
 }

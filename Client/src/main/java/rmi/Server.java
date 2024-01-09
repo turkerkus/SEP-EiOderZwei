@@ -1,4 +1,6 @@
-package eoz.rmi;
+package rmi;
+
+import eoz.client.lobbyToTable.Spieler;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -13,8 +15,9 @@ import java.util.*;
 // Hinweis: Dies ist keine JavaFX-Implementierung, da wir annehmen, dass der Server keine grafische Oberfläche benötigt, um den Nutzern ein optimales Spielerlebnis liefern zu können.
 public class Server implements Remote, ServerInter {
     //Variables
+    Map<String, String> clients = new LinkedHashMap<>();
+    int anzahlClients = 0;
 
-    static Map<String, String> clients = new LinkedHashMap<>();
     static ArrayList<List<String>> chatrecord;
     //Die Registry wird erstellt
     public static Registry registry = null;
@@ -31,6 +34,11 @@ public class Server implements Remote, ServerInter {
     public String sayHello() throws RemoteException {
         // Diese Antwort wird an den Client geschickt, wenn dieser sich mit sayHello() verbindet
         return "Connection to Server successful. Hello Client!";
+    }
+
+    @Override
+    public void addClient(String uid, String client) throws RemoteException {
+        //TODO
     }
 
     @Override
@@ -52,6 +60,29 @@ public class Server implements Remote, ServerInter {
     @Override
     public Map<String, String> getClients() throws RemoteException {
         return clients;
+    }
+
+    @Override
+    public int assignId(String name) throws RemoteException {
+        //TODO
+        return 0;
+    }
+
+    @Override
+    public Spieler getSpieler(String name) throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public int getAnzahlSpieler() throws RemoteException {
+        //TODO
+        return 0;
+    }
+
+    @Override
+    public int getAnzahlClients() throws RemoteException {
+
+        return anzahlClients;
     }
 
     public static void main(String[] args) {

@@ -17,6 +17,11 @@ import java.io.IOException;
 // Programm, um den Spieltisch für das Spiel anzuzeigen.
 public class tableApplication extends Application {
 
+    public  static int anzahlVonSpieler;
+
+    // I will have to make some config on the slider with the number of players in the GameSetup file
+    public static Spiellogik spiellogik;
+
     @Override
     public void start(Stage primaryStage) {
         try {

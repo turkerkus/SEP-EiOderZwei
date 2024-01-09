@@ -1,4 +1,4 @@
-package eoz.rmi;
+package rmi;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
