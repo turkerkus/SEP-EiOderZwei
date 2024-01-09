@@ -10,4 +10,5 @@ module eoz.client.lobbyToTable {
     opens eoz.client.spielbrett to javafx.fxml;
     exports eoz.client.lobbyToTable;
     exports eoz.client.spielbrett;
+    exports rmi;
 }
