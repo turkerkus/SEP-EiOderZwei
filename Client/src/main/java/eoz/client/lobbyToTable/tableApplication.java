@@ -55,12 +55,12 @@ public class tableApplication extends Application {
         GridPane tableGridPane1 = controller.tableGridPane1;
         GridPane recTableGridPane = controller.recTableGridPane;
         GridPane mainCardsGridPane = controller.mainCardsGridPane;
-        GridPane player1GridPane = controller.player1GridPane;
-        GridPane player2GridPane = controller.player2GridPane;
-        GridPane player3GridPane = controller.player3GridPane;
-        GridPane player4GridPane = controller.player4GridPane;
-        GridPane player5GridPane = controller.player5GridPane;
-        GridPane player6GridPane = controller.player6GridPane;
+        CardGridPane player1GridPane = controller.player1GridPane;
+        CardGridPane player2GridPane = controller.player2GridPane;
+        CardGridPane player3GridPane = controller.player3GridPane;
+        CardGridPane player4GridPane = controller.player4GridPane;
+        CardGridPane player5GridPane = controller.player5GridPane;
+        CardGridPane player6GridPane = controller.player6GridPane;
 
         splitPane2.prefHeightProperty().bind(anchorPane2.heightProperty());
         splitPane2.prefWidthProperty().bind(anchorPane2.widthProperty());

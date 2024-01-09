@@ -12,6 +12,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
+<?import eoz.client.lobbyToTable.CardGridPane?>
 <SplitPane fx:id="splitPane" dividerPositions="0.173" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.tableController">
     <AnchorPane fx:id="anchorPane1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="980.0" prefWidth="255.0" SplitPane.resizableWithParent="false" />
     <AnchorPane fx:id="anchorPane2" minHeight="0.0" minWidth="0.0" prefHeight="980.0">
@@ -51,7 +52,7 @@
                             <padding>
                                 <Insets bottom="0.05" left="0.05" right="0.05" top="0.05" />
                             </padding>
-                            <GridPane fx:id="player5GridPane" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                            <CardGridPane fx:id="player5GridPane" GridPane.columnIndex="2" GridPane.rowIndex="1">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="116.0" />
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="104.0" />
@@ -68,7 +69,7 @@
                                     <RowConstraints minHeight="10.0" percentHeight="23.0" prefHeight="70.0" vgrow="ALWAYS" />
                                     <RowConstraints minHeight="10.0" percentHeight="8.0" prefHeight="30.0" vgrow="ALWAYS" />
                                 </rowConstraints>
-                            </GridPane>
+                            </CardGridPane>
                             <GridPane fx:id="mainCardsGridPane" prefHeight="116.0" prefWidth="455.0" GridPane.columnIndex="2" GridPane.rowIndex="2">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="177.0" minWidth="10.0" percentWidth="39" prefWidth="192.0" />
@@ -82,7 +83,7 @@
                                     <Image url="@../../../cards/EiKarte.png" />
                                 </ImageView>
                             </GridPane>
-                            <GridPane fx:id="player4GridPane" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <CardGridPane fx:id="player4GridPane" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="116.0" />
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="104.0" />
@@ -99,8 +100,8 @@
                                     <RowConstraints minHeight="10.0" percentHeight="23.0" prefHeight="70.0" vgrow="ALWAYS" />
                                     <RowConstraints minHeight="10.0" percentHeight="8.0" prefHeight="30.0" vgrow="ALWAYS" />
                                 </rowConstraints>
-                            </GridPane>
-                            <GridPane fx:id="player6GridPane" layoutX="461.0" layoutY="10.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player6GridPane" layoutX="461.0" layoutY="10.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="116.0" />
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="104.0" />
@@ -117,8 +118,8 @@
                                     <RowConstraints minHeight="10.0" percentHeight="26.0" prefHeight="70.0" vgrow="ALWAYS" />
                                     <RowConstraints minHeight="10.0" percentHeight="8.0" prefHeight="30.0" vgrow="ALWAYS" />
                                 </rowConstraints>
-                            </GridPane>
-                            <GridPane fx:id="player3GridPane" layoutX="912.0" layoutY="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player3GridPane" layoutX="912.0" layoutY="10.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="116.0" />
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="104.0" />
@@ -135,8 +136,8 @@
                                     <RowConstraints minHeight="10.0" percentHeight="39.0" prefHeight="70.0" vgrow="ALWAYS" />
                                     <RowConstraints minHeight="10.0" percentHeight="7.0" prefHeight="70.0" vgrow="ALWAYS" />
                                 </rowConstraints>
-                            </GridPane>
-                            <GridPane fx:id="player1GridPane" layoutX="10.0" layoutY="425.0" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player1GridPane" layoutX="10.0" layoutY="425.0" GridPane.columnIndex="2" GridPane.rowIndex="3">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="116.0" />
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="104.0" />
@@ -153,8 +154,8 @@
                                     <RowConstraints minHeight="10.0" percentHeight="36.0" prefHeight="70.0" vgrow="ALWAYS" />
                                     <RowConstraints maxHeight="-Infinity" minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                                 </rowConstraints>
-                            </GridPane>
-                            <GridPane fx:id="player2GridPane" layoutX="461.0" layoutY="425.0" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player2GridPane" layoutX="461.0" layoutY="425.0" GridPane.columnIndex="3" GridPane.rowIndex="3">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="116.0" />
                                     <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="104.0" />
@@ -171,7 +172,7 @@
                                     <RowConstraints minHeight="10.0" percentHeight="36.0" prefHeight="70.0" vgrow="ALWAYS" />
                                     <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="70.0" vgrow="ALWAYS" />
                                 </rowConstraints>
-                            </GridPane>
+                            </CardGridPane>
                         </GridPane>
                         <GridPane prefHeight="50.0" prefWidth="1349.0">
                             <columnConstraints>

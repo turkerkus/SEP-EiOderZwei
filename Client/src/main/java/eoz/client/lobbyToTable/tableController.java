@@ -55,12 +55,12 @@ public class tableController {
     public GridPane recTableGridPane;
     public GridPane mainCardsGridPane;
     public ImageView mainCard;
-    public GridPane player4GridPane;
-    public GridPane player6GridPane;
-    public GridPane player3GridPane;
-    public GridPane player5GridPane;
-    public GridPane player1GridPane;
-    public GridPane player2GridPane;
+    public CardGridPane player4GridPane;
+    public CardGridPane player6GridPane;
+    public CardGridPane player3GridPane;
+    public CardGridPane player5GridPane;
+    public CardGridPane player1GridPane;
+    public CardGridPane player2GridPane;
 
     @FXML
     public Button drawCardButton;
@@ -73,15 +73,12 @@ public class tableController {
     @FXML
     public Button leaveLobbyButton;
 
-
-    private int currentRow = 1; // Start from the first row
-    private int currentCol = 0; // Start from the first column
     Map<String, ImageView> imageViewMap = new HashMap<>();
     private ImageView draggedImage;
-    private GridPane sourceGridPane;
+    private CardGridPane sourceGridPane;
 
     // create a list of player grid panes
-    List<GridPane> gridPanes = new ArrayList<>();
+    List<CardGridPane> gridPanes = new ArrayList<>();
 
     public void initialize(){
         // Setup drag and drop for each player grid pane
@@ -126,7 +123,13 @@ public class tableController {
 
 
         // Add the card to the grid, then update the position for the next card
-        gridPanes.get(gridPanesIdx).add(imageViewMap.get(cardName), currentCol, currentRow);
+        CardGridPane gridPane = gridPanes.get(gridPanesIdx);
+        int[] nextCell = gridPane.getNextAvailableCell();
+
+        // Find the cell in the grid where the drop occurred
+        Integer rowIndex = nextCell[0];
+        Integer colIndex = nextCell[1];
+        gridPane.addCard(imageViewMap.get(cardName),rowIndex , colIndex);
         gridPanesIdx++;
 
         // Check if the card has been distributed to all panes at the current cell
@@ -134,51 +137,37 @@ public class tableController {
             // Reset the distribution counter
             gridPanesIdx = 0;
 
-            // Update the position for the next card using your existing logic
-            incrementPosition();
-
             // Increment the index to cycle through the GridPanes
             gridPanesIdx = (gridPanesIdx ) % gridPanes.size();
         }
     }
 
-    private void incrementPosition() {
-        // Move to the next column, wrap to the next row if at the end
-        currentCol++;
-        if (currentCol > 4) { // Assuming 5 columns indexed from 0 to 4
-            currentCol = 0;
-            currentRow++;
-        }
-
-        // Wrap back to the first row if at the end
-        if (currentRow > 4) { // Assuming 5 rows indexed from 0 to 4
-            currentRow = 1; // Reset to the start position for rows
-        }
-    }
 
     private void setupCardDragEvents(ImageView cardView) {
         cardView.setOnMousePressed(event -> {
-            // Record a delta distance for the drag and drop operation.
             draggedImage = cardView;
-            sourceGridPane = (GridPane) cardView.getParent();
+            sourceGridPane = (CardGridPane) cardView.getParent();
         });
+
         cardView.setOnDragDetected(event -> {
-            // Start drag-and-drop gesture
             Dragboard db = cardView.startDragAndDrop(TransferMode.MOVE);
 
-            // Put a string on dragboard
+            // Set the drag view
+            db.setDragView(cardView.snapshot(null, null));
+
             ClipboardContent content = new ClipboardContent();
             content.putString(cardView.getId());
             db.setContent(content);
 
             draggedImage = cardView;
-            sourceGridPane = (GridPane) cardView.getParent();
+            sourceGridPane = (CardGridPane) cardView.getParent();
 
             event.consume();
         });
     }
 
-    private void setupGridPaneForDrop(GridPane gridPane) {
+
+    private void setupGridPaneForDrop(CardGridPane gridPane) {
         gridPane.setOnDragOver(event -> {
             // Accept it only if it is not being dragged from the same node
             // and if it has a string data
@@ -195,15 +184,17 @@ public class tableController {
 
             if (db.hasString()) {
                 // Remove the image from the source grid pane
-                sourceGridPane.getChildren().remove(draggedImage);
+                sourceGridPane.removeCard(draggedImage);
+                int[] nextCell = gridPane.getNextAvailableCell();
 
                 // Find the cell in the grid where the drop occurred
-                Integer colIndex = GridPane.getColumnIndex(draggedImage);
-                Integer rowIndex = GridPane.getRowIndex(draggedImage);
+                Integer rowIndex = nextCell[0];
+                Integer colIndex = nextCell[1];
 
                 // Add image to the target grid pane at the same cell
                 // If dropping on an empty grid cell, you might need to calculate the cell indices based on drop location
-                gridPane.add(draggedImage, colIndex, rowIndex);
+                gridPane.addCard(draggedImage, rowIndex, colIndex);
+
 
                 success = true;
             }
