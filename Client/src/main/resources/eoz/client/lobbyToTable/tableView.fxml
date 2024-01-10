@@ -84,7 +84,7 @@
                                     <Image url="@../../../cards/EiKarte.png" />
                                 </ImageView>
                                 <ImageView fx:id="ablageDeck" fitHeight="116.0" fitWidth="97.0" pickOnBounds="true">
-                                    <Image url="@../../../cards/EiKarte.png"/>
+                                    <Image url="@../../../cards/EiKarte.png" />
                                 </ImageView>
                             </GridPane>
                             <CardGridPane fx:id="player4GridPane" GridPane.columnIndex="1" GridPane.rowIndex="1">
@@ -255,7 +255,7 @@
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                     </rowConstraints>
                     <Button fx:id="leaveLobbyButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="201.0" text="Leave Game" textAlignment="CENTER" GridPane.columnIndex="3" />
-                    <Button fx:id="startButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="201.0" text="Start" textAlignment="CENTER" GridPane.columnIndex="4" />
+                    <Button fx:id="startButton" mnemonicParsing="false" onAction="#setStartButton" prefHeight="33.0" prefWidth="201.0" text="Start" textAlignment="CENTER" GridPane.columnIndex="4" />
                     <Button fx:id="takeRoosterButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="201.0" text="Take Rooster" textAlignment="CENTER" GridPane.columnIndex="2" />
                     <Button fx:id="getEggsButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="201.0" text="Get Eggs" textAlignment="CENTER" GridPane.columnIndex="1" />
                     <Button fx:id="drawCardButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="201.0" text="Draw Card" textAlignment="CENTER" />

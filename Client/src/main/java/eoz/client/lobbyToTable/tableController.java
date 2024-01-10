@@ -85,11 +85,12 @@ public class tableController {
     private Spieler1[] spieler;
 
     private final Spiellogik gameLogic = new Spiellogik();
-    private int currentPlayerIndex = 0;
+    private int currentPlayerIndex ;
     @FXML
     private Label timerLabel; // This is the Label that displays the timer
     private Timeline timerTimeline;
     private Integer timeLeft; // Time left in seconds
+    private Boolean gameStarted = false;
 
     public void initialize() {
 
@@ -127,29 +128,39 @@ public class tableController {
 
         spieler = new Spieler1[]{spieler1, spieler2, spieler3, spieler4, spieler5, spieler6};
 
-        // Randomly choose the first player
-        Random random = new Random();
-        int numOfPlayers = 6;
-        int firstPlayerIndex = random.nextInt(numOfPlayers);
-        Spieler1 firstPlayer = spieler[firstPlayerIndex];
 
-        // Give the firstPlayer the hahn card
-        firstPlayer.setHahnKarte(true);
+    }
+    public void setStartButton(){
 
-        // set firstPlayer as the current player
-        this.currentPlayerIndex = firstPlayerIndex;
+        //check for current player to know if the game as already be started
+        if (!gameStarted) {
+            // Randomly choose the first player
+            Random random = new Random();
+            int numOfPlayers = 6;
+            int firstPlayerIndex = random.nextInt(numOfPlayers);
+            Spieler1 firstPlayer = spieler[firstPlayerIndex];
+
+            // Give the firstPlayer the hahn card
+            firstPlayer.setHahnKarte(true);
+
+            // set firstPlayer as the current player
+            this.currentPlayerIndex = firstPlayerIndex;
 
 
-        // Create a table
-        this.table = new Table(spieler);
+            // Create a table
+            this.table = new Table(spieler);
 
-        // set the firstPlayer as the active player
-        table.setActive(firstPlayerIndex);
+            // set the firstPlayer as the active player
+            table.setActive(firstPlayerIndex);
 
-        // init the deck and shuffle it
-        table.intiNachZiehDeck();
-        table.shuffleDeck();
-        startPlayerTurn();
+            // init the deck and shuffle it
+            table.intiNachZiehDeck();
+            table.shuffleDeck();
+            startPlayerTurn();
+            gameStarted = true;
+        }
+
+
     }
 
     /**
