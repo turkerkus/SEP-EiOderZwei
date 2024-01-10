@@ -79,6 +79,31 @@ public class CardGridPane extends GridPane {
         }
     }
 
+    /**
+     * Removes the rooster card from the cell (1, 0) if it exists.
+     * If the cell (1, 0) is empty or contains a different card, no action is taken.
+     */
+    public void removeRoosterCard() {
+        // Check if cell (1, 0) contains a rooster card
+        if (isCellOccupied(1, 0)) {
+            Node roosterCard = getCardInCell(getCellKey(1, 0));
+
+            //get the last card
+            int[] nextCell = getNextAvailableCell();
+            int row = nextCell[0];
+            int col = nextCell[1];
+            Node lastCard = getCardInCell(getCellKey(row, col));
+
+
+            // Remove the rooster card from cell (1, 0)
+            removeCard(roosterCard);
+
+            // Put the last card at the first cell
+            addCard(lastCard, 1,0);
+        }
+    }
+
+
     // Get the card Node in the specified cell
     private Node getCardInCell(Integer key) {
         int row = key / this.getColumnCount();
@@ -90,6 +115,44 @@ public class CardGridPane extends GridPane {
         }
         return null;
     }
+
+    //This method helps you to always put the rooster card in cell (1,0)
+    /**
+     * Adds a rooster card to the custom CardGridPane, replacing any card in cell (1, 0) if it's occupied.
+     * If the cell (1, 0) is occupied, the existing card is moved to the next available cell.
+     *
+     * @param roosterCard The Node representing the rooster card to be added.
+     */
+    public void addRoosterCard(Node roosterCard) {
+        int row = 1;            // Default row for the rooster card
+        int col = 0;            // Default column for the rooster card
+        Node existingCard;   // Stores any existing card in cell (1, 0)
+
+        // Check if cell (1, 0) is occupied with a card
+        if (isCellOccupied(1, 0)) {
+            // Get the existing card in cell (1, 0)
+            existingCard = getCardInCell(getCellKey(1, 0));
+
+            // Remove the existing card from cell (1, 0)
+            removeCard(existingCard);
+
+            // Add the provided rooster card to cell (1, 0)
+            this.add(roosterCard, 1, 0);
+
+            // Find the next available cell for the existing card
+            int[] nextCell = getNextAvailableCell();
+            row = nextCell[0];
+            col = nextCell[1];
+
+            // Add the existing card to the next available cell
+            this.add(existingCard, row, col);
+        }
+
+        // Add the rooster card to its designated cell
+        this.addCard(roosterCard, row, col);
+    }
+
+
 
     // Method to check if a cell is occupied
     public boolean isCellOccupied(int row, int col) {

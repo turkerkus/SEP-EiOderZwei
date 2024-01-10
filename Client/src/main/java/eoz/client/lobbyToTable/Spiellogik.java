@@ -31,23 +31,20 @@ public class Spiellogik {
 
 
     // Methoden
-    public void SpielzugManager() {
+    public Boolean SpielzugManager(Spieler1[] spielerArray, Table table) {
         int i = 0;
-        while (n < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
-            for (Spieler spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
+        if (table.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
+            for (Spieler1 spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
                 if (spieler.getPunkte() >= 5) {
-                    System.out.print(spieler.getName() + "hat gewonnen");
-                    return;
+                    // TODO : Remove this after the SWITCH TO SCORE BOARD OR SHOW A DIALOGBOX is implemented in the startPlayerTurn() in tableController
+                    // this is just a placeholder
+                    System.out.print(spieler.getPlayerName() + "hat gewonnen");
+                    return true;
                 }
             }
-            Spieler aktuellplayer = spielerArray[i];        //Die Reihenfolge ist abhängig von der Reihenfolge des Arrays, die aktuelle Position von i bestimmt den aktuellen Spieler
-            SpielzugMoeglichkeiten(aktuellplayer);
-            if (i > spielerArray.length - 1) {                 //Wenn das Ende es Arrays überschritten wird, gehen wir zurück zum ersten Spieler
-                i = 0;
-            } else {
-                i++;
-            }
+
         }
+        return false;
     }
 
     private void SpielzugMoeglichkeiten(Spieler aktuelplayer) {

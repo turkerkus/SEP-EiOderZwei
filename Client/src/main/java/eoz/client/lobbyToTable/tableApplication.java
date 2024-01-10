@@ -115,25 +115,35 @@ public class tableApplication extends Application {
                 recTableGridPane.heightProperty().multiply(row2Constraints2.getPercentHeight()).divide(100)
         );
 
-        //binding mainCard to mainCardsGridPane
-        ImageView mainCard = (ImageView) root.lookup("#mainCard");
+        //binding nachzieheDeck to mainCardsGridPane
+        ImageView nachzieheDeck = (ImageView) root.lookup("#nachzieheDeck");
         ColumnConstraints column1Constraints2 = mainCardsGridPane.getColumnConstraints().get(1);
-
-        mainCard.fitWidthProperty().bind(
+        /*
+        nachzieheDeck.fitWidthProperty().bind(
                 mainCardsGridPane.widthProperty().multiply(column1Constraints2.getPercentWidth()).divide(100)
         );
-        mainCard.fitHeightProperty().bind(
+        nachzieheDeck.fitHeightProperty().bind(
                 mainCardsGridPane.heightProperty()
-        );
+        );*/
 
         //card distribution animation
-        mainCard.setOnMouseClicked(
+        nachzieheDeck.setOnMouseClicked(
                 event -> {
                     // add the image to the grid of player at gridPanes.get(idx)
                     controller.distributeCards();
 
                 }
         );
+
+        //binding nachzieheDeck to mainCardsGridPane
+        ImageView ablageDeck = (ImageView) root.lookup("#ablageDeck");
+        /*
+        ablageDeck.fitWidthProperty().bind(
+                mainCardsGridPane.widthProperty().multiply(column1Constraints2.getPercentWidth()).divide(100)
+        );
+        ablageDeck.fitHeightProperty().bind(
+                mainCardsGridPane.heightProperty()
+        );*/
 
         //binding playerGridPane to recTableGridPane
         //player1GridPane
