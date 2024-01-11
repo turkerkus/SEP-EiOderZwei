@@ -133,14 +133,16 @@ public class Table implements Serializable {
                 for (int m = 0; m < 1; m++) {
                     if (i == 16) { //This adds the last remaining card to the deck. making it all 75
                         nachzieheDeck.addCard(new Card1("Fuchs", new ImageIcon(getClass().getResource("/cards/fuchs.png").toString()), 0, true));
+                        break;
                     }
                 }
             }
         }
+        nachzieheDeck.mischen();
     }
 
-    public void shuffleDeck() {
-        nachzieheDeck.mischen();
+    public Deck1 getNachzieheDeck() {
+        return nachzieheDeck;
     }
 
 }

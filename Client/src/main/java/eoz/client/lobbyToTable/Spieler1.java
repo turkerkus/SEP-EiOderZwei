@@ -33,6 +33,7 @@ public class Spieler1 implements Serializable {
 
     public void setPlayerLabel(Label playerLabel) {
         this.playerLabel = playerLabel;
+        this.playerLabel.setText(playerName);
     }
 
     public Spieler1(int id, String playerName, boolean hahnKarte, int kornzahl, CardGridPane cardGridPane, Label playerLabel) { //Create player with following parameters

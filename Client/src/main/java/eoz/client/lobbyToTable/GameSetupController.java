@@ -148,7 +148,8 @@ public class GameSetupController {
         int numOfHumanPlayers = determineNumberOfHumanPlayers(totalNumOfPlayers, bots);
 
         // Setup players in the tableController
-        tableController.displayName(username,numOfPlayers.getValue() );
+        tableController.displayName(numOfPlayers.getValue() );
+        tableController.setMainPlayerName(username);
         return tableController;
     }
 
