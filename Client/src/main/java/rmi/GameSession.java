@@ -78,7 +78,7 @@ public class GameSession {
 
     public void addBots(Integer bot) {
         for (int i = 1; i < bot+1; i++) {
-            String botName = generateFunnyBotName() + "_@Bot";
+            String botName = generateFunnyBotName() + "_@Bot" +i;
             // Check if the game is already started or the maximum number of players is reached
             if (!isGameReady && players.size() < getMaxNumOfPlayers()) {
                 players.add(new serverPlayer(UUID.randomUUID(), botName, false, 0));
