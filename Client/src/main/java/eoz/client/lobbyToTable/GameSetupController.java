@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import rmi.Client;
 
 import java.io.IOException;
 
@@ -25,10 +26,7 @@ public class GameSetupController {
     @FXML
     private Slider numOfPlayers;
 
-    @FXML
-    private Slider numOfBots;
-
-    public  String username;
+    public String username;
 
 
     private Stage stage;
@@ -98,74 +96,54 @@ public class GameSetupController {
         }
     }
 
-    private int determineNumberOfHumanPlayers(int totalPlayers, int numOfBots) {
-        // The number of human players is the total players minus the number of bots
-        return totalPlayers - numOfBots;
-    }
-
 
 
     public void switchToScene4(ActionEvent event) {
-        try {
-            // Check if gameName TextField is empty
-            if (gameName.getText().isEmpty()) {
-                // Show alert if the game name is empty
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Invalid Game Name");
-                alert.setHeaderText("You have to set the Game Name!");
-                alert.setContentText("You can not leave the Game name empty.");
-                alert.showAndWait();
-            } else {
-                // If gameName is not empty, proceed to switch scenes
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
-                root = loader.load();
+        // Show alert if the game name is empty
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
-                //create the Table Application and TableController
-                tableApplication tableApplication = new tableApplication();
-                eoz.client.lobbyToTable.tableController tableController = getTableController(loader);
+        // Check if gameName TextField is empty
+        if (gameName.getText().isEmpty()) {
+            alert.setTitle("Invalid Game Name");
+            alert.setHeaderText("You have to set the Game Name!");
+            alert.setContentText("You cannot leave the Game name empty.");
+            alert.showAndWait();
+        } else {
+            try {
+                // Create a client
+                Client client = new Client(username, (int) numOfPlayers.getValue());
 
+                // Attempt to connect to the server
+                if (client.connectToServer()) {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));
+                    root = loader.load();
+                    LobbyRoomController lobbyRoomController = loader.getController();
 
-                // set up the stage
-                stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-                stage.show();
-                stage.setTitle(gameName.getText());
+                    // Setup lobbyRoomController
+                    lobbyRoomController.setClient(client);
+                    lobbyRoomController.setGameName(gameName.getText());
+                    lobbyRoomController.setNumOfPlayers((int) numOfPlayers.getValue());
+                    lobbyRoomController.setUsername(username);
+                    lobbyRoomController.startTimer();
 
-                // bind the elements of the table to the window
-                tableApplication.initializeBind(tableController,root);
+                    // set up the stage
+                    stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    lobbyRoomController.setStage(stage);
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.show();
+                    stage.setTitle("Lobby Room");
+                } else {
+                    // Show an alert indicating connection failure
+                    alert.setTitle("Connection Error");
+                    alert.setHeaderText("Failed to connect to the server.");
+                    alert.setContentText("Please check your network connection and try again.");
+                    alert.showAndWait();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
-
-    private tableController getTableController(FXMLLoader loader) {
-        tableController tableController = loader.getController();
-        int totalNumOfPlayers = (int) numOfPlayers.getValue();
-        int bots = getBots(totalNumOfPlayers);
-
-        int numOfHumanPlayers = determineNumberOfHumanPlayers(totalNumOfPlayers, bots);
-
-        // Setup players in the tableController
-        tableController.displayName(numOfPlayers.getValue() );
-        tableController.setMainPlayerName(username);
-        return tableController;
-    }
-
-    private int getBots(int totalNumOfPlayers) {
-        int bots = (int) numOfBots.getValue();
-
-        // Ensure the total number of players is at least equal to the number of bots
-        if (totalNumOfPlayers < bots) {
-            //This automatically adjust the total number of players to match the number of bots
-            totalNumOfPlayers = bots;
-            // and update the numOfPlayers slider to reflect this change
-            numOfPlayers.setValue(totalNumOfPlayers);
-
-        }
-        return bots;
-    }
-
 
 }

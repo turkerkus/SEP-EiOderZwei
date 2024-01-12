@@ -2,21 +2,22 @@ package eoz.client.lobbyToTable;
 
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import rmi.serverPlayer;
 
 import javax.swing.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 
-
-public class Spieler1 implements Serializable {
+public class Spieler1 extends serverPlayer {
 
     private boolean aussteigen = false;
     private boolean leftserver = false;
     private boolean cardDrawn = false;
     private int newCard;
-    int  id;
+    UUID  id;
     String playerName;
     int punkte;
     Hand cardHand;
@@ -36,7 +37,8 @@ public class Spieler1 implements Serializable {
         this.playerLabel.setText(playerName);
     }
 
-    public Spieler1(int id, String playerName, boolean hahnKarte, int kornzahl, CardGridPane cardGridPane, Label playerLabel) { //Create player with following parameters
+    public Spieler1(UUID id, String playerName, boolean hahnKarte, int kornzahl, CardGridPane cardGridPane, Label playerLabel) {
+        super(id,playerName,hahnKarte,kornzahl); //Create player with following parameters
         this.id = id;
         this.playerName = playerName;
         this.hahnKarte = hahnKarte;
@@ -54,7 +56,7 @@ public class Spieler1 implements Serializable {
         return cardGridPane;
     }
 
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 

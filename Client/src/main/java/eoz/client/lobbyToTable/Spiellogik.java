@@ -1,7 +1,6 @@
 package eoz.client.lobbyToTable;
 
 import javax.swing.*;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Spiellogik {
@@ -31,7 +30,7 @@ public class Spiellogik {
 
 
     // Methoden
-    public Boolean SpielzugManager(Spieler1[] spielerArray, Table table) {
+    public Boolean SpielzugManager(List<Spieler1> spielerArray, Table table) {
         int i = 0;
         if (table.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
             for (Spieler1 spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat

@@ -17,6 +17,7 @@ import java.io.IOException;
 // Programm, um den Spieltisch für das Spiel anzuzeigen.
 public class tableApplication extends Application {
 
+
     @Override
     public void start(Stage primaryStage) {
         try {

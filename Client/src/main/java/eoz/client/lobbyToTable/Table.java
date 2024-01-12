@@ -2,20 +2,21 @@ package eoz.client.lobbyToTable;
 
 import javax.swing.*;
 import java.io.Serializable;
+import java.util.List;
 
 public class Table implements Serializable {
 
-    public Spieler1[] spielerList;
+    public List<Spieler1> spielerList;
     private int moveCount = 0;
     private Deck1 nachzieheDeck = new Deck1(true); //This is the deck from which the players draw cards.
     private Deck1 ablageDeck = new Deck1(false); //This is the deck where the players drop cards.
     public volatile int active;
 
-    public Table(Spieler1[] spieler) {
+    public Table(List<Spieler1> spieler) {
         this.spielerList = spieler;
     }
 
-    public Spieler1[] getSpielerList() {
+    public List<Spieler1> getSpielerList() {
         return spielerList;
     }
 
@@ -27,7 +28,7 @@ public class Table implements Serializable {
         return nachzieheDeck.ziehen();
     }
     public Spieler1 getActiveSpieler(){
-        return spielerList[active];
+        return spielerList.get(active);
     }
 
     public void setActive(int activeSpieler){
@@ -38,7 +39,7 @@ public class Table implements Serializable {
     }
 
     public int getAnzahlSpieler() { //diese Method gibt die Anzahl der aktuellen Spieler zurück.
-        return spielerList.length;
+        return spielerList.size();
     }
 
     public Card1 getTopCardOfDeck() {
@@ -60,11 +61,11 @@ public class Table implements Serializable {
     public Spieler1 nextSpieler() {
         do {
             active = (active + 1) % getAnzahlSpieler();
-        } while (!spielerList[active].inGame());
+        } while (!spielerList.get(active).inGame());
 
-        if ((spielerList[active] != null))
-            System.out.println(spielerList[active].getPlayerName() + " is next");
-        return spielerList[active];
+        if ((spielerList.get(active) != null))
+            System.out.println(spielerList.get(active).getPlayerName() + " is next");
+        return spielerList.get(active);
     }
 
     public void intiNachZiehDeck() {

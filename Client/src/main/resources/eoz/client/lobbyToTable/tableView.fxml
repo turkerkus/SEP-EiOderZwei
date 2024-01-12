@@ -198,17 +198,17 @@
                             </rowConstraints>
                             <Label fx:id="p4" text="Player 4" textFill="WHITE">
                                 <font>
-                                    <Font size="55.0" />
+                                    <Font size="36.0" />
                                 </font>
                             </Label>
                             <Label fx:id="p5" text="Player 5" textFill="WHITE" GridPane.columnIndex="2">
                                 <font>
-                                    <Font size="55.0" />
+                                    <Font size="36.0" />
                                 </font>
                             </Label>
                             <Label fx:id="p6" text="Player 6" textFill="WHITE" GridPane.columnIndex="4">
                                 <font>
-                                    <Font size="55.0" />
+                                    <Font size="36.0" />
                                 </font>
                             </Label>
                         </GridPane>
@@ -225,17 +225,17 @@
                             </rowConstraints>
                             <Label fx:id="p1" text="Player 1" textFill="WHITE" GridPane.columnIndex="2">
                                 <font>
-                                    <Font size="55.0" />
+                                    <Font size="36.0" />
                                 </font>
                             </Label>
                             <Label fx:id="p2" text="Player 2" textFill="WHITE" GridPane.columnIndex="4">
                                 <font>
-                                    <Font size="55.0" />
+                                    <Font size="36.0" />
                                 </font>
                             </Label>
                             <Label fx:id="p3" text="Player 3" textFill="WHITE">
                                 <font>
-                                    <Font size="55.0" />
+                                    <Font size="36.0" />
                                 </font>
                             </Label>
                         </GridPane>

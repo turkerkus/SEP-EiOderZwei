@@ -14,7 +14,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import rmi.Client;
+import rmi.serverPlayer;
 
+import java.rmi.RemoteException;
 import java.util.*;
 
 public class tableController {
@@ -82,7 +85,10 @@ public class tableController {
     // create a list of player grid panes
     List<CardGridPane> gridPanes = new ArrayList<>();
     private Table table;
-    private Spieler1[] spieler;
+    private List<Spieler1> spielerList = new ArrayList<>(6);
+
+    private Client client;
+
 
     private final Spiellogik gameLogic = new Spiellogik();
     private int currentPlayerIndex ;
@@ -97,6 +103,14 @@ public class tableController {
 
     private Boolean isGameStarted = false;
     private String mainPlayerName = "MainPlayer";
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
 
     public void initialize() {
 
@@ -115,34 +129,20 @@ public class tableController {
         gridPanes.add(player5GridPane);
         gridPanes.add(player6GridPane);
 
+    }
+    public void assignCardGridPane() throws RemoteException {
+        if (this.client != null) {
 
-        /**
-         * Connecting Spiellogik to table.
-         */
+            try {
+                // get player list
+                List<serverPlayer> players = this.client.getPlayerList();
+                convertAndSetPlayers(players);
+            } catch (RemoteException e) {
+                e.getMessage();
 
-        //TODO this is just a placeholder of th player IT HAS TO BE ON THE SERVER
-        // also remember the every client has to be the main client (speiler1)on their pc
-        // also create a dummy CardGridPane, set all the player's CardGridPane to the dummy
-        // and create a dummy label ,set all player's label to dummyLable
+            }
 
-        CardGridPane dummyPane = new CardGridPane();
-        Label dummyLabel = new Label();
-
-        Spieler1 spieler1 = new Spieler1(1, this.mainPlayerName, false, 0, dummyPane,dummyLabel);
-
-        Spieler1 spieler2 = new Spieler1(2, "Player2", false, 0, dummyPane,dummyLabel);
-
-        Spieler1 spieler3 = new Spieler1(3, "Player3", false, 0, dummyPane,dummyLabel);
-
-        Spieler1 spieler4 = new Spieler1(4, "Player4", false, 0, dummyPane,dummyLabel);
-
-        Spieler1 spieler5 = new Spieler1(5, "Player5", false, 0, dummyPane,dummyLabel);
-
-        Spieler1 spieler6 = new Spieler1(6, "Player6", false, 0, dummyPane,dummyLabel);
-
-
-        //TODO GET THE PLAYER LIST FORM THE SERVER
-        spieler = new Spieler1[]{spieler1, spieler2, spieler3, spieler4, spieler5, spieler6};
+        }
 
 
         //Assign the CardGridPane and Player label
@@ -151,7 +151,7 @@ public class tableController {
 
         int labelIndex = 0; // To keep track of which label and cardGridPane to assign next
 
-        for (Spieler1 player : spieler){
+        for (Spieler1 player : this.spielerList){
             if (player.getPlayerName().equals(this.mainPlayerName)){
                 // Assign the main player to p1 and player1GridPane
                 player.setPlayerLabel(p1);
@@ -165,9 +165,29 @@ public class tableController {
                 }
             }
         }
+    }
 
 
 
+
+    public void convertAndSetPlayers(List<serverPlayer> players) {
+        // Assuming you have a way to get JavaFX components for each player
+        for (serverPlayer player : players) {
+            CardGridPane dummyPane = new CardGridPane();
+            Label dummyLabel = new Label();
+
+            Spieler1 spieler = new Spieler1(
+                    player.getId(),
+                    player.getName(),
+                    player.isHasHahnKarte(),
+                    player.getKornzahl(),
+                    dummyPane,
+                    dummyLabel
+            );
+
+            // Add to your spielerList or handle as needed
+            spielerList.add(spieler);
+        }
     }
 
     public String getMainPlayerName() {
@@ -197,7 +217,7 @@ public class tableController {
             Random random = new Random();
             int numOfPlayers = 6;
             int firstPlayerIndex = random.nextInt(numOfPlayers);
-            Spieler1 firstPlayer = spieler[firstPlayerIndex];
+            Spieler1 firstPlayer = spielerList.get(firstPlayerIndex);
 
             // Give the firstPlayer the 'hahn' card
             firstPlayer.setHahnKarte(true);
@@ -206,7 +226,7 @@ public class tableController {
             this.currentPlayerIndex = firstPlayerIndex;
 
             // Create a table
-            this.table = new Table(spieler);
+            this.table = new Table(spielerList);
 
             // Set the firstPlayer as the active player in the table
             table.setActive(firstPlayerIndex);
@@ -244,7 +264,7 @@ public class tableController {
      */
     private void startPlayerTurn() {
         // Check for end-game condition
-        if (gameLogic.SpielzugManager(this.spieler, this.table)) {
+        if (gameLogic.SpielzugManager(this.spielerList, this.table)) {
             // Handle game over (declare winner, etc.)
             // TODO: SWITCH TO SCORE BOARD OR SHOW A DIALOG BOX
             // This is just a placeholder
@@ -252,9 +272,9 @@ public class tableController {
         }
 
         // Get the current player
-        Spieler1 currentPlayer = this.spieler[currentPlayerIndex];
+        Spieler1 currentPlayer = this.spielerList.get(currentPlayerIndex);
 
-        //TODO: this is implementd on the client side
+        //TODO: this is implement on the client side
         // and the sever have to update the current player ui for all clients
         // Update UI elements for the current player's turn
         updateUIForCurrentPlayer(currentPlayer);
@@ -331,7 +351,7 @@ public class tableController {
         // Perform end-of-turn actions for the player
 
         // Move to the next player's turn
-        currentPlayerIndex = (currentPlayerIndex + 1) % this.spieler.length;
+        currentPlayerIndex = (currentPlayerIndex + 1) % this.spielerList.size();
         startPlayerTurn(); // Start the next player's turn
     }
 
