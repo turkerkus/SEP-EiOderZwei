@@ -16,6 +16,12 @@ public class Spieler {
         this.hand = hand;
         this.hahnkarte = hahnkarte;
     }
+    public Spieler(){
+
+    }
+    public Spieler(String name){
+        this.name = name;
+    }
 
     public int getId() {
         return id;

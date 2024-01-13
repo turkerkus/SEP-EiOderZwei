@@ -1,36 +1,60 @@
 package eoz.client.lobbyToTable;
 
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import rmi.ChatController;
+import rmi.ChatObserver;
+import rmi.ChatObserverImpl;
 
 
+
+import java.io.IOException;
+import java.net.URL;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.*;
-import java.util.random.RandomGenerator;
 
-public class tableController {
 
-    /** Chat Vars **/
-    @FXML
-    TextField input;
-    @FXML
-    public ScrollPane scroll;
-    @FXML
-    public VBox messagesBox;
-    @FXML
-    Button sendButton;
-    @FXML
-    VBox background;
+public class tableController implements Initializable, ChatObserver {
 
-    public String uID = UUID.randomUUID().toString().substring(0,3);
-    /**Chat Vars end**/
+    /**
+     * Chat Vars
+     **/
+    private ChatObserver chatObserver;
+    private ChatController controller;
+    @FXML
+    TextFlow emojiList;
+    @FXML
+    Button btnSend;
+    @FXML
+    Button btnEmoji;
+    @FXML
+    VBox chatBox;
+    @FXML
+    ScrollPane scrollPane;
+    @FXML
+    TextArea txtMsg;
+    @FXML
+    public AnchorPane chatPane;
+
+    private String username="user";
+    /**
+     * Chat Vars end
+     **/
 
     @FXML
     public Label p1;
@@ -45,8 +69,7 @@ public class tableController {
     @FXML
     public Label p3;
 
-    @FXML
-    public AnchorPane anchorPane1;
+
     @FXML
     public AnchorPane anchorPane2;
     @FXML
@@ -96,20 +119,112 @@ public class tableController {
     // create a list of player grid panes
     List<GridPane> gridPanes = new ArrayList<>();
 
-    public void initialize(){
+    public void setUsername(String username){
+        this.username=username;
+        System.out.println(this.username);
+    }
+
+    public void initialize(URL location, ResourceBundle resources) {
         gridPanes.add(player1GridPane);
         gridPanes.add(player2GridPane);
         gridPanes.add(player3GridPane);
         gridPanes.add(player4GridPane);
         gridPanes.add(player5GridPane);
         gridPanes.add(player6GridPane);
+
+        for(Node text : emojiList.getChildren()){
+            text.setOnMouseClicked(event -> {
+                txtMsg.setText(txtMsg.getText()+" "+((Text)text).getText());
+                emojiList.setVisible(false);
+            });
+        }
+        scrollPane.vvalueProperty().bind(chatBox.heightProperty());
+        try{
+            chatObserver = new ChatObserverImpl(this);
+            //controller = ServerConnector.getServerConnector().getController();
+            //controller.addChatObserver(chatObserver);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
     Integer gridPanesIdx = 0;
 
+    public void sendAction(javafx.event.ActionEvent actionEvent) {
+        try {
+            if(txtMsg.getText().trim().isEmpty())return;
+            controller.notifyAllClients(username,txtMsg.getText().trim());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        txtMsg.setText("");
+        txtMsg.requestFocus();
+    }
+
+    public void emojiAction(javafx.event.ActionEvent actionEvent) {
+        emojiList.setVisible(!emojiList.isVisible());
+    }
+
+    @Override
+    public boolean update(String username, String message) throws RemoteException {
+        Text text = new Text(message);
+
+        text.setFill(Color.WHITE);
+        text.getStyleClass().add("message");
+        TextFlow tempFlow = new TextFlow();
+        if(!this.username.equals(username)){
+            Text txtName = new Text(username + "\n");
+            txtName.getStyleClass().add("txtName");
+            tempFlow.getChildren().add(txtName);
+
+        }
+        tempFlow.getChildren().add(text);
+        tempFlow.setMaxWidth(200);
+
+        TextFlow flow = new TextFlow(tempFlow);
+        HBox hbox = new HBox(12);
+
+        if(!this.username.equals(username)){
+
+            tempFlow.getStyleClass().add("tempFlowFlipped");
+            flow.getStyleClass().add("textFlowFlipped");
+            chatBox.setAlignment(Pos.TOP_LEFT);
+            hbox.setAlignment(Pos.CENTER_LEFT);
+            hbox.getChildren().add(flow);
+
+        }else{
+            text.setFill(Color.WHITE);
+            tempFlow.getStyleClass().add("tempFlow");
+            flow.getStyleClass().add("textFlow");
+            hbox.setAlignment(Pos.BOTTOM_RIGHT);
+            hbox.getChildren().add(flow);
+        }
+
+        hbox.getStyleClass().add("hbox");
+        Platform.runLater(() -> chatBox.getChildren().addAll(hbox));
 
 
-   public void sendMessage(){
+        return true;
+    }
+
+    @Override
+    public ArrayList<Spieler> getOnlineUsers() throws RemoteException {
+        return null;
+    }
+
+    @Override
+    public String getUsername() throws RemoteException {
+        return username;
+    }
+
+
+    public ChatObserver getChatObserver(){
+        return chatObserver;
+    }
+
+
+  /* public void sendMessage(){
        String messageText = input.getText().trim();
        if(!messageText.isEmpty()){
            String senderID = messageText.split(":")[0].trim();
@@ -141,9 +256,7 @@ public class tableController {
            setWrapText(true);
            setMaxWidth(200);
        }
-   }
-
-
+   }*/
 
 
     // Assume this is called when the main card is clicked to start distribution
@@ -168,7 +281,7 @@ public class tableController {
             nameIncrement++;
 
             // Increment the index to cycle through the GridPanes
-            gridPanesIdx = (gridPanesIdx ) % gridPanes.size();
+            gridPanesIdx = (gridPanesIdx) % gridPanes.size();
         }
     }
 
@@ -187,14 +300,10 @@ public class tableController {
     }
 
 
-
-
-
-
-    public void displayName(String username, double numOfPlayers){
+    public void displayName(String username, double numOfPlayers) {
         p1.setText(username);
 
-        switch ((int) numOfPlayers){
+        switch ((int) numOfPlayers) {
             case 1:
                 p2.setText("Bot 1");
                 p3.setText("Bot 2");
@@ -222,11 +331,4 @@ public class tableController {
                 break;
         }
     }
-
-
-
-
-
-
-
 }

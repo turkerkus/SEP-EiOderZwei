@@ -3,7 +3,7 @@ module eoz.client.lobbyToTable {
     requires javafx.fxml;
     requires java.desktop;
     requires java.rmi;
-
+    requires java.sql;
 
 
     opens eoz.client.lobbyToTable to javafx.fxml;
@@ -11,4 +11,5 @@ module eoz.client.lobbyToTable {
     exports eoz.client.lobbyToTable;
     exports eoz.client.spielbrett;
     exports rmi;
+    opens rmi to javafx.fxml;
 }
