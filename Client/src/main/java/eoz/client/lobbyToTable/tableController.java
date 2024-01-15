@@ -14,8 +14,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import rmi.Client;
-import rmi.serverPlayer;
+import sharedClasses.Card;
+import sharedClasses.Deck;
+import sharedClasses.Table;
+import sharedClasses.ServerPlayer;
 
 import java.rmi.RemoteException;
 import java.util.*;
@@ -85,7 +87,9 @@ public class tableController {
     // create a list of player grid panes
     List<CardGridPane> gridPanes = new ArrayList<>();
     private Table table;
-    private List<Spieler1> spielerList = new ArrayList<>(6);
+    private List<Spieler> spielerList = new ArrayList<>(6);
+    private List<ServerPlayer> serverPlayers;
+
 
     private Client client;
 
@@ -135,8 +139,8 @@ public class tableController {
 
             try {
                 // get player list
-                List<serverPlayer> players = this.client.getPlayerList();
-                convertAndSetPlayers(players);
+                serverPlayers = this.client.getPlayerList();
+                convertAndSetPlayers(serverPlayers);
             } catch (RemoteException e) {
                 e.getMessage();
 
@@ -151,8 +155,8 @@ public class tableController {
 
         int labelIndex = 0; // To keep track of which label and cardGridPane to assign next
 
-        for (Spieler1 player : this.spielerList){
-            if (player.getPlayerName().equals(this.mainPlayerName)){
+        for (Spieler player : this.spielerList){
+            if (player.getServerPlayerName().equals(this.mainPlayerName)){
                 // Assign the main player to p1 and player1GridPane
                 player.setPlayerLabel(p1);
                 player.setCardGridPane(player1GridPane);
@@ -170,16 +174,16 @@ public class tableController {
 
 
 
-    public void convertAndSetPlayers(List<serverPlayer> players) {
+    public void convertAndSetPlayers(List<ServerPlayer> players) {
         // Assuming you have a way to get JavaFX components for each player
-        for (serverPlayer player : players) {
+        for (ServerPlayer player : players) {
             CardGridPane dummyPane = new CardGridPane();
             Label dummyLabel = new Label();
 
-            Spieler1 spieler = new Spieler1(
-                    player.getId(),
-                    player.getName(),
-                    player.isHasHahnKarte(),
+            Spieler spieler = new Spieler(
+                    player.getServerPlayerId(),
+                    player.getServerPlayerName(),
+                    player.isHahnKarte(),
                     player.getKornzahl(),
                     dummyPane,
                     dummyLabel
@@ -217,7 +221,7 @@ public class tableController {
             Random random = new Random();
             int numOfPlayers = 6;
             int firstPlayerIndex = random.nextInt(numOfPlayers);
-            Spieler1 firstPlayer = spielerList.get(firstPlayerIndex);
+            Spieler firstPlayer = spielerList.get(firstPlayerIndex);
 
             // Give the firstPlayer the 'hahn' card
             firstPlayer.setHahnKarte(true);
@@ -226,7 +230,7 @@ public class tableController {
             this.currentPlayerIndex = firstPlayerIndex;
 
             // Create a table
-            this.table = new Table(spielerList);
+            this.table = new Table(serverPlayers);
 
             // Set the firstPlayer as the active player in the table
             table.setActive(firstPlayerIndex);
@@ -272,7 +276,7 @@ public class tableController {
         }
 
         // Get the current player
-        Spieler1 currentPlayer = this.spielerList.get(currentPlayerIndex);
+        Spieler currentPlayer = this.spielerList.get(currentPlayerIndex);
 
         //TODO: this is implement on the client side
         // and the sever have to update the current player ui for all clients
@@ -363,7 +367,7 @@ public class tableController {
      *
      * @param currentPlayer The current player whose label should be highlighted.
      */
-    public void updateUIForCurrentPlayer(Spieler1 currentPlayer) {
+    public void updateUIForCurrentPlayer(Spieler currentPlayer) {
         Label currentPlayerLabel = currentPlayer.getPlayerLabel();
         if (currentPlayerLabel != null) {
             // Create a glow effect
@@ -440,11 +444,11 @@ public class tableController {
     // This is just a dummy
     public void distributeCards() {
         if (isGameStarted){
-            Deck1 deck = table.getNachzieheDeck();
-            Card1 card = deck.ziehen();
+            Deck deck = table.getNachzieheDeck();
+            Card card = deck.ziehen();
 
             if(card != null){
-                String cardName = card.getType() + card.value;
+                String cardName = card.getType() + card.getValue();
                 // Create a new card ImageView for distribution
                 ImageView cardView = new ImageView(String.valueOf(card.getImage()));
                 cardView.setId(cardName);

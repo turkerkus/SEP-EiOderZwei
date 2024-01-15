@@ -108,4 +108,27 @@ public class LobbyController2 {
 
     }
 
+    public void joinGameRoom (ActionEvent event) {
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("joinGame.fxml"));
+            root = loader.load();
+
+            JoinGameController joinGameController = loader.getController();
+            joinGameController.setUsername(username);
+
+
+            stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+            Scene scene3 = new Scene(root,800,800);
+            stage.setScene(scene3);
+            stage.show();
+            stage.setTitle("Join Game");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 }

@@ -12,7 +12,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import rmi.Client;
 
 import java.io.IOException;
 
@@ -115,6 +114,9 @@ public class GameSetupController {
 
                 // Attempt to connect to the server
                 if (client.connectToServer()) {
+                    client.setGameName(gameName.getText());
+                    client.createGameSession();
+                    System.out.println("Game Id : " + client.getGameId());
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));
                     root = loader.load();
                     LobbyRoomController lobbyRoomController = loader.getController();
@@ -124,15 +126,19 @@ public class GameSetupController {
                     lobbyRoomController.setGameName(gameName.getText());
                     lobbyRoomController.setNumOfPlayers((int) numOfPlayers.getValue());
                     lobbyRoomController.setUsername(username);
-                    lobbyRoomController.startTimer();
+                    lobbyRoomController.setPlayerLabel(username + "@Host");
+                    lobbyRoomController.roomName.setText("Room :"+ gameName.getText());
+                    lobbyRoomController.gameID.setText("Game ID: " + client.getGameId());
+
 
                     // set up the stage
                     stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     lobbyRoomController.setStage(stage);
+                    client.setLobbyRoomController(lobbyRoomController);
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
                     stage.show();
-                    stage.setTitle("Lobby Room");
+                    stage.setTitle("Lobby Room@_"+ gameName.getText());
                 } else {
                     // Show an alert indicating connection failure
                     alert.setTitle("Connection Error");
@@ -145,5 +151,7 @@ public class GameSetupController {
             }
         }
     }
+
+
 
 }

@@ -1,11 +1,12 @@
 package eoz.client.lobbyToTable;
 
-import javax.swing.*;
+import sharedClasses.Table;
+
 import java.util.*;
 
 public class Spiellogik {
     // Initialisierung
-
+    /*
     Spieler spieler1 = new Spieler(1, "spieler1", 0, 0, new ArrayList<Card>(), false);
     Spieler spieler2 = new Spieler(2, "spieler2", 0, 0, new ArrayList<Card>(), false);
     Spieler spieler3 = new Spieler(3, "spieler3", 0, 0, new ArrayList<Card>(), false);
@@ -28,16 +29,18 @@ public class Spiellogik {
 
     Ablagestapel ablagestapel = getAblagestapel();
 
+     */
+
 
     // Methoden
-    public Boolean SpielzugManager(List<Spieler1> spielerArray, Table table) {
+    public Boolean SpielzugManager(List<Spieler> spielerArray, Table table) {
         int i = 0;
         if (table.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
-            for (Spieler1 spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
+            for (Spieler spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
                 if (spieler.getPunkte() >= 5) {
                     // TODO : Remove this after the SWITCH TO SCORE BOARD OR SHOW A DIALOGBOX is implemented in the startPlayerTurn() in tableController
                     // this is just a placeholder
-                    System.out.print(spieler.getPlayerName() + "hat gewonnen");
+                    System.out.print(spieler.getServerPlayerName() + "hat gewonnen");
                     return true;
                 }
             }
@@ -46,9 +49,11 @@ public class Spiellogik {
         return false;
     }
 
+    /*
+
     private void SpielzugMoeglichkeiten(Spieler aktuelplayer) {
         for (Spieler spieler : spielerArray) {
-            if (spieler.isHahnkarte()) {
+            if (spieler.isHahnKarte()) {
                 if (aktuelplayer.getKornzahl() < spieler.getKornzahl()) {
                     if (aktuelplayer.getKornzahl() >= 5) {
                         Spielzug(aktuelplayer, true, true);
@@ -90,13 +95,13 @@ public class Spiellogik {
         String antwort = spieleranfrage(boolwert1, boolwert2);                                   //Frage an spieler was getan werden soll
         if (antwort == "karte") {                                   //Wenn der Spieler Karte ziehen will wird die Kartenziehmethode aufgerufen
             zieheKarte(aktuelspieler);
-            if (aktuelspieler.isHahnkarte()) {                                   //Wenn die Hahnkarte im Besitz ist wird die Kartenziehmethode erneut aufgerufen
+            if (aktuelspieler.isHahnKarte()) {                                   //Wenn die Hahnkarte im Besitz ist wird die Kartenziehmethode erneut aufgerufen
                 zieheKarte(aktuelspieler);
             }
         }
         if (antwort == "umtauschen") {                              //Wenn der Spieler Koerner umtauschen will wird die Multiselectmethode aufgerufen
             multiselect(aktuelspieler);
-            if (aktuelspieler.isHahnkarte()) {                                  //Wenn die Hahnkarte im Besitz ist wird die Kartenziehmethode aufgerufen
+            if (aktuelspieler.isHahnKarte()) {                                  //Wenn die Hahnkarte im Besitz ist wird die Kartenziehmethode aufgerufen
                 zieheKarte(aktuelspieler);
             }
         }
@@ -107,7 +112,7 @@ public class Spiellogik {
 
     private void zieheKarte(Spieler spieler) {
         Deck kartendeck = getKartendeck();
-        Card temp = kartendeck.pop();                                         //Die oberste Karte wird gezogen und zwischengespeichert
+        Card temp = kartendeck.ziehen();                                         //Die oberste Karte wird gezogen und zwischengespeichert
         //kartendeck.remove(0);
         if (temp.getType() == "Fuchs") {                                           //Wenn die oberste Karte ein Fuchs ist wird die Methode fuchsklau aufgerufen
             fuchsklau(spieler);
@@ -138,7 +143,7 @@ public class Spiellogik {
     }
 
     private String umwandelnOptionen(Spieler spieler) {
-        List<Card> hand = spieler.getHand();
+        List<Card> hand = spieler.getCardHand();
         int bioges = 0;
         int gesamt = 0;
         for (Card card : hand) {
@@ -478,4 +483,6 @@ public class Spiellogik {
 
 
     }
+
+     */
 }

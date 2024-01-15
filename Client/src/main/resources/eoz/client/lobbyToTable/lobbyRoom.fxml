@@ -7,19 +7,15 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="536.0" prefWidth="660.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="eoz.client.lobbyToTable.LobbyRoomController">
+<AnchorPane prefHeight="536.0" prefWidth="660.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.LobbyRoomController">
 
-    <Label fx:id="timerLabel" layoutX="411.0" layoutY="14.0" prefHeight="62.0" prefWidth="234.0" text="Timer: 2:00"
-           textFill="#f40000">
+    <Label fx:id="playerLabel" layoutX="411.0" layoutY="14.0" prefHeight="62.0" prefWidth="234.0" text="Player" textFill="#f40000">
         <font>
-          <Font size="37.0"/>
+          <Font size="22.0" />
         </font>
     </Label>
-    <VBox layoutX="95.0" layoutY="177.0" prefHeight="289.0" prefWidth="497.0" spacing="20.0"
-          AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="95.0" AnchorPane.rightAnchor="68.0"
-          AnchorPane.topAnchor="177.0">
-        <HBox prefHeight="18.0" prefWidth="522.0" spacing="10.0"/>
+    <VBox layoutX="84.0" layoutY="145.0" prefHeight="289.0" prefWidth="497.0" spacing="20.0" AnchorPane.bottomAnchor="102.20000000000005" AnchorPane.leftAnchor="84.0" AnchorPane.rightAnchor="79.20000000000005" AnchorPane.topAnchor="145.0">
+        <HBox prefHeight="18.0" prefWidth="522.0" spacing="10.0" />
         <VBox fx:id="playerList" spacing="5.0">
             <!-- Player avatars and names can be dynamically added here -->
         </VBox>
@@ -29,13 +25,19 @@
     </VBox>
     <Label layoutX="14.0" layoutY="14.0" prefHeight="62.0" prefWidth="234.0" text="Lobby Room">
         <font>
-          <Font size="37.0"/>
+          <Font size="37.0" />
         </font>
     </Label>
-    <Label layoutX="246.0" layoutY="83.0" prefHeight="62.0" prefWidth="172.0" text="Players in room">
-        <font>
-          <Font size="22.0"/>
-        </font>
+    <Label fx:id="roomName" layoutX="14.0" layoutY="88.0" prefHeight="34.0" prefWidth="158.0" text="Room: ">
+      <font>
+         <Font size="14.0" />
+      </font>
     </Label>
-    <Button layoutX="306.0" layoutY="481.0" mnemonicParsing="false" text="Back"/>
+    <Button fx:id="startGameSession" layoutX="45.0" layoutY="480.0" mnemonicParsing="false" onAction="#switchSceneToTable" prefHeight="26.0" prefWidth="172.0" text="Start Game Session" />
+   <Label fx:id="gameID" layoutX="242.0" layoutY="88.0" prefHeight="34.0" prefWidth="405.0" text="Game ID: ">
+      <font>
+         <Font size="14.0" />
+      </font>
+   </Label>
+   <Button fx:id="copyGameID" layoutX="385.0" layoutY="480.0" mnemonicParsing="false" onAction="#copyGameID" prefHeight="26.0" prefWidth="205.0" text="Copy Game ID" />
 </AnchorPane>

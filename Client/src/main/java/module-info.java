@@ -11,4 +11,5 @@ module eoz.client.lobbyToTable {
     exports eoz.client.lobbyToTable;
     exports eoz.client.spielbrett;
     exports rmi;
+    exports sharedClasses;
 }

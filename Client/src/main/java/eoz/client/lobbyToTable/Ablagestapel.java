@@ -1,5 +1,7 @@
 package eoz.client.lobbyToTable;
 
+import sharedClasses.Card;
+
 import javax.swing.*;
 import java.util.Collections;
 import java.util.Stack;

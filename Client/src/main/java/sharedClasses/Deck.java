@@ -1,35 +1,35 @@
-package eoz.client.lobbyToTable;
+package sharedClasses;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-public class Deck1 {
-    //deck steht für das Deck dargestellt als Stack
-    private final Stack<Card1> deck = new Stack<>();
+public class Deck {
+    //deck steht für das Deck_old dargestellt als Stack
+    private final Stack<Card> deck = new Stack<>();
 
-    //Steht für die Anzahl der Karten im Deck
+    //Steht für die Anzahl der Karten im Deck_old
     private int cardCount = 0;
 
-    //coverCard steht für die Art von Deck. False für Ablage und True für ZiehDeck
+    //coverCard steht für die Art von Deck_old. False für Ablage und True für ZiehDeck
     private final boolean coverCard;
 
-    public Deck1(boolean coverCard){
+    public Deck(boolean coverCard){
         this.coverCard = coverCard;
     }
 
-    public Card1 ziehen(){
+    public Card ziehen(){
         if(deck.isEmpty()){
             return  null;
         }
         if(coverCard){ //Das ist die ZiehDeck
-            Card1 card = deck.pop();
+            Card card = deck.pop();
             cardCount = cardCount - 1;
             return card;
         }
         return null;
     }
-    public boolean ablegen(Card1 card){
+    public boolean ablegen(Card card){
         if (!coverCard){    //Ablagestapel
             deck.add(card);
             cardCount = cardCount + 1;
@@ -39,10 +39,10 @@ public class Deck1 {
     }
 
     public void mischen(){
-        ArrayList<Card1> cardDeck = new ArrayList<>();
+        ArrayList<Card> cardDeck = new ArrayList<>();
 
         while(!deck.isEmpty()) { // deck leeren und in liste packen
-            Card1 card = deck.pop();
+            Card card = deck.pop();
             cardDeck.add(card);
         }
         Collections.shuffle(cardDeck); //shuffle liste
@@ -57,11 +57,11 @@ public class Deck1 {
         return  cardCount;
     }
 
-    public Card1 getTopCard(){
+    public Card getTopCard(){
         return deck.peek();
     }
 
-    public void addCard(Card1 card){
+    public void addCard(Card card){
         if(coverCard){
             deck.push(card);
             cardCount = cardCount + 1;

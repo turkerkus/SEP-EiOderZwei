@@ -1,65 +1,58 @@
 package eoz.client.lobbyToTable;
 
-import java.util.List;
+import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
+import sharedClasses.Card;
+import sharedClasses.ServerPlayer;
 
-public class Spieler {
-    private int  id;
-    private  String name;
-    private int punkte;
+import javax.swing.*;
+import java.util.UUID;
 
-    private int kornzahl;
-    private List<Card> hand;
-    private  boolean  hahnkarte;
-    public Spieler(int id, String name, int punkte, int kornzahl, List<Card> hand, boolean hahnkarte) {
-        this.id = id;
-        this.name = name;
-        this.punkte = punkte;
-        this.kornzahl = kornzahl;
-        this.hand = hand;
-        this.hahnkarte = hahnkarte;
+public class Spieler extends ServerPlayer {
+
+    private CardGridPane cardGridPane;
+
+    private Label playerLabel;
+
+    public Label getPlayerLabel() {
+        return playerLabel;
     }
 
-    public int getId() {
-        return id;
+    public void setPlayerLabel(Label playerLabel) {
+        this.playerLabel = playerLabel;
+        this.playerLabel.setText(getServerPlayerName());
     }
 
-    public String getName() {
-        return name;
+    public Spieler(UUID id, String playerName, boolean hahnKarte, int kornzahl, CardGridPane cardGridPane, Label playerLabel) {
+        super(id,playerName,hahnKarte,kornzahl); //Create player with following parameters
+        this.cardGridPane = cardGridPane;
+        setPlayerLabel(playerLabel);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCardGridPane(CardGridPane cardGridPane) {
+        this.cardGridPane = cardGridPane;
     }
 
-    public int getPunkte() {return punkte;}
-
-    public void setPunkte(int punkte) {
-        this.punkte = punkte;
+    public CardGridPane getCardGridPane() {
+        return cardGridPane;
     }
 
-    public int getKornzahl() {return kornzahl;}
+    @Override
+    public void setHahnKarte(boolean hahnKarte) {
+        super.setHahnKarte(hahnKarte);
+        if (hahnKarte){
 
-    public void setKornzahl(int asdf) {this.kornzahl = kornzahl;}
+            Card hahnCard = new Card( "Hahn", new ImageIcon(getClass().getResource("/cards/hahn.png").toString()), 0, false);
+            // Create a new card ImageView for distribution
+            ImageView cardView = new ImageView(String.valueOf(hahnCard.getImage()));
+            cardView.setFitHeight(50);
+            cardView.setFitWidth(80);
+            // add card to grid pane
+            this.cardGridPane.addRoosterCard(cardView);
 
-    public List<Card> getHand() {
-        return hand;
-    }
-    public void  setHand(List<Card> hand){this.hand=hand;}
+        }else {
+            this.cardGridPane.removeRoosterCard();
+        }
 
-    public void add( Card card) {
-         hand.add(card);
-    }
-
-    public void remove(Card card) { hand.remove(card); }
-
-    public boolean isHahnkarte() {
-        return hahnkarte;
-    }
-
-    public void setHahnkarte(boolean hahnkarte) {
-        this.hahnkarte = hahnkarte;
     }
 }
-
-
-

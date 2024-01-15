@@ -2,27 +2,41 @@ package eoz.client.lobbyToTable;
 
 
 import javafx.application.Platform;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.stage.Stage;
-import rmi.Client;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.util.concurrent.TimeUnit;
 
-public class LobbyRoomController {
+public class LobbyRoomController implements Serializable {
 
 
-    public Label timerLabel;
+    public Button startGameSession;
+
+
+    public Label playerLabel;
+
+    public Label roomName;
+    public Label gameID;
+    public Button copyGameID;
     private Client client;
     private Integer numOfPlayers;
     private String username;
     private String gameName;
+
     private Parent root;
 
+
+    private boolean uiUpdateFromServer;
 
 
     private Stage stage;
@@ -30,8 +44,25 @@ public class LobbyRoomController {
     public void initialize() {
 
     }
-    public void startTimer(){
-        client.createGameSession();
+
+    public void setUiUpdateFromServer(boolean uiUpdateFromServer) {
+        this.uiUpdateFromServer = uiUpdateFromServer;
+    }
+
+    public void setPlayerLabel(String playerLabel) {
+        this.playerLabel.setText(playerLabel);
+    }
+
+
+
+    /*
+    public void startTimer() {
+        if(!joiningGame){
+            client.createGameSession();
+            System.out.println("Game ID: "+ client.getGameId());
+
+        }
+
 
         // Use a separate thread to update the timer
         new Thread(() -> {
@@ -45,8 +76,10 @@ public class LobbyRoomController {
                     Platform.runLater(() -> timerLabel.setText(String.format("Timer: %02d:%02d", minutes, seconds)));
                     gameReady = client.isGameReady();
                     Thread.sleep(1000); // Sleep for a second
-                    if (gameReady) {
-                        // Close the dialog and proceed
+                    if (joiningGame) {
+                        setNumOfPlayers(client.getNumOfPlayers());
+                        Platform.runLater(this::switchSceneToTable);
+                    } else if (gameReady) {
                         Platform.runLater(this::switchSceneToTable);
                     } else {
                         Thread.sleep(1000); // Sleep for a second
@@ -63,6 +96,9 @@ public class LobbyRoomController {
 
         }).start();
     }
+
+     */
+
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -83,9 +119,8 @@ public class LobbyRoomController {
         this.gameName = gameName;
     }
 
-    private void switchSceneToTable() {
-        // Close the dialog and proceed
-        Platform.runLater(() -> {
+    public void switchSceneToTable() {
+        if (client.startGameTable() || uiUpdateFromServer) {
 
             // If gameName is not empty, proceed to switch scenes
             FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
@@ -110,9 +145,24 @@ public class LobbyRoomController {
             }
 
 
-        });
+        } else {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Starting Game Session");
+            alert.setHeaderText("Player : " + username + " not allowed to Start Game Table");
+            alert.setContentText("The host must start Game");
+        }
+
+
     }
 
+
+    @FXML
+    private void copyGameID() {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(client.getGameId().toString()); // Assuming 'copyGameID' is a Label or a control with text
+        clipboard.setContent(content);
+    }
 
     private tableController getTableController(FXMLLoader loader) throws RemoteException {
         tableController tableController = loader.getController();

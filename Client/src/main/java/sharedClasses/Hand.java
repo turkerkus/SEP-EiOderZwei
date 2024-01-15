@@ -1,4 +1,4 @@
-package eoz.client.lobbyToTable;
+package sharedClasses;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class Hand implements Serializable {
         return handCards.get(pos);
     }
 
-    public void addCard(Card1 card){
+    public void addCard(Card card){
         HandCard hc = new HandCard(card.getType(), card.getImage(), card.getValue(), false);
         handCards.add(hc);
     }
