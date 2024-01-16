@@ -17,7 +17,12 @@ public interface ClientUIUpdateListener extends Remote {
     Integer getNumOfPlayers() throws RemoteException;
     void setLobbyRoomController(LobbyRoomController lobbyRoomController) throws RemoteException;
 
-    tableController getTableController() throws RemoteException;
 
     void setTableController(tableController tableController) throws RemoteException;
+
+    void setPlayerTurn(boolean playerTurn) throws  RemoteException;
+
+    void setCurrentPlayerIndex(Integer index) throws RemoteException;
+
+    void setTimeLeft(Integer timeLeft) throws RemoteException;
 }

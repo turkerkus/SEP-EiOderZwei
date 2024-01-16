@@ -7,7 +7,6 @@ import java.util.List;
 
 public class GameLogic {
     public ServerPlayer findWinningPlayer(List<ServerPlayer> spielerArray, ServerTable serverTable) {
-        int i = 0;
         if (serverTable.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
             for (ServerPlayer spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
                 if (spieler.getPunkte() >= 9 && spielerArray.size() == 2) {                 // 2 Spieler: 9 Eier

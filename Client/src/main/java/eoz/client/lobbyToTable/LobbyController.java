@@ -76,52 +76,61 @@ public class LobbyController {
             // Create a client
             client = new Client(usernameField.getText());
             client.connectToServer();
-            if (username.isEmpty()) {
+            if (!client.isConnectedToServer) {
                 // Show alert if the game name is empty
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Invalid Username");
-                alert.setHeaderText("You have to input the Username!");
-                alert.setContentText("You can not leave the Username empty.");
+                alert.setTitle("Cannot Connect to server");
+                alert.setHeaderText("Check if the server is online");
+                alert.setContentText("Server offline");
                 alert.showAndWait();
-            } else {
+            }else {
+                if (username.isEmpty()) {
+                    // Show alert if the game name is empty
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Invalid Username");
+                    alert.setHeaderText("You have to input the Username!");
+                    alert.setContentText("You can not leave the Username empty.");
+                    alert.showAndWait();
+                } else {
 
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
-                Parent root = loader.load();
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
+                    Parent root = loader.load();
 
-                LobbyController2 LobbyController2 = loader.getController();
+                    LobbyController2 LobbyController2 = loader.getController();
 
-                LobbyController2.welcome.setText("Welcome " + username);
-                LobbyController2.username = username;
-                LobbyController2.setClient(this.client);
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    LobbyController2.welcome.setText("Welcome " + username);
+                    LobbyController2.username = username;
+                    LobbyController2.setClient(this.client);
+                    Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-                Scene scene2 = new Scene(root, 800, 800);
-                stage.setScene(scene2);
-                stage.show();
-                stage.setTitle("Lobby");
+                    Scene scene2 = new Scene(root, 800, 800);
+                    stage.setScene(scene2);
+                    stage.show();
+                    stage.setTitle("Lobby");
 
-                // Assuming the ImageView has the fx:id="backgroundView" in your FXML file
-                ImageView backgroundView = (ImageView) root.lookup("#backgroundView");
+                    // Assuming the ImageView has the fx:id="backgroundView" in your FXML file
+                    ImageView backgroundView = (ImageView) root.lookup("#backgroundView");
 
-                // Ensure the image covers the entire StackPane area
-                backgroundView.fitWidthProperty().bind(stage.widthProperty());
-                backgroundView.fitHeightProperty().bind(stage.heightProperty());
+                    // Ensure the image covers the entire StackPane area
+                    backgroundView.fitWidthProperty().bind(stage.widthProperty());
+                    backgroundView.fitHeightProperty().bind(stage.heightProperty());
 
-                // Remove the preserveRatio to allow the image to cover the entire area
-                backgroundView.setPreserveRatio(false);
+                    // Remove the preserveRatio to allow the image to cover the entire area
+                    backgroundView.setPreserveRatio(false);
 
-                // Set preferred window size
-                stage.setMinWidth(800); // Minimum width of the window
-                stage.setMinHeight(600); // Minimum height of the window
+                    // Set preferred window size
+                    stage.setMinWidth(800); // Minimum width of the window
+                    stage.setMinHeight(600); // Minimum height of the window
 
-                // Adjust the stage size after the scene is shown to ensure proper layout
-                stage.sizeToScene();
-                AnchorPane card = (AnchorPane) scene2.lookup("#card");
-                if (card != null) {
-                    // Bind the card's layoutXProperty to keep it centered
-                    card.layoutXProperty().bind(scene2.widthProperty().subtract(card.widthProperty()).divide(2));
-                    // Bind the card's layoutYProperty to keep it at the same relative position from the top
-                    card.layoutYProperty().bind(scene2.heightProperty().multiply(599.0 / 1080.0));
+                    // Adjust the stage size after the scene is shown to ensure proper layout
+                    stage.sizeToScene();
+                    AnchorPane card = (AnchorPane) scene2.lookup("#card");
+                    if (card != null) {
+                        // Bind the card's layoutXProperty to keep it centered
+                        card.layoutXProperty().bind(scene2.widthProperty().subtract(card.widthProperty()).divide(2));
+                        // Bind the card's layoutYProperty to keep it at the same relative position from the top
+                        card.layoutYProperty().bind(scene2.heightProperty().multiply(599.0 / 1080.0));
+                    }
                 }
             }
 
@@ -131,10 +140,6 @@ public class LobbyController {
 
     }
 
-   /* @FXML
-    void playGame(MouseEvent event) {
-        switchToTableScene();
-    }*/
 
 
 }

@@ -265,7 +265,7 @@ public class tableController implements Serializable {
     /**
      * Updates the timer label with the remaining time.
      */
-    private void updateTimerLabel() {
+    public void updateTimerLabel() {
         int minutes = timeLeft / 60;
         int seconds = timeLeft % 60;
         timerLabel.setText(String.format("Timer: %02d:%02d", minutes, seconds));

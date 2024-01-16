@@ -45,7 +45,7 @@ public class GameSession {
     private Map<UUID, ClientUIUpdateListener> clientListeners = new ConcurrentHashMap<>();
     private Map<BroadcastType, Boolean> broadcastStatus = new ConcurrentHashMap<>();
     private Timeline timerTimeline;
-    private Integer timeLeft; // Time left in seconds
+    private volatile  Integer timeLeft; // Time left in seconds
 
 
     // TODO: decide on lobbyRoom Timer
@@ -261,7 +261,7 @@ public class GameSession {
             Integer currentPlayerIdx = serverTable.getActive();
             if(!currentPlayer.isBot()){
                 ClientUIUpdateListener currentPlayerListener = clientListeners.get(currentPlayer.getServerPlayerId());
-                currentPlayerListener.getTableController().setPlayerTurn(true);
+                currentPlayerListener.setPlayerTurn(true);
                 System.out.println(currentPlayer.toString() + " this is the current player");
             }
             // Broadcast to all players to startGame
@@ -271,7 +271,7 @@ public class GameSession {
                         // get the player listener
                         ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
                         // update the current player index
-                        listener.getTableController().setCurrentPlayerIndex(currentPlayerIdx);
+                        listener.setCurrentPlayerIndex(currentPlayerIdx);
                         // update the ui of the player
                         listener.updateUI("startGame");
                     }
@@ -289,7 +289,7 @@ public class GameSession {
 
         //Start the timer
         setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
-        startTurnTimer(120);
+        startTurnTimer(100);
     }
 
     /**
@@ -312,7 +312,7 @@ public class GameSession {
         KeyFrame keyFrame = new KeyFrame(
             Duration.seconds(1),
             event -> {
-                timeLeft--;
+                this.timeLeft = timeLeft -1;
                 //TODO this has to be can to player1.updateTimerLabel(). you do this for all player
                 // Broadcast to all players to startGame
                 if(BroadcastIsNotSent(BroadcastType.START_GAME)){
@@ -322,7 +322,7 @@ public class GameSession {
                                 // get the player listener
                                 ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
                                 //update the timerLeft for the player
-                                listener.getTableController().setTimeLeft(timeLeft);
+                                listener.setTimeLeft(timeLeft);
                                 // update the ui of the player
                                 listener.updateUI("updateTimerLabel");
                             }

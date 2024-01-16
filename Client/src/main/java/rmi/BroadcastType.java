@@ -5,5 +5,5 @@ public enum BroadcastType {
     START_GAME,
 
     UPDATE_TIMER_LABEL,
-    // Other types...
+
 }

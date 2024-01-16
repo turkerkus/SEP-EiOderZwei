@@ -25,6 +25,22 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
         this.tableController = tableController;
         System.out.println("the table controller is set");
     }
+
+    @Override
+    public void setPlayerTurn(boolean playerTurn) throws RemoteException {
+        this.tableController.setPlayerTurn(true);
+    }
+
+    @Override
+    public void setCurrentPlayerIndex(Integer index) throws RemoteException {
+        this.tableController.setCurrentPlayerIndex(index);
+    }
+
+    @Override
+    public void setTimeLeft(Integer timeLeft) throws RemoteException {
+        this.tableController.setTimeLeft(timeLeft);
+    }
+
     private tableController tableController;
 
     public void setClientName(String clientName) {
@@ -61,6 +77,10 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     @Override
     public void setNumOfPlayers(int numOfPlayers) throws RemoteException {
         this.numOfPlayers = numOfPlayers;
+        if(lobbyRoomController != null){
+            lobbyRoomController.setNumOfPlayers(numOfPlayers);
+        }
+
     }
 
 
@@ -81,7 +101,7 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
             }
             else if ("updateTimerLabel".equals(command)) {
                 System.out.println("updating the timer label for player  Begins");
-                tableController.startGameUiUpdate();
+                tableController.updateTimerLabel();
                 System.out.println("updating the timer label for player  successful");
             }
             // Handle other commands as necessary

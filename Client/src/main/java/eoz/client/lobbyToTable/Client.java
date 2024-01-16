@@ -139,7 +139,7 @@ public class Client implements ClientInter {
                 serverStub.startGameTable( gameId);
                 System.out.println("Running");
                 int numOfPlayers = updateListener.getNumOfPlayers();
-                updateListener.getLobbyRoomController().setNumOfPlayers(numOfPlayers);
+                updateListener.setNumOfPlayers(numOfPlayers);
                 return  true;
             }
             return false;
