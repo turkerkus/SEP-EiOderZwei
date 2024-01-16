@@ -5,7 +5,6 @@ import sharedClasses.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,10 +21,21 @@ public class Client implements ClientInter {
     private UUID clientId = UUID.randomUUID();
 
     private ServerInter serverStub;
-    private final String playerName;
+
+    public String getClientName() {
+        return playerName;
+    }
+
+    @Override
+    public void setTableController(tableController tableController) throws RemoteException {
+        updateListener.setTableController(tableController);
+    }
+
+    private String playerName;
     private String gameName;
     private UUID gameId;
     private ClientUIUpdateListener updateListener;
+    boolean isConnectedToServer = false;
 
     // Constructor for initializing with player name only
     public Client(String playerName) {
@@ -39,34 +49,12 @@ public class Client implements ClientInter {
 
     }
 
-    // Constructor for initializing with player name and number of players
-    public Client(String playerName, Integer numOfPlayers) {
-        this.playerName = playerName;
-        try {
-            updateListener = new ClientUIUpdateListenerImpl(numOfPlayers);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-        /*
-        try {
-            UnicastRemoteObject.exportObject(updateListener, 0);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-
-         */
-
-    }
-
     // Getter for clientId
     public UUID getClientId() {
         return clientId;
     }
 
-    @Override
-    public void setClientId(UUID clientId) throws RemoteException {
-        this.clientId = clientId;
-    }
+
 
     // Getter and setter for number of players
     public Integer getNumOfPlayers() throws RemoteException {
@@ -81,17 +69,6 @@ public class Client implements ClientInter {
         }
     }
 
-    /*
-    @Override
-    public void moveToTable() throws RemoteException {
-
-        if (lobbyRoomController != null) {
-            System.out.println("lobbyRoomController is no null");
-            lobbyRoomController.switchSceneToTable();
-        }
-    }
-
-     */
 
     public void setLobbyRoomController(LobbyRoomController lobbyRoomController) {
         try {
@@ -128,7 +105,7 @@ public class Client implements ClientInter {
     // Method to add a player to a game
     public void addPlayer(String playerName, UUID gameId) throws RemoteException {
         try {
-            serverStub.addPlayer(this.clientId,playerName, gameId);
+            serverStub.addPlayer(this.clientId,updateListener,playerName, gameId);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -146,7 +123,7 @@ public class Client implements ClientInter {
     // Method to create or join a game session
     public void createGameSession() {
         try {
-            gameId = serverStub.createGameSession(clientId,gameName, playerName, updateListener.getNumOfPlayers());
+            gameId = serverStub.createGameSession(clientId,updateListener,gameName, playerName, updateListener.getNumOfPlayers());
             System.out.println("Game session created/joined.");
         } catch (Exception e) {
             System.err.println("Error creating/joining game session: ");
@@ -205,7 +182,7 @@ public class Client implements ClientInter {
     }
 
     // Method to connect to the server
-    public Boolean connectToServer() {
+    public void connectToServer() {
         try {
             // Connect to the server's registry
             Registry registry = LocateRegistry.getRegistry(15000);
@@ -219,13 +196,14 @@ public class Client implements ClientInter {
             String response = serverStub.sayHello();
             System.out.println("Server says: " + response);
             serverStub.registerClient(clientId,updateListener);
-            return true;
+            this.isConnectedToServer = true;
+
 
         } catch (Exception e) {
             // Handle exceptions in server connection
             System.err.println("Client exception: " + e);
             e.printStackTrace();
-            return false;
+
         }
     }
 

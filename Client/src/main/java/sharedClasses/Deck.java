@@ -6,7 +6,7 @@ import java.util.Stack;
 
 public class Deck {
     //deck steht für das Deck_old dargestellt als Stack
-    private final Stack<Card> deck = new Stack<>();
+    private final Stack<ServerCard> deck = new Stack<>();
 
     //Steht für die Anzahl der Karten im Deck_old
     private int cardCount = 0;
@@ -18,20 +18,20 @@ public class Deck {
         this.coverCard = coverCard;
     }
 
-    public Card ziehen(){
+    public ServerCard ziehen(){
         if(deck.isEmpty()){
             return  null;
         }
         if(coverCard){ //Das ist die ZiehDeck
-            Card card = deck.pop();
+            ServerCard serverCard = deck.pop();
             cardCount = cardCount - 1;
-            return card;
+            return serverCard;
         }
         return null;
     }
-    public boolean ablegen(Card card){
+    public boolean ablegen(ServerCard serverCard){
         if (!coverCard){    //Ablagestapel
-            deck.add(card);
+            deck.add(serverCard);
             cardCount = cardCount + 1;
             return true;
         } else
@@ -39,17 +39,17 @@ public class Deck {
     }
 
     public void mischen(){
-        ArrayList<Card> cardDeck = new ArrayList<>();
+        ArrayList<ServerCard> serverCardDeck = new ArrayList<>();
 
         while(!deck.isEmpty()) { // deck leeren und in liste packen
-            Card card = deck.pop();
-            cardDeck.add(card);
+            ServerCard serverCard = deck.pop();
+            serverCardDeck.add(serverCard);
         }
-        Collections.shuffle(cardDeck); //shuffle liste
+        Collections.shuffle(serverCardDeck); //shuffle liste
 
-        int len = cardDeck.size();
+        int len = serverCardDeck.size();
         for(int i = 0; i <= len-1; i++){
-            deck.push(cardDeck.get(i)); //wieder auf stack packen
+            deck.push(serverCardDeck.get(i)); //wieder auf stack packen
         }
     }
 
@@ -57,13 +57,13 @@ public class Deck {
         return  cardCount;
     }
 
-    public Card getTopCard(){
+    public ServerCard getTopCard(){
         return deck.peek();
     }
 
-    public void addCard(Card card){
+    public void addCard(ServerCard serverCard){
         if(coverCard){
-            deck.push(card);
+            deck.push(serverCard);
             cardCount = cardCount + 1;
         }
     }

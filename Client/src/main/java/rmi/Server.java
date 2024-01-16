@@ -25,7 +25,6 @@ public class Server implements Remote, ServerInter {
     private Map<UUID, ClientUIUpdateListener> clientListeners = new ConcurrentHashMap<>();
 
 
-
     // Die Registry wird erstellt
     public static Registry registry = null;
 
@@ -44,6 +43,7 @@ public class Server implements Remote, ServerInter {
         return "Connection to Server successful. Hello Client!";
     }
 
+
     // get the player list
     @Override
     public List<ServerPlayer> getPlayerList(UUID gameId) throws RemoteException {
@@ -51,15 +51,15 @@ public class Server implements Remote, ServerInter {
     }
 
     @Override
-    public UUID createGameSession(UUID clientID, String gameName, String playerName, Integer numOfPlayers) throws RemoteException {
+    public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfPlayers) throws RemoteException {
         // Generate or retrieve a unique Game ID
-        UUID gameId = gameSessionManager.createGameSession(clientID, gameName, playerName, numOfPlayers);
+        UUID gameId = gameSessionManager.createGameSession(clientID, listener, gameName, playerName, numOfPlayers);
         return gameId;
     }
 
     @Override
     public boolean isGameReady(UUID gameId) throws RemoteException {
-        return gameSessionManager.getGameSession(gameId).isGameReady();
+        return gameSessionManager.getGameSession(gameId).isGameSessionReady();
     }
 
     /*
@@ -85,41 +85,6 @@ public class Server implements Remote, ServerInter {
         GameSession gameSession = gameSessionManager.getGameSession(gameId);
         gameSession.startGameTable();
 
-        System.out.println("number of client listener: "+clientListeners.size());
-        System.out.println("startGameTable is set is true");
-        List<ServerPlayer> players = gameSession.getPlayers();
-        for (UUID key : clientListeners.keySet()) {
-            System.out.println("Key: " + key);
-        }
-        for (int i = 0; i < gameSession.getMaxNumOfPlayers(); i++) {
-            ServerPlayer player = players.get(i);
-
-            System.out.println("player is set to " + player.toString());
-            try {
-                // check if the player is not a boot or not a hostPlayer
-                if (!player.isBot()|| !gameSession.checkStartTable(player.getServerPlayerName())) {
-
-
-                    ClientUIUpdateListener listener  = clientListeners.get(player.getServerPlayerId());
-                    if (listener != null) {
-
-                        System.out.println("Begin broadcast for player: " + player.getServerPlayerName());
-                        listener.setNumOfPlayers(gameSession.getMaxNumOfPlayers());
-                        System.out.println("Number of players: " + gameSession.getMaxNumOfPlayers());
-                        listener.updateUI("switchToTable");
-
-                    }
-
-                }
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-        }// Sleep for a short duration before checking again
-
-        // Notify that the game session is ready to start
-        gameSession.startGame();
-
-
     }
 
     @Override
@@ -137,24 +102,19 @@ public class Server implements Remote, ServerInter {
         return gameSessionManager.getGameSession(gameId).getGameName();
     }
 
-    public void addPlayer(UUID clientID, String playerName, UUID gameId) {
-        gameSessionManager.getGameSession(gameId).addPlayer(clientID, playerName);
+    public void addPlayer(UUID clientID, ClientUIUpdateListener listener, String playerName, UUID gameId) {
+        gameSessionManager.getGameSession(gameId).addPlayer(clientID,listener, playerName);
     }
 
     public boolean checkStartTable(UUID gameID, String playerName) throws RemoteException {
         return gameSessionManager.getGameSession(gameID).checkStartTable(playerName);
     }
 
-    @Override
-    public String getHosPlayerName(UUID gameID) throws RemoteException {
-        return gameSessionManager.getGameSession(gameID).getHostPlayerName();
-    }
 
 
     public void registerClient(UUID clientId, ClientUIUpdateListener listener) {
         clientListeners.put(clientId, listener);
     }
-
 
 
     public static void main(String[] args) {

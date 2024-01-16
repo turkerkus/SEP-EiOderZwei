@@ -11,18 +11,18 @@ public class ServerPlayer implements Serializable {
     private boolean leftServer = false;
     private boolean cardDrawn = false;
     private int newCard;
-    private UUID serverPlayerId;
+    private final UUID serverPlayerId;
 
 
     public boolean isAussteigen() {
         return aussteigen;
     }
 
-    private String serverPlayerName;
+    private final String serverPlayerName;
     int punkte;
     Hand cardHand;
     private int kornzahl;
-    private List<Card> hand;
+    private List<ServerCard> hand;
     private  boolean  hahnKarte;
 
     public boolean isBot() {
@@ -70,11 +70,11 @@ public class ServerPlayer implements Serializable {
         return cardHand.getHandCards().size();
     }
 
-    public void add( Card card) {
-        hand.add(card);
+    public void add( ServerCard serverCard) {
+        hand.add(serverCard);
     }
 
-    public void remove(Card card) { hand.remove(card); }
+    public void remove(ServerCard serverCard) { hand.remove(serverCard); }
 
     public boolean isHahnKarte() {
         return hahnKarte;

@@ -1,24 +1,22 @@
 package eoz.client.lobbyToTable;
 
-import sharedClasses.Card;
+import sharedClasses.ServerCard;
 
-import javax.swing.*;
-import java.util.Collections;
 import java.util.Stack;
 
 public class Ablagestapel {
 
-    private Stack<Card> ablagestapel;
+    private Stack<ServerCard> ablagestapel;
 
 
     public Ablagestapel() {
         ablagestapel = new Stack<>();
 
     }
-    public void pushCardAblagestapel(Card card){
-        ablagestapel.push(card);
+    public void pushCardAblagestapel(ServerCard serverCard){
+        ablagestapel.push(serverCard);
     }
-    public Card readFirstElement() {
+    public ServerCard readFirstElement() {
         return  ablagestapel.peek();
     }
 

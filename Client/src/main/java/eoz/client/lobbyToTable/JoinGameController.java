@@ -31,6 +31,12 @@ public class JoinGameController {
     private UUID gameId;
 
 
+
+    private Client client;
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
     @FXML
     private void joinGame(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -38,9 +44,8 @@ public class JoinGameController {
         System.out.println("Game ID  @ " + gameId);
         try {
             // Create a client
-            Client client = new Client(username);
             // Attempt to connect to the server
-            if (client.connectToServer()) {
+            if (client.isConnectedToServer) {
                 // Check if the game ID exists (you'll need to implement this logic)
                 boolean gameExists = client.doesGameExist(gameId);
                 System.out.println("GameExist: "+ gameExists);

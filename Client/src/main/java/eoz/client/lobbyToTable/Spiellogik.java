@@ -1,23 +1,23 @@
 package eoz.client.lobbyToTable;
 
-import sharedClasses.Table;
+import sharedClasses.ServerTable;
 
 import java.util.*;
 
 public class Spiellogik {
     // Initialisierung
     /*
-    Spieler spieler1 = new Spieler(1, "spieler1", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler2 = new Spieler(2, "spieler2", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler3 = new Spieler(3, "spieler3", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler4 = new Spieler(4, "spieler4", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler5 = new Spieler(5, "spieler5", 0, 0, new ArrayList<Card>(), false);
-    Spieler spieler6 = new Spieler(6, "spieler6", 0, 0, new ArrayList<Card>(), true); //Der letzte Spieler bekommt die Hahnkarte
+    Spieler spieler1 = new Spieler(1, "spieler1", 0, 0, new ArrayList<ServerCard>(), false);
+    Spieler spieler2 = new Spieler(2, "spieler2", 0, 0, new ArrayList<ServerCard>(), false);
+    Spieler spieler3 = new Spieler(3, "spieler3", 0, 0, new ArrayList<ServerCard>(), false);
+    Spieler spieler4 = new Spieler(4, "spieler4", 0, 0, new ArrayList<ServerCard>(), false);
+    Spieler spieler5 = new Spieler(5, "spieler5", 0, 0, new ArrayList<ServerCard>(), false);
+    Spieler spieler6 = new Spieler(6, "spieler6", 0, 0, new ArrayList<ServerCard>(), true); //Der letzte Spieler bekommt die Hahnkarte
     Spieler[] spielerArray = {spieler1, spieler2, spieler3, spieler4, spieler5, spieler6};
 
     int n = 0; //Zählvariable, nach 1000 Zügen terminiert es einfach
 
-    Card hahnKarte = new Card(0, "Hahn", new ImageIcon(getClass().getResource("/cards/hahn.png").toString()), 0);
+    ServerCard hahnKarte = new ServerCard(0, "Hahn", new ImageIcon(getClass().getResource("/cards/hahn.png").toString()), 0);
 
     public Deck getKartendeck() {
         return new Deck();
@@ -33,9 +33,9 @@ public class Spiellogik {
 
 
     // Methoden
-    public Boolean SpielzugManager(List<Spieler> spielerArray, Table table) {
+    public Boolean SpielzugManager(List<Spieler> spielerArray, ServerTable serverTable) {
         int i = 0;
-        if (table.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
+        if (serverTable.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
             for (Spieler spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
                 if (spieler.getPunkte() >= 5) {
                     // TODO : Remove this after the SWITCH TO SCORE BOARD OR SHOW A DIALOGBOX is implemented in the startPlayerTurn() in tableController
@@ -112,7 +112,7 @@ public class Spiellogik {
 
     private void zieheKarte(Spieler spieler) {
         Deck kartendeck = getKartendeck();
-        Card temp = kartendeck.ziehen();                                         //Die oberste Karte wird gezogen und zwischengespeichert
+        ServerCard temp = kartendeck.ziehen();                                         //Die oberste Karte wird gezogen und zwischengespeichert
         //kartendeck.remove(0);
         if (temp.getType() == "Fuchs") {                                           //Wenn die oberste Karte ein Fuchs ist wird die Methode fuchsklau aufgerufen
             fuchsklau(spieler);
@@ -143,15 +143,15 @@ public class Spiellogik {
     }
 
     private String umwandelnOptionen(Spieler spieler) {
-        List<Card> hand = spieler.getCardHand();
+        List<ServerCard> hand = spieler.getCardHand();
         int bioges = 0;
         int gesamt = 0;
-        for (Card card : hand) {
+        for (ServerCard card : hand) {
             if ("Biokörner".equals(card.getType())) {
                 bioges = +card.getValue();
             }
         }
-        for (Card card : hand) {
+        for (ServerCard card : hand) {
             if ("Koerner".equals(card.getType()) | "Biokörner".equals(card.getType())) {
                 gesamt = +card.getValue();
             }
@@ -196,13 +196,13 @@ public class Spiellogik {
     }
 
     private void biokornumwandlung(Spieler spieler) {        //Die Methode wandelt Biokörner in Eier um
-        List<Card> hand = spieler.getHand();
-        List<Card> x = biokornauswahl(hand);
-        List<Card> unterschied = new ArrayList<>(hand);         // Unterschied reproduziert die Karten als Liste die herausgenommen wurden
+        List<ServerCard> hand = spieler.getHand();
+        List<ServerCard> x = biokornauswahl(hand);
+        List<ServerCard> unterschied = new ArrayList<>(hand);         // Unterschied reproduziert die Karten als Liste die herausgenommen wurden
         unterschied.removeAll(x);
         int biokornmenge = 0;
         for (int i = 0; i <= unterschied.size(); i++) { //bikörner zahl durch 5 teilbar ist ->fügen wir keine Karte ablagestapel
-            Card a = unterschied.get(i);
+            ServerCard a = unterschied.get(i);
             biokornmenge = biokornmenge + a.getValue();
         }
         if(biokornmenge<5){
@@ -227,12 +227,12 @@ public class Spiellogik {
 
 
 
-    private List<Card> biokornauswahl(List<Card> tmphand) {            //Die Methode sammelt die Biokartenauswahl vom Spieler
+    private List<ServerCard> biokornauswahl(List<ServerCard> tmphand) {            //Die Methode sammelt die Biokartenauswahl vom Spieler
         Scanner scan = new Scanner(System.in);
         int x = scan.nextInt();
         if (x == 1 ) {
             for(int i = 0; i <= tmphand.size(); i++){
-                Card a = tmphand.get(i);
+                ServerCard a = tmphand.get(i);
                 if (a.getValue() == 1 && Objects.equals(a.getType(), "Biokörner")){
                     tmphand.remove(i);                                                          //Von der temporären Hand muss ein Biokorn mit value 1 abgezogen werden
                     biokornauswahl(tmphand);
@@ -244,7 +244,7 @@ public class Spiellogik {
 
         if (x == 2 ) {
             for(int i = 0; i <= tmphand.size(); i++){
-                Card a = tmphand.get(i);
+                ServerCard a = tmphand.get(i);
                 if (a.getValue() == 2 && Objects.equals(a.getType(), "Biokörner")){
                     tmphand.remove(i);                                                          //Von der temporären Hand muss ein Biokorn mit value 1 abgezogen werden
                     biokornauswahl(tmphand);
@@ -256,7 +256,7 @@ public class Spiellogik {
 
         if (x == 3 ) {
             for(int i = 0; i <= tmphand.size(); i++){
-                Card a = tmphand.get(i);
+                ServerCard a = tmphand.get(i);
                 if (a.getValue() == 3 && Objects.equals(a.getType(), "Biokörner")){
                     tmphand.remove(i);                                                          //Von der temporären Hand muss ein Biokorn mit value 1 abgezogen werden
                     biokornauswahl(tmphand);
@@ -270,13 +270,13 @@ public class Spiellogik {
 
 
     private void kornumwandlung(Spieler spieler){//Die Methode wandelt Körner jeder Art in Eier um
-        List<Card> hand = spieler.getHand();
-        List<Card> x = kornauswahl(hand);
-        List<Card> unterschied = new ArrayList<>(hand);         // Unterschied reproduziert die Karten als Liste die herausgenommen wurden
+        List<ServerCard> hand = spieler.getHand();
+        List<ServerCard> x = kornauswahl(hand);
+        List<ServerCard> unterschied = new ArrayList<>(hand);         // Unterschied reproduziert die Karten als Liste die herausgenommen wurden
         unterschied.removeAll(x);
         int biokornmenge = 0;
         for (int i = 0; i <= unterschied.size(); i++) { //bikörner zahl durch 5 teilbar ist ->fügen wir keine Karte ablagestapel
-            Card a = unterschied.get(i);
+            ServerCard a = unterschied.get(i);
             biokornmenge = biokornmenge + a.getValue();
         }
         if(biokornmenge<5){
@@ -294,12 +294,12 @@ public class Spiellogik {
 
 
     }
-    private List<Card> kornauswahl(List<Card> tmphand) {            //Die Methode sammelt die Kornkartenauswahl vom Spieler
+    private List<ServerCard> kornauswahl(List<ServerCard> tmphand) {            //Die Methode sammelt die Kornkartenauswahl vom Spieler
         Scanner scan = new Scanner(System.in);
         int x = scan.nextInt();
         if (x == 1 ) {
             for(int i = 0; i <= tmphand.size(); i++){
-                Card a = tmphand.get(i);
+                ServerCard a = tmphand.get(i);
                 if (a.getValue() == 1 && Objects.equals(a.getType(), "Biokörner")){
                     tmphand.remove(i);                                                          //Von der temporären Hand muss ein Korn mit value 1 abgezogen werden
                     kornauswahl(tmphand);
@@ -311,7 +311,7 @@ public class Spiellogik {
 
         if (x == 2 ) {
             for(int i = 0; i <= tmphand.size(); i++){
-                Card a = tmphand.get(i);
+                ServerCard a = tmphand.get(i);
                 if (a.getValue() == 2 && ((Objects.equals(a.getType(), "Biokörner")) ||(Objects.equals(a.getType(), "Körner")))){
                     tmphand.remove(i);                                                          //Von der temporären Hand muss ein Korn mit value 1 abgezogen werden
                     kornauswahl(tmphand);
@@ -323,7 +323,7 @@ public class Spiellogik {
 
         if (x == 3 ) {
             for(int i = 0; i <= tmphand.size(); i++){
-                Card a = tmphand.get(i);
+                ServerCard a = tmphand.get(i);
                 if (a.getValue() == 3 && ((Objects.equals(a.getType(), "Biokörner")) ||(Objects.equals(a.getType(), "Körner")))){
                     tmphand.remove(i);                                                          //Von der temporären Hand muss ein Korn mit value 1 abgezogen werden
                     kornauswahl(tmphand);
@@ -334,7 +334,7 @@ public class Spiellogik {
         }
         if (x == 4 ) {
             for(int i = 0; i <= tmphand.size(); i++){
-                Card a = tmphand.get(i);
+                ServerCard a = tmphand.get(i);
                 if (a.getValue() == 4 && Objects.equals(a.getType(), "Körner")){
                     tmphand.remove(i);                                                          //Von der temporären Hand muss ein Korn mit value 1 abgezogen werden
                     kornauswahl(tmphand);
@@ -402,7 +402,7 @@ public class Spiellogik {
 
 
     }
-    private void hahnklauen(Spieler aktuelSpieler,Card hahnKarte){
+    private void hahnklauen(Spieler aktuelSpieler,ServerCard hahnKarte){
         aktuelSpieler.add(hahnKarte);
         aktuelSpieler.setHahnkarte(true);
 
@@ -410,7 +410,7 @@ public class Spiellogik {
     ArrayList<Spieler> spielerListe = new ArrayList<>();
     public void fuchsklau(Spieler spieler) {
         for (Spieler players : spielerArray) {
-            List<Card> hand = players.getHand();
+            List<ServerCard> hand = players.getHand();
             if (!hand.isEmpty() && players!=spieler){
                 spielerListe.add(players);
 
@@ -439,7 +439,7 @@ public class Spiellogik {
             int b=scanb.nextInt();
             switch(b){
                 case 1:
-                    Card gewaehlteKarte= new Card(0,"gewaehlte karte",new ImageIcon(getClass().getResource("/cards/hahn.png").toString()),0);//Javafx
+                    ServerCard gewaehlteKarte= new ServerCard(0,"gewaehlte karte",new ImageIcon(getClass().getResource("/cards/hahn.png").toString()),0);//Javafx
                     spieler.add(gewaehlteKarte);
                     int asdf = spieler.getKornzahl() + gewaehlteKarte.getValue();
                     spieler.setKornzahl(asdf);
@@ -461,16 +461,16 @@ public class Spiellogik {
 
 
     public  void  eilegen(Spieler spieler){ //noch nicht fertig
-        List<Card> hand=spieler.getHand();
+        List<ServerCard> hand=spieler.getHand();
         int bioges=0;
         int gesamt=0;
-        for (Card card : hand) {
+        for (ServerCard card : hand) {
             if ("Biokörner".equals(card.getType())) {
                 bioges=+ card.getValue();
             }
         }
         int bioei=(bioges/5)*2;
-        for (Card card : hand) {
+        for (ServerCard card : hand) {
             if ("Koerner".equals(card.getType()) | "Biokörner".equals(card.getType())) {
                 gesamt=+ card.getValue();
             }

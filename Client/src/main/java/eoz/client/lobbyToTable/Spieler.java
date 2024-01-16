@@ -2,7 +2,7 @@ package eoz.client.lobbyToTable;
 
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import sharedClasses.Card;
+import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
 import javax.swing.*;
@@ -42,9 +42,9 @@ public class Spieler extends ServerPlayer {
         super.setHahnKarte(hahnKarte);
         if (hahnKarte){
 
-            Card hahnCard = new Card( "Hahn", new ImageIcon(getClass().getResource("/cards/hahn.png").toString()), 0, false);
+            Card hahnServerCard = new Card( "Hahn",  0, false);
             // Create a new card ImageView for distribution
-            ImageView cardView = new ImageView(String.valueOf(hahnCard.getImage()));
+            ImageView cardView = new ImageView(String.valueOf(hahnServerCard.getImage()));
             cardView.setFitHeight(50);
             cardView.setFitWidth(80);
             // add card to grid pane

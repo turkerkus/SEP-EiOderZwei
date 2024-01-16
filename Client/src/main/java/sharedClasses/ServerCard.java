@@ -4,13 +4,17 @@ import javax.swing.*;
 import java.io.Serializable;
 import java.util.UUID;
 
-public class Card implements Serializable {
+public class ServerCard implements Serializable {
+
+    public boolean isCovered() {
+        return covered;
+    }
 
     // Variables
     boolean covered;
     private final String type; // Give cards unique effects
-    private final ImageIcon image; // To display the card in JavaFX
-    final int value; // Card's value, especially for seed cards
+
+    final int value; // ServerCard's value, especially for seed cards
 
     public UUID getId() {
         return id;
@@ -19,10 +23,9 @@ public class Card implements Serializable {
     private final UUID id;
 
     // Construct
-    public Card(String type, ImageIcon image, int value, boolean covered){
+    public ServerCard(String type,  int value, boolean covered){
         this.covered = covered;
         this.type = type;
-        this.image = image;
         this.value = value;
         this.id = UUID.randomUUID();
     }
@@ -34,9 +37,7 @@ public class Card implements Serializable {
         return type;
     }
 
-    public ImageIcon getImage(){
-        return image;
-    }
+
 
     public int getValue(){
         return value;

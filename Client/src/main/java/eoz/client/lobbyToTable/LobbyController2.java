@@ -34,6 +34,9 @@ public class LobbyController2 {
 
     public String username;
 
+
+    private Client client;
+
     @FXML
     void exitGame(MouseEvent event) {
         // Display a confirmation dialog before exiting the game
@@ -50,6 +53,10 @@ public class LobbyController2 {
             // User clicked Cancel or closed the dialog, do nothing
         });
     }
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
 
     public void switchBackToScene1(ActionEvent event) throws IOException {
         root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(("lobbyStage2.fxml"))));
@@ -70,6 +77,7 @@ public class LobbyController2 {
 
             GameSetupController gameSetupController = loader.getController();
             gameSetupController.username = username;
+            gameSetupController.setClient(this.client);
 
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
@@ -117,6 +125,7 @@ public class LobbyController2 {
 
             JoinGameController joinGameController = loader.getController();
             joinGameController.setUsername(username);
+            joinGameController.setClient(this.client);
 
 
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();

@@ -8,27 +8,27 @@ public class Hand implements Serializable {
     public int size(){
         return handCards.size();
     }
-    private ArrayList<HandCard> handCards = new ArrayList<HandCard>();
+    private ArrayList<HandServerCard> handCards = new ArrayList<HandServerCard>();
 
-    public void setHandCards(ArrayList<HandCard> handCards){ //Setter for the Card per drag and Drop
+    public void setHandCards(ArrayList<HandServerCard> handCards){ //Setter for the ServerCard per drag and Drop
         this.handCards = handCards;
     }
 
-    public ArrayList<HandCard> getHandCards(){ //gives all the current cards in the hand
+    public ArrayList<HandServerCard> getHandCards(){ //gives all the current cards in the hand
         return handCards;
     }
 
-    public HandCard getCard(int pos){ //returns the card at a particular position "pos" on the hand.
+    public HandServerCard getCard(int pos){ //returns the card at a particular position "pos" on the hand.
         return handCards.get(pos);
     }
 
-    public void addCard(Card card){
-        HandCard hc = new HandCard(card.getType(), card.getImage(), card.getValue(), false);
+    public void addCard(ServerCard serverCard){
+        HandServerCard hc = new HandServerCard(serverCard.getType(), serverCard.getValue(), false);
         handCards.add(hc);
     }
 
-    public void removeCard (HandCard card){
-        for(HandCard c: handCards){
+    public void removeCard (HandServerCard card){
+        for(HandServerCard c: handCards){
             if(card.getValue() == c.getValue()){
                 handCards.remove(c);
                 break;

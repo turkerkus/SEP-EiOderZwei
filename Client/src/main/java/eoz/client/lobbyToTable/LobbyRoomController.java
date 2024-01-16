@@ -53,52 +53,6 @@ public class LobbyRoomController implements Serializable {
         this.playerLabel.setText(playerLabel);
     }
 
-
-
-    /*
-    public void startTimer() {
-        if(!joiningGame){
-            client.createGameSession();
-            System.out.println("Game ID: "+ client.getGameId());
-
-        }
-
-
-        // Use a separate thread to update the timer
-        new Thread(() -> {
-            boolean gameReady = false;
-            try {
-                while (!gameReady) {
-                    long remainingTime = client.fetchRemainingTime(); // Replace with your actual method call
-                    long minutes = TimeUnit.MILLISECONDS.toMinutes(remainingTime);
-                    long seconds = TimeUnit.MILLISECONDS.toSeconds(remainingTime) % 60;
-
-                    Platform.runLater(() -> timerLabel.setText(String.format("Timer: %02d:%02d", minutes, seconds)));
-                    gameReady = client.isGameReady();
-                    Thread.sleep(1000); // Sleep for a second
-                    if (joiningGame) {
-                        setNumOfPlayers(client.getNumOfPlayers());
-                        Platform.runLater(this::switchSceneToTable);
-                    } else if (gameReady) {
-                        Platform.runLater(this::switchSceneToTable);
-                    } else {
-                        Thread.sleep(1000); // Sleep for a second
-                    }
-
-                }
-            } catch (InterruptedException e) {
-                // Handle thread interruption
-                Thread.currentThread().interrupt();
-            } catch (RemoteException e) {
-                // Handle RMI exceptions
-                e.getMessage();
-            }
-
-        }).start();
-    }
-
-     */
-
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -126,10 +80,19 @@ public class LobbyRoomController implements Serializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
             try {
                 root = loader.load();
-                //create the Table Application and TableController
+                //create the ServerTable Application and TableController
                 tableApplication tableApplication = new tableApplication();
-                tableController tableController = getTableController(loader);
+                tableController tableController = loader.getController();
                 tableController.setClient(client);
+                try {
+                    // assign the ServerCard Grid Pane
+                    tableController.assignCardGridPane();
+                } catch (RemoteException e) {
+                    e.getMessage();
+
+                }
+                // Setup players in the tableController
+                client.setTableController(tableController);
 
 
                 // set up the stage
@@ -148,8 +111,9 @@ public class LobbyRoomController implements Serializable {
         } else {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Starting Game Session");
-            alert.setHeaderText("Player : " + username + " not allowed to Start Game Table");
+            alert.setHeaderText("Player : " + username + " not allowed to Start Game ServerTable");
             alert.setContentText("The host must start Game");
+            alert.show();
         }
 
 
@@ -164,24 +128,6 @@ public class LobbyRoomController implements Serializable {
         clipboard.setContent(content);
     }
 
-    private tableController getTableController(FXMLLoader loader) throws RemoteException {
-        tableController tableController = loader.getController();
-
-
-        // Setup players in the tableController
-        tableController.setClient(client);
-        tableController.displayName(numOfPlayers);
-        tableController.setMainPlayerName(username);
-        try {
-            // assign the Card Grid Pane
-            tableController.assignCardGridPane();
-        } catch (RemoteException e) {
-            e.getMessage();
-
-        }
-
-        return tableController;
-    }
 
 
 }

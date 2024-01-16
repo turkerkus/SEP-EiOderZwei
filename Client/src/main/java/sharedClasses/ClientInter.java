@@ -1,6 +1,7 @@
 package sharedClasses;
 
 import eoz.client.lobbyToTable.LobbyRoomController;
+import eoz.client.lobbyToTable.tableController;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -10,7 +11,7 @@ import java.util.UUID;
 
 public interface ClientInter extends Remote, Serializable {
     UUID getClientId() throws RemoteException;
-    void setClientId(UUID clientId) throws RemoteException;
+
     UUID getGameId() throws RemoteException;
 
     String getGameName(UUID gameId) throws RemoteException;
@@ -36,7 +37,11 @@ public interface ClientInter extends Remote, Serializable {
     void setNumOfPlayers(Integer numOfPlayers) throws RemoteException;
 
 
-    public void setLobbyRoomController(LobbyRoomController lobbyRoomController);
+    void setLobbyRoomController(LobbyRoomController lobbyRoomController);
+
+    String getClientName()throws RemoteException;
+
+    void setTableController(tableController tableController) throws RemoteException;
 
 
 

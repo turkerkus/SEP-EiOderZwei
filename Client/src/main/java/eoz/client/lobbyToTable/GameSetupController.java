@@ -32,6 +32,12 @@ public class GameSetupController {
 
     private Parent root;
 
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    private Client client;
+
     @FXML
     public void initialize() {
         final int maxLength = 32;
@@ -47,6 +53,7 @@ public class GameSetupController {
     }
 
 
+
     public void switchBackToScene2(ActionEvent event) {
         try {
 
@@ -57,6 +64,7 @@ public class GameSetupController {
             LobbyController2 lobbyController2 = loader.getController();
             lobbyController2.welcome.setText("Welcome " + username);
             lobbyController2.username = username;
+            lobbyController2.setClient(this.client);
 
             stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
@@ -81,6 +89,7 @@ public class GameSetupController {
 
             // Adjust the stage size after the scene is shown to ensure proper layout
             stage.sizeToScene();
+
             AnchorPane card = (AnchorPane) scene2.lookup("#card");
             if (card != null) {
                 // Bind the card's layoutXProperty to keep it centered
@@ -109,12 +118,12 @@ public class GameSetupController {
             alert.showAndWait();
         } else {
             try {
-                // Create a client
-                Client client = new Client(username, (int) numOfPlayers.getValue());
+
 
                 // Attempt to connect to the server
-                if (client.connectToServer()) {
+                if (client.isConnectedToServer) {
                     client.setGameName(gameName.getText());
+                    client.setNumOfPlayers((int) numOfPlayers.getValue());
                     client.createGameSession();
                     System.out.println("Game Id : " + client.getGameId());
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));

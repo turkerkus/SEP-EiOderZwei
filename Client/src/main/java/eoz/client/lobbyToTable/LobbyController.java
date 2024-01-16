@@ -21,6 +21,7 @@ public class LobbyController {
 
     @FXML
     TextField usernameField;
+    private Client client;
 
     @FXML
     public void initialize() {
@@ -32,6 +33,8 @@ public class LobbyController {
                 usernameField.setText(limitedText);
             }
         });
+
+
 
 
     }
@@ -70,6 +73,9 @@ public class LobbyController {
         try {
             // Set and show the Stage
             String username = usernameField.getText();
+            // Create a client
+            client = new Client(usernameField.getText());
+            client.connectToServer();
             if (username.isEmpty()) {
                 // Show alert if the game name is empty
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -86,6 +92,7 @@ public class LobbyController {
 
                 LobbyController2.welcome.setText("Welcome " + username);
                 LobbyController2.username = username;
+                LobbyController2.setClient(this.client);
                 Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
                 Scene scene2 = new Scene(root, 800, 800);

@@ -1,5 +1,7 @@
 package rmi;
 
+import sharedClasses.ClientUIUpdateListener;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -11,9 +13,9 @@ public class GameSessionManager {
     public GameSessionManager() {
     }
 
-    public UUID createGameSession(UUID clientID, String gameName, String playerName, Integer numOfHumanPlayersRequired) {
+    public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfHumanPlayersRequired) {
         UUID gameId = UUID.randomUUID();
-        GameSession gameSession = new GameSession(clientID,gameName,gameId, playerName, numOfHumanPlayersRequired);
+        GameSession gameSession = new GameSession(clientID,listener, gameName,gameId, playerName, numOfHumanPlayersRequired);
         gameSessions.put(gameId, gameSession);
         return gameId;
     }

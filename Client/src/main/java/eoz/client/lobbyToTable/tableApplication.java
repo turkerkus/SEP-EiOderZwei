@@ -13,9 +13,10 @@ import javafx.scene.layout.RowConstraints;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 // Programm, um den Spieltisch für das Spiel anzuzeigen.
-public class tableApplication extends Application {
+public class tableApplication extends Application implements Serializable {
 
 
     @Override

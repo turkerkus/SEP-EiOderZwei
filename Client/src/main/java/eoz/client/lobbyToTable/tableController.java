@@ -14,15 +14,16 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import sharedClasses.Card;
+import sharedClasses.ServerCard;
 import sharedClasses.Deck;
-import sharedClasses.Table;
+import sharedClasses.ServerTable;
 import sharedClasses.ServerPlayer;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 
-public class tableController {
+public class tableController implements Serializable {
 
     @FXML
     public Label p1;
@@ -85,28 +86,28 @@ public class tableController {
 
 
     // create a list of player grid panes
-    List<CardGridPane> gridPanes = new ArrayList<>();
-    private Table table;
+    List<CardGridPane> gridPanesList = new ArrayList<>();
+    List<Label> labelList = new ArrayList<>();
+    private ServerTable serverTable;
     private List<Spieler> spielerList = new ArrayList<>(6);
     private List<ServerPlayer> serverPlayers;
 
 
     private Client client;
 
-
-    private final Spiellogik gameLogic = new Spiellogik();
     private int currentPlayerIndex ;
     @FXML
     private Label timerLabel; // This is the Label that displays the timer
 
-    //TODO this attributes (timerTimeline)has to be on the server
-    private Timeline timerTimeline;
+
+
     private Integer timeLeft; // Time left in seconds
 
-
-
     private Boolean isGameStarted = false;
-    private String mainPlayerName = "MainPlayer";
+
+
+
+    private Boolean isPlayerTurn = false;
 
     public Client getClient() {
         return client;
@@ -125,51 +126,88 @@ public class tableController {
         setupGridPaneForDrop(player5GridPane);
         setupGridPaneForDrop(player6GridPane);
 
-        //TODO  THIS IS A DUMMY IT HAS TO REMOVED LATTER
-        gridPanes.add(player1GridPane);
-        gridPanes.add(player2GridPane);
-        gridPanes.add(player3GridPane);
-        gridPanes.add(player4GridPane);
-        gridPanes.add(player5GridPane);
-        gridPanes.add(player6GridPane);
 
     }
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
+    }
+    public void setPlayerTurn(Boolean playerTurn) {
+        isPlayerTurn = playerTurn;
+    }
+
     public void assignCardGridPane() throws RemoteException {
-        if (this.client != null) {
+        if (this.client == null) return;
 
-            try {
-                // get player list
-                serverPlayers = this.client.getPlayerList();
-                convertAndSetPlayers(serverPlayers);
-            } catch (RemoteException e) {
-                e.getMessage();
+        try {
+            // Get player list from the client
+            serverPlayers = this.client.getPlayerList();
+            convertAndSetPlayers(serverPlayers);
+        } catch (RemoteException e) {
+            e.printStackTrace();  // Better to print stack trace for debugging
+        }
 
-            }
-
+        //set the labels to ""
+        Label[] labels = new Label[]{p1, p2, p3, p4, p5, p6};
+        // Set all labels to empty initially
+        for (Label label : labels) {
+            label.setText("");
         }
 
 
-        //Assign the CardGridPane and Player label
-        Label[] labels = new Label[]{p2,p3,p4,p5,p6};
-        CardGridPane[] cardGridPanes = new CardGridPane[]{player2GridPane, player3GridPane, player4GridPane, player5GridPane, player6GridPane};
+        int numPlayers = spielerList.size();
 
-        int labelIndex = 0; // To keep track of which label and cardGridPane to assign next
+        // Arrays for labels and grid panes based on the number of players
+        Label[][] labelCases = {
+                {},  // Case 0 (unused)
+                {},  // Case 1 (unused)
+                {p5},  // Case 2
+                {p4, p6},  // Case 3
+                {p4, p5, p6},  // Case 4
+                {p3, p4, p5, p6},  // Case 5
+                {p2, p3, p4, p5, p6}  // Case 6
+        };
 
-        for (Spieler player : this.spielerList){
-            if (player.getServerPlayerName().equals(this.mainPlayerName)){
-                // Assign the main player to p1 and player1GridPane
+        CardGridPane[][] gridPaneCases = {
+                {},  // Case 0 (unused)
+                {},  // Case 1 (unused)
+                {player5GridPane},  // Case 2
+                {player4GridPane, player6GridPane},  // Case 3
+                {player4GridPane, player5GridPane, player6GridPane},  // Case 4
+                {player3GridPane, player4GridPane, player5GridPane, player6GridPane},  // Case 5
+                {player2GridPane, player3GridPane, player4GridPane, player5GridPane, player6GridPane}  // Case 6
+        };
+
+        //add the p1 label and player1GridPane to the list
+        labelList.add(p1);
+        gridPanesList.add(player1GridPane);
+        // Setup drag and drop for each player grid pane
+        setupGridPaneForDrop(player1GridPane);
+
+        // Iterate over players and assign labels and grid panes
+        int nonHostPlayerIndex = 0;
+        for (Spieler player : spielerList) {
+            if (player.getServerPlayerName().equals(this.client.getClientName())) {
+
+                // Assign the host player to p1 and player1GridPane
                 player.setPlayerLabel(p1);
                 player.setCardGridPane(player1GridPane);
             } else {
-                // Assign the rest of the players to the next label and cardGridPane
-                if (labelIndex < labels.length) {
-                    player.setPlayerLabel(labels[labelIndex]);
-                    player.setCardGridPane(cardGridPanes[labelIndex]);
-                    labelIndex++; // Move to the next label and cardGridPane
+                // Handle non-host players
+                if (numPlayers >= 2 && numPlayers <= 6) {
+                    player.setPlayerLabel(labelCases[numPlayers][nonHostPlayerIndex]);
+                    player.setCardGridPane(gridPaneCases[numPlayers][nonHostPlayerIndex]);
+
+                    //add the Labels and GridPane to their respective list to be able to distribute the cards respectively
+                    labelList.add(labelCases[numPlayers][nonHostPlayerIndex]);
+                    gridPanesList.add(gridPaneCases[numPlayers][nonHostPlayerIndex]);
+                    // Setup drag and drop for each player grid pane
+                    setupGridPaneForDrop(gridPaneCases[numPlayers][nonHostPlayerIndex]);
+                    nonHostPlayerIndex++;
                 }
             }
         }
     }
+
 
 
 
@@ -194,13 +232,6 @@ public class tableController {
         }
     }
 
-    public String getMainPlayerName() {
-        return mainPlayerName;
-    }
-
-    public void setMainPlayerName(String mainPlayerName) {
-        this.mainPlayerName = mainPlayerName;
-    }
 
     // TODO for setStartButton():
     //  1.SEND AN ACTION TO THE SERVER THAT THE GAME AS START by setting setGameStarted(true).
@@ -208,124 +239,28 @@ public class tableController {
     //  3.Give the currentPlayerIndex  to server. FOR THE SERVE TO USE clientStartGame() method to set  IT FOR OTHER CLIENTS
     //  4.
 
-    /**
-     * Sets up the start button action to begin the game if it hasn't started already.
-     * Randomly selects the first player, assigns the 'hahn' card to them, initializes the table,
-     * sets the first player as the active player, initializes and shuffles the deck, and starts the first player's turn.
-     */
-    public void setStartButton() {
 
-        // Check if the game has already started
-        if (!isGameStarted) {
-            // Randomly choose the first player
-            Random random = new Random();
-            int numOfPlayers = 6;
-            int firstPlayerIndex = random.nextInt(numOfPlayers);
-            Spieler firstPlayer = spielerList.get(firstPlayerIndex);
+    public void startGame() {
 
-            // Give the firstPlayer the 'hahn' card
-            firstPlayer.setHahnKarte(true);
-
-            // Set the firstPlayer as the current player
-            this.currentPlayerIndex = firstPlayerIndex;
-
-            // Create a table
-            this.table = new Table(serverPlayers);
-
-            // Set the firstPlayer as the active player in the table
-            table.setActive(firstPlayerIndex);
-
-            // Initialize the deck and shuffle it
-            table.intiNachZiehDeck();
-            //table.shuffleDeck();
-
-            //TODO GIVE THE TABLE TO THE SEVER ON THE NEXT LINE
-            // eg: sever.settable(this.table)
-
-            // TODO CHANGE THIS TO SERVER
-            //  eg: sever.startPlayerTurn();
-            // Start the first player's turn
-            startPlayerTurn();
-
-            // Mark the game as started
-            isGameStarted = true;
+        try {
+            this.client.setTableController(this);
+            this.client.startGame();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public void clientStartGame(Table table, Integer currentPlayerIndex){
-        this.isGameStarted = true;
-        this.table = table;
-        this.currentPlayerIndex = currentPlayerIndex;
-
-    }
 
 
 
     //TODO startPlayerTurn() has to be implemented in the server
-    /**
-     * Starts the turn for the current player, sets up a timer, and updates the UI accordingly.
-     * Checks for end-game conditions and handles game over if necessary.
-     */
-    private void startPlayerTurn() {
-        // Check for end-game condition
-        if (gameLogic.SpielzugManager(this.spielerList, this.table)) {
-            // Handle game over (declare winner, etc.)
-            // TODO: SWITCH TO SCORE BOARD OR SHOW A DIALOG BOX
-            // This is just a placeholder
-            return;
-        }
-
-        // Get the current player
-        Spieler currentPlayer = this.spielerList.get(currentPlayerIndex);
-
-        //TODO: this is implement on the client side
-        // and the sever have to update the current player ui for all clients
-        // Update UI elements for the current player's turn
-        updateUIForCurrentPlayer(currentPlayer);
 
 
-        // TODO THIS SHOULD BE CALLED FROM THE SERVER SIDE
-        //  Eg: sever.startTurnTimer
-        // Set up a 2-minute timer for the player's turn
-        startTurnTimer(120);
+
+    public void setTimeLeft(Integer timeLeft) {
+        this.timeLeft = timeLeft;
     }
 
-
-    //TODO :  this startTurnTimer() has to be on the server
-    /**
-     * Starts the turn timer with the specified duration in seconds.
-     * @param durationInSeconds The duration of the turn timer in seconds.
-     */
-    public void startTurnTimer(int durationInSeconds) {
-        timeLeft = durationInSeconds;
-
-        // Stop any existing timer
-        if (timerTimeline != null) {
-            timerTimeline.stop();
-        }
-
-        // Create a new timeline for the timer
-        timerTimeline = new Timeline();
-        timerTimeline.setCycleCount(Timeline.INDEFINITE);
-
-        // Define a key frame to update the timer
-        KeyFrame keyFrame = new KeyFrame(
-                Duration.seconds(1),
-                event -> {
-                    timeLeft--;
-                    //TODO this has to be can to player1.updateTimerLabel(). you do this for all player
-                    updateTimerLabel();
-                    if (timeLeft <= 0) {
-                        timerTimeline.stop();
-                        // Call method to handle end of timer
-                        onTimerEnd();
-                    }
-                });
-
-        // Add the key frame to the timeline and start the timer
-        timerTimeline.getKeyFrames().add(keyFrame);
-        timerTimeline.playFromStart();
-    }
 
     /**
      * Updates the timer label with the remaining time.
@@ -336,38 +271,15 @@ public class tableController {
         timerLabel.setText(String.format("Timer: %02d:%02d", minutes, seconds));
     }
 
-    /**
-     * Handles what should happen when the timer ends, such as ending the current player's turn.
-     */
-    private void onTimerEnd() {
-        // Handle what should happen when the timer ends
-        // For example, end the current player's turn
-        endPlayerTurn();
-    }
-
-
-    /**
-     * Ends the turn for the specified player and performs end-of-turn actions.
-     * Moves to the next player's turn.
-     *
-     */
-    private void endPlayerTurn() {
-        // Perform end-of-turn actions for the player
-
-        // Move to the next player's turn
-        currentPlayerIndex = (currentPlayerIndex + 1) % this.spielerList.size();
-        startPlayerTurn(); // Start the next player's turn
-    }
-
 
 
     /**
      * Updates the UI to highlight the current player's label with a glowing effect.
      * Also, stops the glowing effect for all other player labels.
      *
-     * @param currentPlayer The current player whose label should be highlighted.
      */
-    public void updateUIForCurrentPlayer(Spieler currentPlayer) {
+    public void startGameUiUpdate() {
+        Spieler currentPlayer = spielerList.get(this.currentPlayerIndex);
         Label currentPlayerLabel = currentPlayer.getPlayerLabel();
         if (currentPlayerLabel != null) {
             // Create a glow effect
@@ -444,12 +356,13 @@ public class tableController {
     // This is just a dummy
     public void distributeCards() {
         if (isGameStarted){
-            Deck deck = table.getNachzieheDeck();
-            Card card = deck.ziehen();
+            Deck deck = serverTable.getNachzieheDeck();
+            ServerCard serverCard = deck.ziehen();
+            Card card = new Card(serverCard.getType(), serverCard.getValue(), serverCard.isCovered());
 
             if(card != null){
                 String cardName = card.getType() + card.getValue();
-                // Create a new card ImageView for distribution
+                // Create a new serverCard ImageView for distribution
                 ImageView cardView = new ImageView(String.valueOf(card.getImage()));
                 cardView.setId(cardName);
                 imageViewMap.put(cardName, cardView);
@@ -458,8 +371,8 @@ public class tableController {
                 cardView.setFitWidth(80);
                 setupCardDragEvents(cardView);
 
-                // Add the card to the grid, then update the position for the next card
-                CardGridPane gridPane = gridPanes.get(gridPanesIdx);
+                // Add the serverCard to the grid, then update the position for the next serverCard
+                CardGridPane gridPane = gridPanesList.get(gridPanesIdx);
                 int[] nextCell = gridPane.getNextAvailableCell();
 
                 // Find the cell in the grid where the drop occurred
@@ -468,13 +381,13 @@ public class tableController {
                 gridPane.addCard(imageViewMap.get(cardName), rowIndex, colIndex);
                 gridPanesIdx++;
 
-                // Check if the card has been distributed to all panes at the current cell
-                if (gridPanesIdx >= gridPanes.size()) {
+                // Check if the serverCard has been distributed to all panes at the current cell
+                if (gridPanesIdx >= gridPanesList.size()) {
                     // Reset the distribution counter
                     gridPanesIdx = 0;
 
                     // Increment the index to cycle through the GridPanes
-                    gridPanesIdx = (gridPanesIdx) % gridPanes.size();
+                    gridPanesIdx = (gridPanesIdx) % gridPanesList.size();
                 }
             }
         }
@@ -490,7 +403,7 @@ public class tableController {
      */
     private void setupCardDragEvents(ImageView cardView) {
         // Mouse Pressed Event: Triggered when the user presses the mouse button on the card.
-        cardView.setOnMousePressed(event -> {
+        cardView.setOnMousePressed(event ->{
             // Store the card being dragged and its source GridPane.
             draggedImage = cardView;
             sourceGridPane = (CardGridPane) cardView.getParent();
@@ -559,39 +472,6 @@ public class tableController {
             event.consume();
         });
     }
-
-    //TODO FRANK HAS TO FIX THIS DEPENDING ON THE NUMBER OF BOT OR PLAYERS
-    public void displayName( double numOfPlayers) {
-
-        switch ((int) numOfPlayers) {
-            case 1:
-                p2.setText("Bot 1");
-                p3.setText("Bot 2");
-                p4.setText("Bot 3");
-                p5.setText("Bot 4");
-                p6.setText("Bot 5");
-                break;
-            case 2:
-                p3.setText("Bot 1");
-                p4.setText("Bot 2");
-                p5.setText("Bot 3");
-                p6.setText("Bot 4");
-                break;
-            case 3:
-                p4.setText("Bot 1");
-                p5.setText("Bot 2");
-                p6.setText("Bot 3");
-                break;
-            case 4:
-                p5.setText("Bot 1");
-                p6.setText("Bot 2");
-                break;
-            case 5:
-                p6.setText("Bot 1");
-                break;
-        }
-    }
-
 
 
 
