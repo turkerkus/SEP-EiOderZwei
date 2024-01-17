@@ -15,8 +15,6 @@ public class LobbyApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-        //FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage.fxml"));
-        //Parent root = loader.load();
         try {
             // Set and show the Stage
             Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("lobbyStage.fxml")));

@@ -1,8 +1,5 @@
 package rmi;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 import sharedClasses.ClientUIUpdateListener;
 import sharedClasses.ServerPlayer;
 import sharedClasses.ServerTable;
@@ -44,26 +41,9 @@ public class GameSession {
 
     private Map<UUID, ClientUIUpdateListener> clientListeners = new ConcurrentHashMap<>();
     private Map<BroadcastType, Boolean> broadcastStatus = new ConcurrentHashMap<>();
-    private Timeline timerTimeline;
+    private Timer timer;
     private volatile  Integer timeLeft; // Time left in seconds
 
-
-    // TODO: decide on lobbyRoom Timer
-    /*
-     * public long getRemainingTimeMillis() {
-     * synchronized (lock) {
-     * return remainingTimeMillis;
-     * }
-     * }
-     * 
-     * //TODO: decide on lobbyRoom Timer
-     * //private volatile long remainingTimeMillis = -1;
-     * private final Object lock = new Object();
-     * private final ScheduledExecutorService scheduler =
-     * Executors.newScheduledThreadPool(1);
-     * 
-     * 
-     */
 
     public String getGameName() {
         return gameName;
@@ -155,21 +135,15 @@ public class GameSession {
         }
         if (BroadcastIsNotSent(BroadcastType.SWITCH_TO_TABLE)) {
             for (ServerPlayer player : players) {
-
+                //the player is in the game
+                player.einsteigen();
                 try {
                     // check if the player is not a boot or not a hostPlayer
                     if (!player.isBot() || !checkStartTable(player.getServerPlayerName())) {
-
-
                         ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
                         if (listener != null) {
-
-                            //TODO REMOVE THIS
-                            System.out.println("Begin broadcast for player: " + player.getServerPlayerName());
                             listener.setNumOfPlayers(getMaxNumOfPlayers());
-                            System.out.println("Number of players: " + getMaxNumOfPlayers());
                             listener.updateUI("switchToTable");
-
                         }
 
                     }
@@ -206,6 +180,7 @@ public class GameSession {
      */
 
     public void startGame() {
+
         // Check if there are enough players to start the game
         if (!gameStarted && isGameSessionReady) {
             // Start the game
@@ -217,10 +192,11 @@ public class GameSession {
             Random random = new Random();
 
             int firstPlayerIndex = random.nextInt(maxNumOfPlayers);
-            ServerPlayer firstPlayer = players.get(firstPlayerIndex);
 
             // Give the firstPlayer the 'hahn' card
-            firstPlayer.setHahnKarte(true);
+            setBroadcastSent(BroadcastType.Hahn_karte_Geben, true);
+            hahnKarteGeben(firstPlayerIndex);
+
 
             // Create a serverTable and put the players on the serverTable
             this.serverTable = new ServerTable(players);
@@ -233,6 +209,24 @@ public class GameSession {
 
             startPlayerTurn();
 
+        }
+    }
+    public void hahnKarteGeben(Integer playerIdx){
+        ServerPlayer serverPlayer = players.get(playerIdx);
+        serverPlayer.setHahnKarte(true);
+        if(BroadcastIsNotSent(BroadcastType.Hahn_karte_Geben)) {
+            for (ServerPlayer player : players) {
+                ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
+                if(listener != null){
+                    // update the ui of the player
+                    try {
+                        listener.hahnKarteGeben(playerIdx);
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            setBroadcastSent(BroadcastType.Hahn_karte_Geben,false);
         }
     }
 
@@ -256,6 +250,7 @@ public class GameSession {
 
         try {
 
+
             // set the current turn to true
             ServerPlayer currentPlayer = players.get(serverTable.getActive());
             Integer currentPlayerIdx = serverTable.getActive();
@@ -264,21 +259,28 @@ public class GameSession {
                 currentPlayerListener.setPlayerTurn(true);
                 System.out.println(currentPlayer.toString() + " this is the current player");
             }
+
             // Broadcast to all players to startGame
             if(BroadcastIsNotSent(BroadcastType.START_GAME)){
                 for(ServerPlayer player : players){
-                    if(!player.isBot()){
-                        // get the player listener
-                        ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
+                    System.out.println("hat HahnKarte: " + player.hatHahnKarte());
+                    // get the player listener
+                    ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
+                    if(listener != null){
                         // update the current player index
                         listener.setCurrentPlayerIndex(currentPlayerIdx);
                         // update the ui of the player
-                        listener.updateUI("startGame");
+                        listener.updateUI("startPlayerTurn");
                     }
 
                 }
+
                 setBroadcastSent(BroadcastType.START_GAME, false);
             }
+
+            //Start the timer
+            setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
+            startTurnTimer(10);
 
 
         } catch (RemoteException e) {
@@ -287,9 +289,7 @@ public class GameSession {
 
 
 
-        //Start the timer
-        setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
-        startTurnTimer(100);
+
     }
 
     /**
@@ -300,51 +300,45 @@ public class GameSession {
         timeLeft = durationInSeconds;
 
         // Stop any existing timer
-        if (timerTimeline != null) {
-            timerTimeline.stop();
+        if (timer != null) {
+            timer.cancel();
         }
 
-        // Create a new timeline for the timer
-        timerTimeline = new Timeline();
-        timerTimeline.setCycleCount(Timeline.INDEFINITE);
+        // Create a new Timer
+        timer = new Timer();
 
-        // Define a key frame to update the timer
-        KeyFrame keyFrame = new KeyFrame(
-            Duration.seconds(1),
-            event -> {
-                this.timeLeft = timeLeft -1;
-                //TODO this has to be can to player1.updateTimerLabel(). you do this for all player
-                // Broadcast to all players to startGame
-                if(BroadcastIsNotSent(BroadcastType.START_GAME)){
-                    for(ServerPlayer player : players){
+        // Schedule a TimerTask
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                // Decrement timeLeft
+                timeLeft--;
+
+                if (BroadcastIsNotSent(BroadcastType.UPDATE_TIMER_LABEL)) {
+                    for (ServerPlayer player : players) {
                         try {
-                            if(!player.isBot()){
-                                // get the player listener
+                            if (!player.isBot()) {
+                                // Get the player listener
                                 ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
-                                //update the timerLeft for the player
+                                // Update the timerLeft for the player
                                 listener.setTimeLeft(timeLeft);
-                                // update the ui of the player
-                                listener.updateUI("updateTimerLabel");
+                                // Send update to the client to update the UI
+                                // (This part will depend on how your client-server communication is set up)
                             }
-
-                        }catch (RemoteException e){
+                        } catch (RemoteException e) {
                             throw new RuntimeException(e);
                         }
-
                     }
                 }
+
                 if (timeLeft <= 0) {
-                    timerTimeline.stop();
+                    timer.cancel();
                     // Call method to handle end of timer
+                    // This should also communicate with the client as needed
                     endPlayerTurn();
                 }
             }
-        );
-        setBroadcastSent(BroadcastType.START_GAME, false);
-
-        // Add the key frame to the timeline and start the timer
-        timerTimeline.getKeyFrames().add(keyFrame);
-        timerTimeline.playFromStart();
+        }, 0, 1000); // Schedule the task to run every second
     }
     /**
      * Ends the turn for the specified player and performs end-of-turn actions.
@@ -356,8 +350,11 @@ public class GameSession {
 
         // Move to the next player's turn
         serverTable.nextSpieler();
+        System.out.println("acive = " + serverTable.getActive());
+        setBroadcastSent(BroadcastType.START_GAME, true);
         startPlayerTurn(); // Start the next player's turn
     }
+
 
 
 

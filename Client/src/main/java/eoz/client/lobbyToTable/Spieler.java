@@ -1,11 +1,10 @@
 package eoz.client.lobbyToTable;
 
+import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
-import javax.swing.*;
 import java.util.UUID;
 
 public class Spieler extends ServerPlayer {
@@ -40,19 +39,21 @@ public class Spieler extends ServerPlayer {
     @Override
     public void setHahnKarte(boolean hahnKarte) {
         super.setHahnKarte(hahnKarte);
-        if (hahnKarte){
+        Platform.runLater(()->{
+            if (hahnKarte){
 
-            Card hahnServerCard = new Card( "Hahn",  0, false);
-            // Create a new card ImageView for distribution
-            ImageView cardView = new ImageView(String.valueOf(hahnServerCard.getImage()));
-            cardView.setFitHeight(50);
-            cardView.setFitWidth(80);
-            // add card to grid pane
-            this.cardGridPane.addRoosterCard(cardView);
+                Card hahnServerCard = new Card( "Hahn",  0, false);
+                // Create a new card ImageView for distribution
+                ImageView cardView = new ImageView(String.valueOf(hahnServerCard.getImage()));
+                cardView.setFitHeight(50);
+                cardView.setFitWidth(80);
+                // add card to grid pane
+                this.cardGridPane.addRoosterCard(cardView);
 
-        }else {
-            this.cardGridPane.removeRoosterCard();
-        }
+            }else {
+                this.cardGridPane.removeRoosterCard();
+            }
+        });
 
     }
 }

@@ -76,7 +76,7 @@ public class ServerPlayer implements Serializable {
 
     public void remove(ServerCard serverCard) { hand.remove(serverCard); }
 
-    public boolean isHahnKarte() {
+    public boolean hatHahnKarte() {
         return hahnKarte;
     }
 

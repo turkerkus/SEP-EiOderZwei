@@ -1,6 +1,7 @@
 package eoz.client.lobbyToTable;
 
 import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -221,7 +222,7 @@ public class tableController implements Serializable {
             Spieler spieler = new Spieler(
                     player.getServerPlayerId(),
                     player.getServerPlayerName(),
-                    player.isHahnKarte(),
+                    player.hatHahnKarte(),
                     player.getKornzahl(),
                     dummyPane,
                     dummyLabel
@@ -265,10 +266,12 @@ public class tableController implements Serializable {
     /**
      * Updates the timer label with the remaining time.
      */
-    public void updateTimerLabel() {
-        int minutes = timeLeft / 60;
-        int seconds = timeLeft % 60;
-        timerLabel.setText(String.format("Timer: %02d:%02d", minutes, seconds));
+    public void updateTimerLabel(Integer timeLeft) {
+        Platform.runLater(() -> {
+            int minutes = timeLeft / 60;
+            int seconds = timeLeft % 60;
+            timerLabel.setText(String.format("Timer: %02d:%02d", minutes, seconds));
+        });
     }
 
 
@@ -473,7 +476,9 @@ public class tableController implements Serializable {
         });
     }
 
-
+    public void hahnKarteGeben(Integer playerIdx){
+        spielerList.get(playerIdx).setHahnKarte(true);
+    }
 
 
 }

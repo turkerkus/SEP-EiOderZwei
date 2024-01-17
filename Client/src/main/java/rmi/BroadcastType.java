@@ -6,4 +6,6 @@ public enum BroadcastType {
 
     UPDATE_TIMER_LABEL,
 
+    Hahn_karte_Geben,
+
 }

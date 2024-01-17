@@ -25,4 +25,6 @@ public interface ClientUIUpdateListener extends Remote {
     void setCurrentPlayerIndex(Integer index) throws RemoteException;
 
     void setTimeLeft(Integer timeLeft) throws RemoteException;
+
+    void hahnKarteGeben(Integer playerIdx) throws RemoteException;
 }
