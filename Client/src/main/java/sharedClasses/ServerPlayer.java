@@ -18,7 +18,7 @@ public class ServerPlayer implements Serializable {
         return aussteigen;
     }
 
-    private final String serverPlayerName;
+    private  String serverPlayerName;
     int punkte;
     Hand cardHand;
     private int kornzahl;
@@ -33,7 +33,7 @@ public class ServerPlayer implements Serializable {
         isBot = bot;
     }
 
-    private boolean isBot;
+    private boolean isBot = false;
     public ServerPlayer(UUID id, String playerName, boolean hahnKarte, int kornzahl) {
         this.serverPlayerId = id;
         this.serverPlayerName = playerName;

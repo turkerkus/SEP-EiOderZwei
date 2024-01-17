@@ -3,6 +3,7 @@ package sharedClasses;
 import java.io.Serializable;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.tableController;
@@ -26,14 +27,11 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
         System.out.println("the table controller is set");
     }
 
-    @Override
-    public void setPlayerTurn(boolean playerTurn) throws RemoteException {
-        this.tableController.setPlayerTurn(true);
-    }
+
 
     @Override
-    public void setCurrentPlayerIndex(Integer index) throws RemoteException {
-        this.tableController.setCurrentPlayerIndex(index);
+    public void setCurrentPlayerID(UUID playerID) throws RemoteException {
+        this.tableController.setCurrentPlayerID(playerID);
     }
 
     @Override
@@ -84,8 +82,8 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     }
 
     @Override
-    public void hahnKarteGeben(Integer playerIdx) throws RemoteException{
-        tableController.hahnKarteGeben(playerIdx);
+    public void hahnKarteGeben(UUID playerId) throws RemoteException{
+        tableController.hahnKarteGeben(playerId);
     }
 
 

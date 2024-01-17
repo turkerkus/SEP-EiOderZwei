@@ -23,6 +23,7 @@ import sharedClasses.ServerPlayer;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class tableController implements Serializable {
 
@@ -90,13 +91,13 @@ public class tableController implements Serializable {
     List<CardGridPane> gridPanesList = new ArrayList<>();
     List<Label> labelList = new ArrayList<>();
     private ServerTable serverTable;
-    private List<Spieler> spielerList = new ArrayList<>(6);
-    private List<ServerPlayer> serverPlayers;
+    private Map<UUID, Spieler> players = new ConcurrentHashMap<>();
+    private Map<UUID, ServerPlayer> serverPlayers;
 
 
     private Client client;
 
-    private int currentPlayerIndex ;
+    private UUID currentPlayerID;
     @FXML
     private Label timerLabel; // This is the Label that displays the timer
 
@@ -108,7 +109,7 @@ public class tableController implements Serializable {
 
 
 
-    private Boolean isPlayerTurn = false;
+
 
     public Client getClient() {
         return client;
@@ -118,30 +119,17 @@ public class tableController implements Serializable {
         this.client = client;
     }
 
-    public void initialize() {
-
-        // Setup drag and drop for each player grid pane
-        setupGridPaneForDrop(player1GridPane);
-        setupGridPaneForDrop(player2GridPane);
-        setupGridPaneForDrop(player3GridPane);
-        setupGridPaneForDrop(player5GridPane);
-        setupGridPaneForDrop(player6GridPane);
-
-
+    public void setCurrentPlayerID(UUID playerID) {
+        this.currentPlayerID = playerID;
     }
-    public void setCurrentPlayerIndex(int currentPlayerIndex) {
-        this.currentPlayerIndex = currentPlayerIndex;
-    }
-    public void setPlayerTurn(Boolean playerTurn) {
-        isPlayerTurn = playerTurn;
-    }
+
 
     public void assignCardGridPane() throws RemoteException {
         if (this.client == null) return;
 
         try {
             // Get player list from the client
-            serverPlayers = this.client.getPlayerList();
+            serverPlayers = this.client.getPlayers();
             convertAndSetPlayers(serverPlayers);
         } catch (RemoteException e) {
             e.printStackTrace();  // Better to print stack trace for debugging
@@ -155,7 +143,7 @@ public class tableController implements Serializable {
         }
 
 
-        int numPlayers = spielerList.size();
+        int numPlayers = players.size();
 
         // Arrays for labels and grid panes based on the number of players
         Label[][] labelCases = {
@@ -186,7 +174,8 @@ public class tableController implements Serializable {
 
         // Iterate over players and assign labels and grid panes
         int nonHostPlayerIndex = 0;
-        for (Spieler player : spielerList) {
+        for (Map.Entry<UUID, Spieler> entry : players.entrySet()) {
+            Spieler player = entry.getValue();
             if (player.getServerPlayerName().equals(this.client.getClientName())) {
 
                 // Assign the host player to p1 and player1GridPane
@@ -213,9 +202,11 @@ public class tableController implements Serializable {
 
 
 
-    public void convertAndSetPlayers(List<ServerPlayer> players) {
+    public void convertAndSetPlayers(Map<UUID, ServerPlayer> players) {
         // Assuming you have a way to get JavaFX components for each player
-        for (ServerPlayer player : players) {
+        for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
+            UUID spielerID = entry.getKey();
+            ServerPlayer player = entry.getValue();
             CardGridPane dummyPane = new CardGridPane();
             Label dummyLabel = new Label();
 
@@ -229,38 +220,21 @@ public class tableController implements Serializable {
             );
 
             // Add to your spielerList or handle as needed
-            spielerList.add(spieler);
+            this.players.put(spielerID,spieler);
         }
     }
-
-
-    // TODO for setStartButton():
-    //  1.SEND AN ACTION TO THE SERVER THAT THE GAME AS START by setting setGameStarted(true).
-    //  2.SEND THE TABLE CREATE TO SERVER. FOR THE SERVE TO USE clientStartGame() method to set  IT FOR OTHER CLIENTS
-    //  3.Give the currentPlayerIndex  to server. FOR THE SERVE TO USE clientStartGame() method to set  IT FOR OTHER CLIENTS
-    //  4.
 
 
     public void startGame() {
 
         try {
-            this.client.setTableController(this);
+            //this.client.setTableController(this);
             this.client.startGame();
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     }
 
-
-
-
-    //TODO startPlayerTurn() has to be implemented in the server
-
-
-
-    public void setTimeLeft(Integer timeLeft) {
-        this.timeLeft = timeLeft;
-    }
 
 
     /**
@@ -282,10 +256,12 @@ public class tableController implements Serializable {
      *
      */
     public void startGameUiUpdate() {
-        Spieler currentPlayer = spielerList.get(this.currentPlayerIndex);
+        Spieler currentPlayer = players.get(this.currentPlayerID);
         Label currentPlayerLabel = currentPlayer.getPlayerLabel();
+        System.out.println("this is the current player"+currentPlayer.toString());
         if (currentPlayerLabel != null) {
             // Create a glow effect
+            System.out.println("this is the current player is not null");
             DropShadow dropShadow = new DropShadow();
             dropShadow.setColor(Color.GOLD);
             dropShadow.setRadius(20);
@@ -476,9 +452,11 @@ public class tableController implements Serializable {
         });
     }
 
-    public void hahnKarteGeben(Integer playerIdx){
-        spielerList.get(playerIdx).setHahnKarte(true);
+    public void hahnKarteGeben(UUID playerID){
+        players.get(playerID).setHahnKarte(true);
     }
+
+
 
 
 }

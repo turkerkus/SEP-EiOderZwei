@@ -9,7 +9,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,8 +45,8 @@ public class Server implements Remote, ServerInter {
 
     // get the player list
     @Override
-    public List<ServerPlayer> getPlayerList(UUID gameId) throws RemoteException {
-        return gameSessionManager.getGameSession(gameId).getPlayers();
+    public Map<UUID, ServerPlayer> getServerPlayers(UUID gameId) throws RemoteException {
+        return gameSessionManager.getGameSession(gameId).getServerPlayers();
     }
 
     @Override

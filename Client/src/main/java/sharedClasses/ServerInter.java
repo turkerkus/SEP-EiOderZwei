@@ -2,7 +2,7 @@ package sharedClasses;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -26,7 +26,7 @@ public interface ServerInter extends Remote {
      * @return The list of ServerPlayer objects representing players in the game session.
      * @throws RemoteException if a remote communication error occurs.
      */
-    List<ServerPlayer> getPlayerList(UUID gameId) throws RemoteException;
+    Map<UUID, ServerPlayer> getServerPlayers(UUID gameId) throws RemoteException;
 
     /**
      * Creates a new game session and returns its UUID.

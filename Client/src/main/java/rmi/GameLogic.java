@@ -4,11 +4,14 @@ import sharedClasses.ServerPlayer;
 import sharedClasses.ServerTable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class GameLogic {
-    public ServerPlayer findWinningPlayer(List<ServerPlayer> spielerArray, ServerTable serverTable) {
+    public ServerPlayer findWinningPlayer(Map<UUID, ServerPlayer> spielerArray, ServerTable serverTable) {
         if (serverTable.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
-            for (ServerPlayer spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
+            for (Map.Entry<UUID, ServerPlayer> entry  : spielerArray.entrySet()) {              // Überprüft ob einer der Spieler gewonnen hat
+                ServerPlayer spieler = entry.getValue();
                 if (spieler.getPunkte() >= 9 && spielerArray.size() == 2) {                 // 2 Spieler: 9 Eier
                     return spieler;
                 } else if (spieler.getPunkte() >= 8 && spielerArray.size() == 3) {          // 3 Spieler: 8 Eier

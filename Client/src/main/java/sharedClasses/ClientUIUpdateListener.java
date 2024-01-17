@@ -5,6 +5,7 @@ import eoz.client.lobbyToTable.tableController;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.UUID;
 
 public interface ClientUIUpdateListener extends Remote {
     void updateUI(String command) throws RemoteException;
@@ -20,11 +21,10 @@ public interface ClientUIUpdateListener extends Remote {
 
     void setTableController(tableController tableController) throws RemoteException;
 
-    void setPlayerTurn(boolean playerTurn) throws  RemoteException;
 
-    void setCurrentPlayerIndex(Integer index) throws RemoteException;
+    void setCurrentPlayerID(UUID playerID) throws RemoteException;
 
     void setTimeLeft(Integer timeLeft) throws RemoteException;
 
-    void hahnKarteGeben(Integer playerIdx) throws RemoteException;
+    void hahnKarteGeben(UUID playerId) throws RemoteException;
 }

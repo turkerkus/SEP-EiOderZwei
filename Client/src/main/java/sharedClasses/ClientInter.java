@@ -6,7 +6,7 @@ import eoz.client.lobbyToTable.tableController;
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface ClientInter extends Remote, Serializable {
@@ -26,7 +26,7 @@ public interface ClientInter extends Remote, Serializable {
 
     boolean isGameReady() throws RemoteException;
 
-    List<ServerPlayer> getPlayerList() throws RemoteException;
+    Map<UUID, ServerPlayer> getPlayers() throws RemoteException;
 
     boolean doesGameExist(UUID gameId) throws RemoteException;
 

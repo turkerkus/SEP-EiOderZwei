@@ -7,10 +7,11 @@ import sharedClasses.ServerTable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class GameSession {
     private final UUID gameId;
-    private final List<ServerPlayer> players = new ArrayList<>();
+
     private boolean gameStarted = false;
 
     private String gameName;
@@ -56,13 +57,12 @@ public class GameSession {
     // Remaining time
 
     public GameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
+        this.serverTable = new ServerTable();
         this.gameId = gameId;
         this.maxNumOfPlayers = numOfHumanPlayersRequired;
         this.hostPlayerName = hostPlayerName;
-        // TODO: decide on lobbyRoom Timer
-        // this.remainingTimeMillis = (2 * 60 * 1000);
         setGameName(gameName);
-        // Add the host player
+
         addPlayer(clientID,listener,hostPlayerName);
         setBroadcastSent(BroadcastType.SWITCH_TO_TABLE, true);
 
@@ -86,10 +86,12 @@ public class GameSession {
         return gameId;
     }
 
-    public List<ServerPlayer> getPlayers() {
-        for (ServerPlayer player : players){
+    public Map<UUID, ServerPlayer> getServerPlayers() {
+        Map<UUID, ServerPlayer> players = serverTable.getPlayers();
+        players.forEach((key, player) -> {
             System.out.println(player.toString());
-        }
+        });
+
         return players;
     }
 
@@ -100,8 +102,9 @@ public class GameSession {
     public void addPlayer(UUID clientID,ClientUIUpdateListener listener,String playerName) {
         // Check if the game is already started or the maximum number of players is
         // reached
+        Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         if (!gameStarted && players.size() < getMaxNumOfPlayers()) {
-            players.add(new ServerPlayer(clientID, playerName, false, 0));
+            serverTable.addplayer(clientID,new ServerPlayer(clientID, playerName, false, 0));
             clientListeners.put(clientID, listener);
             this.numberOfHumanPlayersPresent++;
         }
@@ -109,15 +112,18 @@ public class GameSession {
     }
 
     public void addBots(Integer bot) {
+        Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         for (int i = 1; i < bot + 1; i++) {
             String botName = generateFunnyBotName() + "_@Bot" + i;
+            UUID botId = UUID.randomUUID();
+
             // Check if the game is already started or the maximum number of players is
             // reached
-            ServerPlayer player = new ServerPlayer(UUID.randomUUID(), botName, false, 0);
+            ServerPlayer player = new ServerPlayer(botId, botName, false, 0);
             player.setBot(true);
             if (!isGameSessionReady && players.size() < getMaxNumOfPlayers()) {
 
-                players.add(player);
+                serverTable.addplayer(botId,player);
             }
         }
 
@@ -128,31 +134,13 @@ public class GameSession {
         return this.maxNumOfPlayers;
     }
 
-    public void startGameTable() {
+    public void startGameTable() throws RemoteException {
         if (getNumberOfHumanPlayersPresent() < maxNumOfPlayers) {
             int botsToAdd = getMaxNumOfPlayers() - getNumberOfHumanPlayersPresent();
             addBots(botsToAdd);
         }
         if (BroadcastIsNotSent(BroadcastType.SWITCH_TO_TABLE)) {
-            for (ServerPlayer player : players) {
-                //the player is in the game
-                player.einsteigen();
-                try {
-                    // check if the player is not a boot or not a hostPlayer
-                    if (!player.isBot() || !checkStartTable(player.getServerPlayerName())) {
-                        ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
-                        if (listener != null) {
-                            listener.setNumOfPlayers(getMaxNumOfPlayers());
-                            listener.updateUI("switchToTable");
-                        }
-
-                    }
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            setBroadcastSent(BroadcastType.SWITCH_TO_TABLE, false);
-
+            broadcastSafeCommunication(BroadcastType.SWITCH_TO_TABLE);
         }
         isGameSessionReady = true;
     }
@@ -162,6 +150,7 @@ public class GameSession {
     }
 
     public boolean isFull() {
+        Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         return players.size() == getMaxNumOfPlayers();
     }
 
@@ -179,7 +168,7 @@ public class GameSession {
      * sets the first player as the active player, initializes and shuffles the deck, and starts the first player's turn.
      */
 
-    public void startGame() {
+    public void startGame() throws RemoteException {
 
         // Check if there are enough players to start the game
         if (!gameStarted && isGameSessionReady) {
@@ -192,14 +181,13 @@ public class GameSession {
             Random random = new Random();
 
             int firstPlayerIndex = random.nextInt(maxNumOfPlayers);
+            UUID playerId = serverTable.getPlayerId(firstPlayerIndex);
 
             // Give the firstPlayer the 'hahn' card
             setBroadcastSent(BroadcastType.Hahn_karte_Geben, true);
-            hahnKarteGeben(firstPlayerIndex);
+            serverTable.setSpielerMitHahnKarte(playerId);
+            hahnKarteGeben();
 
-
-            // Create a serverTable and put the players on the serverTable
-            this.serverTable = new ServerTable(players);
 
             // Set the firstPlayer as the active player in the serverTable
             serverTable.setActive(firstPlayerIndex);
@@ -211,23 +199,8 @@ public class GameSession {
 
         }
     }
-    public void hahnKarteGeben(Integer playerIdx){
-        ServerPlayer serverPlayer = players.get(playerIdx);
-        serverPlayer.setHahnKarte(true);
-        if(BroadcastIsNotSent(BroadcastType.Hahn_karte_Geben)) {
-            for (ServerPlayer player : players) {
-                ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
-                if(listener != null){
-                    // update the ui of the player
-                    try {
-                        listener.hahnKarteGeben(playerIdx);
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            }
-            setBroadcastSent(BroadcastType.Hahn_karte_Geben,false);
-        }
+    public void hahnKarteGeben() throws RemoteException {
+        broadcastSafeCommunication(BroadcastType.Hahn_karte_Geben);
     }
 
     /**
@@ -235,9 +208,10 @@ public class GameSession {
      * Checks for end-game conditions and handles game over if necessary.
      */
     private void startPlayerTurn() {
+        Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         // Check for end-game condition
-        if (gameLogic.findWinningPlayer(this.players, this.serverTable) != null) {
-            ServerPlayer GameWinner = gameLogic.findWinningPlayer(this.players, this.serverTable);
+        if (gameLogic.findWinningPlayer(players, this.serverTable) != null) {
+            ServerPlayer GameWinner = gameLogic.findWinningPlayer(players, this.serverTable);
 
             //TODO implement what will happen if the player wins
             System.out.print(GameWinner.getServerPlayerName() + "hat gewonnen");
@@ -247,49 +221,13 @@ public class GameSession {
             // This is just a placeholder
             return;
         }
-
+        // broadCast StartGame
         try {
-
-
-            // set the current turn to true
-            ServerPlayer currentPlayer = players.get(serverTable.getActive());
-            Integer currentPlayerIdx = serverTable.getActive();
-            if(!currentPlayer.isBot()){
-                ClientUIUpdateListener currentPlayerListener = clientListeners.get(currentPlayer.getServerPlayerId());
-                currentPlayerListener.setPlayerTurn(true);
-                System.out.println(currentPlayer.toString() + " this is the current player");
-            }
-
-            // Broadcast to all players to startGame
-            if(BroadcastIsNotSent(BroadcastType.START_GAME)){
-                for(ServerPlayer player : players){
-                    System.out.println("hat HahnKarte: " + player.hatHahnKarte());
-                    // get the player listener
-                    ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
-                    if(listener != null){
-                        // update the current player index
-                        listener.setCurrentPlayerIndex(currentPlayerIdx);
-                        // update the ui of the player
-                        listener.updateUI("startPlayerTurn");
-                    }
-
-                }
-
-                setBroadcastSent(BroadcastType.START_GAME, false);
-            }
-
-            //Start the timer
-            setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
+            broadcastSafeCommunication(BroadcastType.START_GAME);
             startTurnTimer(10);
-
-
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-
-
-
-
     }
 
     /**
@@ -313,22 +251,10 @@ public class GameSession {
             public void run() {
                 // Decrement timeLeft
                 timeLeft--;
-
-                if (BroadcastIsNotSent(BroadcastType.UPDATE_TIMER_LABEL)) {
-                    for (ServerPlayer player : players) {
-                        try {
-                            if (!player.isBot()) {
-                                // Get the player listener
-                                ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
-                                // Update the timerLeft for the player
-                                listener.setTimeLeft(timeLeft);
-                                // Send update to the client to update the UI
-                                // (This part will depend on how your client-server communication is set up)
-                            }
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
+                try {
+                    broadcastSafeCommunication(BroadcastType.UPDATE_TIMER_LABEL);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
                 }
 
                 if (timeLeft <= 0) {
@@ -350,12 +276,90 @@ public class GameSession {
 
         // Move to the next player's turn
         serverTable.nextSpieler();
-        System.out.println("acive = " + serverTable.getActive());
+        System.out.println("active = " + serverTable.getActive());
         setBroadcastSent(BroadcastType.START_GAME, true);
         startPlayerTurn(); // Start the next player's turn
     }
 
 
+    /**
+     * Safely performs RMI communication with a client if the player is not a bot.
+     *
+     * @param player The server player associated with the client.
+     * @param action The action to perform on the client's UI update listener.
+     */
+    private void safeClientCommunication(ServerPlayer player, Consumer<ClientUIUpdateListener> action) throws RemoteException {
+        if (!player.isBot()) {  // Check if the player is not a bot
+            // Retrieve the client's UI update listener from the map
+            ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
+            if (listener != null) {
+                action.accept(listener);  // Perform the RMI communication on the listener
+            }
+        }
+    }
+
+    /**
+     * Handles a disconnected client by printing a message.
+     *
+     * @param player The disconnected player.
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    private void handleDisconnectedClient(ServerPlayer player) throws RemoteException {
+        System.out.println("Player " + player.getServerPlayerName() + " has left the game and has been replaced by a bot.");
+    }
+
+    /**
+     * Broadcasts a safe communication to all players with a specified UI update message.
+     *
+     * @param broadcastType   The type of broadcast action to perform.
+     * @throws RemoteException If a remote communication error occurs.
+     */
+    private void broadcastSafeCommunication(BroadcastType broadcastType) throws RemoteException {
+        Map<UUID, ServerPlayer> players = serverTable.getPlayers();
+        for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
+            ServerPlayer player = entry.getValue();
+
+            // Now use safeClientCommunication for each player
+            safeClientCommunication(player, listener -> {
+                try {
+                    // Perform the actions based on the BroadcastType
+                    switch (broadcastType) {
+                        case SWITCH_TO_TABLE:
+                            // Perform specific action for this broadcast type
+                            player.einsteigen();
+                            listener.setNumOfPlayers(getMaxNumOfPlayers());
+                            listener.updateUI("switchToTable");
+                            break;
+                        case Hahn_karte_Geben:
+                            UUID roosterCardHolder = serverTable.getSpielerMitHahnKarte();
+                            listener.hahnKarteGeben(roosterCardHolder);
+                            break;
+                        case START_GAME:
+                            // set the current turn to true
+                            UUID activePlayerId = serverTable.getActiveSpielerID();
+                            listener.setCurrentPlayerID(activePlayerId);
+                            listener.updateUI("startPlayerTurn");
+                            break;
+                        case UPDATE_TIMER_LABEL:
+                            listener.setTimeLeft(timeLeft);
+                            break;
+
+                        // Add cases for other BroadcastTypes if needed
+                    }
+
+
+                } catch (RemoteException e) {
+                    try {
+                        handleDisconnectedClient(player);
+                    } catch (RemoteException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
+        }
+        // Update the broadcast status after all players have been handled
+        setBroadcastSent(broadcastType, false);
+    }
 
 
 

@@ -5,7 +5,7 @@ import sharedClasses.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -162,9 +162,9 @@ public class Client implements ClientInter {
 
 // Method to retrieve the player list
 
-    public List<ServerPlayer> getPlayerList() throws RemoteException {
+    public Map<UUID, ServerPlayer> getPlayers() throws RemoteException {
         try {
-            return serverStub.getPlayerList(gameId);
+            return serverStub.getServerPlayers(gameId);
         } catch (RemoteException e) {
             e.printStackTrace();
             return null;

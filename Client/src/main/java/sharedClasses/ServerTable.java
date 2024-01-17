@@ -1,25 +1,49 @@
 package sharedClasses;
 
-import javax.swing.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerTable implements Serializable {
 
-    public List<ServerPlayer> spielerList;
+    private Map<UUID, ServerPlayer> players;
+
+    public UUID getPlayerId(Integer index) {
+        return playerIdList.get(index);
+    }
+
+    private List<UUID> playerIdList;
     private int moveCount = 0;
     private Deck nachzieheDeck = new Deck(true); //This is the deck from which the players draw cards.
     private Deck ablageDeck = new Deck(false); //This is the deck where the players drop cards.
 
 
-    public volatile int active;
+    private volatile int active;
 
-    public ServerTable(List<ServerPlayer> spieler) {
-        this.spielerList = spieler;
+    public UUID getSpielerMitHahnKarte() {
+        return spielerMitHahnKarte;
     }
 
-    public List<ServerPlayer> getSpielerList() {
-        return spielerList;
+    public void setSpielerMitHahnKarte(UUID spielerMitHahnKarte) {
+        this.spielerMitHahnKarte = spielerMitHahnKarte;
+    }
+
+    private UUID spielerMitHahnKarte;
+
+    public ServerTable() {
+        players = new ConcurrentHashMap<>();
+        playerIdList = new ArrayList<>();
+    }
+
+    public Map<UUID, ServerPlayer> getPlayers() {
+        return players;
+    }
+    public void addplayer(UUID spielerId, ServerPlayer spieler){
+        players.put(spielerId, spieler);
+        playerIdList.add(spielerId);
     }
 
     public void nextMove() { // This method counts the number of moves made.
@@ -30,7 +54,11 @@ public class ServerTable implements Serializable {
         return nachzieheDeck.ziehen();
     }
     public ServerPlayer getActiveSpieler(){
-        return spielerList.get(active);
+        UUID playerId = playerIdList.get(active);
+        return players.get(playerId);
+    }
+    public UUID getActiveSpielerID(){
+        return playerIdList.get(active);
     }
 
     public void setActive(int activeSpieler){
@@ -41,7 +69,7 @@ public class ServerTable implements Serializable {
     }
 
     public int getAnzahlSpieler() { //diese Method gibt die Anzahl der aktuellen Spieler_old zurück.
-        return spielerList.size();
+        return players.size();
     }
 
     public ServerCard getTopCardOfDeck() {
@@ -61,13 +89,15 @@ public class ServerTable implements Serializable {
     }
 
     public ServerPlayer nextSpieler() {
+        UUID playerId;
         do {
             active = (active + 1) % getAnzahlSpieler();
-        } while (!spielerList.get(active).inGame());
-
-        if ((spielerList.get(active) != null))
-            System.out.println(spielerList.get(active).getServerPlayerName() + " is next");
-        return spielerList.get(active);
+            playerId = playerIdList.get(active);
+        } while (!players.get(playerId).inGame());
+        playerId = playerIdList.get(active);
+        if ((players.get(playerId) != null))
+            System.out.println(players.get(playerId).getServerPlayerName() + " is next");
+        return players.get(playerId);
     }
     public int getActive() {
         return active;
