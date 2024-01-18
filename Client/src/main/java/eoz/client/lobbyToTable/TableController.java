@@ -482,7 +482,12 @@ public class TableController implements Serializable {
 
     }
 
+    /*
+    public void drawCard{
+        if (client.getClientId()== currentPlayerID){
 
-
+        };
+    };
+    */
 
 }

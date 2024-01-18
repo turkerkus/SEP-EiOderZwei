@@ -114,4 +114,11 @@ public interface ServerInter extends Remote {
      */
     void registerClient(UUID clientId, ClientUIUpdateListener listener) throws RemoteException;
 
+    /**
+     * Lets a player draw a card as a round action.
+     *
+     * @param clientId The UUID of the current Client drawing the card.
+     * @throws RemoteException if a remote communication error occurs.
+     */
+    void drawCard(UUID clientId) throws RemoteException;
 }
