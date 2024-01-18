@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 // Programm, um den Spieltisch für das Spiel anzuzeigen.
-public class tableApplication extends Application implements Serializable {
+public class TableApplication extends Application implements Serializable {
 
 
     @Override
@@ -26,7 +26,7 @@ public class tableApplication extends Application implements Serializable {
             Parent root = loader.load();
 
             // Retrieve the controller after loading the FXML
-            tableController controller = loader.getController();
+            TableController controller = loader.getController();
 
 
 
@@ -47,8 +47,8 @@ public class tableApplication extends Application implements Serializable {
         }
     }
 
-    // used to bind all the necessary elements in tableController
-    public  void initializeBind(tableController controller, Parent root){
+    // used to bind all the necessary elements in TableController
+    public  void initializeBind(TableController controller, Parent root){
         AnchorPane anchorPane2 = controller.anchorPane2;
         AnchorPane anchorPane3 = controller.anchorPane3;
         AnchorPane anchorPane4 = controller.anchorPane4;

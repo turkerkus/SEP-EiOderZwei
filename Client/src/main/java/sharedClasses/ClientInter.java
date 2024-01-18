@@ -1,7 +1,7 @@
 package sharedClasses;
 
 import eoz.client.lobbyToTable.LobbyRoomController;
-import eoz.client.lobbyToTable.tableController;
+import eoz.client.lobbyToTable.TableController;
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -41,7 +41,7 @@ public interface ClientInter extends Remote, Serializable {
 
     String getClientName()throws RemoteException;
 
-    void setTableController(tableController tableController) throws RemoteException;
+    void setTableController(TableController tableController) throws RemoteException;
 
 
 

@@ -1,7 +1,6 @@
 package eoz.client.lobbyToTable;
 
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -81,8 +80,8 @@ public class LobbyRoomController implements Serializable {
             try {
                 root = loader.load();
                 //create the ServerTable Application and TableController
-                tableApplication tableApplication = new tableApplication();
-                tableController tableController = loader.getController();
+                TableApplication tableApplication = new TableApplication();
+                TableController tableController = loader.getController();
                 tableController.setClient(client);
                 try {
                     // assign the ServerCard Grid Pane
@@ -91,7 +90,7 @@ public class LobbyRoomController implements Serializable {
                     e.getMessage();
 
                 }
-                // Setup players in the tableController
+                // Setup players in the TableController
                 client.setTableController(tableController);
 
 

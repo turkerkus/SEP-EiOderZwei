@@ -31,6 +31,12 @@ public class ServerTable implements Serializable {
         this.spielerMitHahnKarte = spielerMitHahnKarte;
     }
 
+    public void swapPlayerWithBot(UUID playerId, String botName){
+        players.get(playerId).setBot(true);
+        players.get(playerId).setServerPlayerName(botName);
+
+    }
+
     private UUID spielerMitHahnKarte;
 
     public ServerTable() {
@@ -89,12 +95,8 @@ public class ServerTable implements Serializable {
     }
 
     public ServerPlayer nextSpieler() {
-        UUID playerId;
-        do {
-            active = (active + 1) % getAnzahlSpieler();
-            playerId = playerIdList.get(active);
-        } while (!players.get(playerId).inGame());
-        playerId = playerIdList.get(active);
+        active = (active + 1) % getAnzahlSpieler();
+        UUID playerId = playerIdList.get(active);
         if ((players.get(playerId) != null))
             System.out.println(players.get(playerId).getServerPlayerName() + " is next");
         return players.get(playerId);

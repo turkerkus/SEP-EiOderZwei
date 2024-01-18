@@ -1,7 +1,7 @@
 package sharedClasses;
 
 import eoz.client.lobbyToTable.LobbyRoomController;
-import eoz.client.lobbyToTable.tableController;
+import eoz.client.lobbyToTable.TableController;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -19,7 +19,7 @@ public interface ClientUIUpdateListener extends Remote {
     void setLobbyRoomController(LobbyRoomController lobbyRoomController) throws RemoteException;
 
 
-    void setTableController(tableController tableController) throws RemoteException;
+    void setTableController(TableController tableController) throws RemoteException;
 
 
     void setCurrentPlayerID(UUID playerID) throws RemoteException;
@@ -27,4 +27,6 @@ public interface ClientUIUpdateListener extends Remote {
     void setTimeLeft(Integer timeLeft) throws RemoteException;
 
     void hahnKarteGeben(UUID playerId) throws RemoteException;
+
+    void playerLeftGameSession(UUID disconnectedPlayerID, String botName) throws RemoteException;
 }

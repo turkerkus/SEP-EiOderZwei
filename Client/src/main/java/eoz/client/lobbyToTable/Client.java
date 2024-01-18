@@ -27,7 +27,7 @@ public class Client implements ClientInter {
     }
 
     @Override
-    public void setTableController(tableController tableController) throws RemoteException {
+    public void setTableController(TableController tableController) throws RemoteException {
         updateListener.setTableController(tableController);
     }
 

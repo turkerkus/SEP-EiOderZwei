@@ -18,6 +18,10 @@ public class ServerPlayer implements Serializable {
         return aussteigen;
     }
 
+    public void setServerPlayerName(String serverPlayerName) {
+        this.serverPlayerName = serverPlayerName;
+    }
+
     private  String serverPlayerName;
     int punkte;
     Hand cardHand;
@@ -41,6 +45,7 @@ public class ServerPlayer implements Serializable {
         this.kornzahl = kornzahl;
 
     }
+
 
 
     public UUID getServerPlayerId() {

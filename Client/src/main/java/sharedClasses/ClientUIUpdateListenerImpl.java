@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 import java.util.UUID;
 
 import eoz.client.lobbyToTable.LobbyRoomController;
-import eoz.client.lobbyToTable.tableController;
+import eoz.client.lobbyToTable.TableController;
 import javafx.application.Platform;
 
 public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements ClientUIUpdateListener, Serializable {
@@ -18,11 +18,11 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
     private LobbyRoomController lobbyRoomController;
 
-    public tableController getTableController() {
+    public TableController getTableController() {
         return tableController;
     }
 
-    public void setTableController(tableController tableController) {
+    public void setTableController(TableController tableController) {
         this.tableController = tableController;
         System.out.println("the table controller is set");
     }
@@ -39,7 +39,7 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
         this.tableController.updateTimerLabel(timeLeft);
     }
 
-    private tableController tableController;
+    private TableController tableController;
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
@@ -84,6 +84,10 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     @Override
     public void hahnKarteGeben(UUID playerId) throws RemoteException{
         tableController.hahnKarteGeben(playerId);
+    }
+    @Override
+    public void playerLeftGameSession(UUID disconnectedPlayerID, String botName) throws RemoteException{
+        tableController.playerLeftGameSession(disconnectedPlayerID,botName);
     }
 
 

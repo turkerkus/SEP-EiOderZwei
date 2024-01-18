@@ -3,9 +3,7 @@ package eoz.client.lobbyToTable;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -25,7 +23,7 @@ import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class tableController implements Serializable {
+public class TableController implements Serializable {
 
     @FXML
     public Label p1;
@@ -454,6 +452,34 @@ public class tableController implements Serializable {
 
     public void hahnKarteGeben(UUID playerID){
         players.get(playerID).setHahnKarte(true);
+    }
+
+    public void playerLeftGameSession(UUID disconnectedPlayerID, String botName) {
+        Platform.runLater(() -> {
+            // Create an alert dialog to inform players about the player who left
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Player Left");
+            alert.setHeaderText("Player has left the game session");
+            alert.setContentText("Player with ID " + disconnectedPlayerID + " has left the game session.");
+
+            // Add a button to acknowledge the message
+            alert.getButtonTypes().setAll(ButtonType.OK);
+
+            // Show the dialog
+            alert.showAndWait();
+
+            //Swap player with bot
+            swapPlayerWithBot(disconnectedPlayerID,botName);
+            //change the label of the disconnectPlayer to the Bot name
+            Spieler disconnectPlayer = players.get(disconnectedPlayerID);
+            disconnectPlayer.getPlayerLabel().setText(botName);
+        });
+
+    }
+    public void swapPlayerWithBot(UUID playerId, String botName){
+        players.get(playerId).setBot(true);
+        players.get(playerId).setServerPlayerName(botName);
+
     }
 
 

@@ -26,6 +26,9 @@ public class GameSession {
     private ServerTable serverTable;
     private final GameLogic gameLogic = new GameLogic();
 
+    private Integer numOfBotPlayers  = 0;
+    private GameSessionCallback callback;
+
     private final String[] FUNNY_BOT_NAMES = {
             "Bloop",
             "Zippy",
@@ -56,7 +59,8 @@ public class GameSession {
 
     // Remaining time
 
-    public GameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
+    public GameSession(GameSessionCallback callback, UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
+        this.callback = callback;
         this.serverTable = new ServerTable();
         this.gameId = gameId;
         this.maxNumOfPlayers = numOfHumanPlayersRequired;
@@ -88,9 +92,7 @@ public class GameSession {
 
     public Map<UUID, ServerPlayer> getServerPlayers() {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
-        players.forEach((key, player) -> {
-            System.out.println(player.toString());
-        });
+        players.forEach((key, player) -> System.out.println(player.toString()));
 
         return players;
     }
@@ -113,8 +115,9 @@ public class GameSession {
 
     public void addBots(Integer bot) {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
+        numOfBotPlayers++;
         for (int i = 1; i < bot + 1; i++) {
-            String botName = generateFunnyBotName() + "_@Bot" + i;
+            String botName = generateFunnyBotName() + "_@Bot" + numOfBotPlayers;
             UUID botId = UUID.randomUUID();
 
             // Check if the game is already started or the maximum number of players is
@@ -288,7 +291,7 @@ public class GameSession {
      * @param player The server player associated with the client.
      * @param action The action to perform on the client's UI update listener.
      */
-    private void safeClientCommunication(ServerPlayer player, Consumer<ClientUIUpdateListener> action) throws RemoteException {
+    private void safeClientCommunication(ServerPlayer player, Consumer<ClientUIUpdateListener> action) {
         if (!player.isBot()) {  // Check if the player is not a bot
             // Retrieve the client's UI update listener from the map
             ClientUIUpdateListener listener = clientListeners.get(player.getServerPlayerId());
@@ -298,6 +301,7 @@ public class GameSession {
         }
     }
 
+
     /**
      * Handles a disconnected client by printing a message.
      *
@@ -306,6 +310,41 @@ public class GameSession {
      */
     private void handleDisconnectedClient(ServerPlayer player) throws RemoteException {
         System.out.println("Player " + player.getServerPlayerName() + " has left the game and has been replaced by a bot.");
+        numOfBotPlayers ++;
+        if(clientListeners.isEmpty()){  // meaning there is no human player left, so you end the game
+            timer.cancel();
+            endGameSession();
+        } else if(!player.isBot()){
+            UUID disconnectedPlayerId = player.getServerPlayerId();
+            String botName = generateFunnyBotName() + "_@Bot" + numOfBotPlayers;
+            // remove the player listener
+            clientListeners.remove(disconnectedPlayerId);
+
+            //swap the player with bot
+
+            serverTable.swapPlayerWithBot(disconnectedPlayerId,botName);
+
+            //Broadcast to the other players that the player has left the gameSession
+            Map<UUID, ServerPlayer> players = serverTable.getPlayers();
+            for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
+                ServerPlayer serverPlayer = entry.getValue();
+
+                // Now use safeClientCommunication for each player
+                safeClientCommunication(serverPlayer, listener -> {
+                    try {
+                        listener.playerLeftGameSession(disconnectedPlayerId,botName);
+                    }catch (RemoteException e){
+                        throw  new RuntimeException(e);
+                    }
+                });
+            }
+        }
+
+
+    }
+    public void endGameSession(){
+        System.out.println("Game session with the id : "+ this.gameId+" has been ended");
+        callback.endGameSession(this.gameId);
     }
 
     /**
@@ -321,38 +360,54 @@ public class GameSession {
 
             // Now use safeClientCommunication for each player
             safeClientCommunication(player, listener -> {
-                try {
-                    // Perform the actions based on the BroadcastType
-                    switch (broadcastType) {
-                        case SWITCH_TO_TABLE:
-                            // Perform specific action for this broadcast type
-                            player.einsteigen();
-                            listener.setNumOfPlayers(getMaxNumOfPlayers());
-                            listener.updateUI("switchToTable");
-                            break;
-                        case Hahn_karte_Geben:
-                            UUID roosterCardHolder = serverTable.getSpielerMitHahnKarte();
-                            listener.hahnKarteGeben(roosterCardHolder);
-                            break;
-                        case START_GAME:
-                            // set the current turn to true
-                            UUID activePlayerId = serverTable.getActiveSpielerID();
-                            listener.setCurrentPlayerID(activePlayerId);
-                            listener.updateUI("startPlayerTurn");
-                            break;
-                        case UPDATE_TIMER_LABEL:
-                            listener.setTimeLeft(timeLeft);
-                            break;
-
-                        // Add cases for other BroadcastTypes if needed
-                    }
-
-
-                } catch (RemoteException e) {
+                // Implementing a retry mechanism before deciding to remove a client due to the client
+                // disconnected from the server or leaves game  session
+                boolean success = false;
+                final int maxRetries = 3;
+                for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
                     try {
-                        handleDisconnectedClient(player);
-                    } catch (RemoteException ex) {
-                        throw new RuntimeException(ex);
+                        // Perform the actions based on the BroadcastType
+                        switch (broadcastType) {
+                            case SWITCH_TO_TABLE:
+                                // Perform specific action for this broadcast type
+                                player.einsteigen();
+                                listener.setNumOfPlayers(getMaxNumOfPlayers());
+                                listener.updateUI("switchToTable");
+                                break;
+                            case Hahn_karte_Geben:
+                                System.out.println("hahn");
+                                UUID roosterCardHolder = serverTable.getSpielerMitHahnKarte();
+                                listener.hahnKarteGeben(roosterCardHolder);
+                                break;
+                            case START_GAME:
+                                // set the current turn to true
+                                UUID activePlayerId = serverTable.getActiveSpielerID();
+                                listener.setCurrentPlayerID(activePlayerId);
+                                listener.updateUI("startPlayerTurn");
+                                break;
+                            case UPDATE_TIMER_LABEL:
+                                listener.setTimeLeft(timeLeft);
+                                break;
+
+                            // Add cases for other BroadcastTypes if needed
+                        }
+                        success = true;
+                    } catch (RemoteException e) {
+                        if (attempt == maxRetries - 1) {
+                            // Log retry attempt here
+                            try {
+                                Thread.sleep(1000);  // Wait for a second before retrying
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();  // Restore the interrupted status
+                            }
+                        } else {
+                            // If all retries fail, handle as a disconnected client
+                            try {
+                                handleDisconnectedClient(player);
+                            } catch (RemoteException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
                     }
                 }
             });

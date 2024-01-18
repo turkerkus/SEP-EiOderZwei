@@ -2,20 +2,26 @@ package rmi;
 
 import sharedClasses.ClientUIUpdateListener;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GameSessionManager {
     private Map<UUID, GameSession> gameSessions = new ConcurrentHashMap<>();
+    private GameSessionCallback callback;
 
     public GameSessionManager() {
+        this.callback = new GameSessionCallback() {
+            @Override
+            public void endGameSession(UUID gameId) {
+                gameSessions.remove(gameId);
+            }
+        };
     }
 
     public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfHumanPlayersRequired) {
         UUID gameId = UUID.randomUUID();
-        GameSession gameSession = new GameSession(clientID,listener, gameName,gameId, playerName, numOfHumanPlayersRequired);
+        GameSession gameSession = new GameSession(this.callback, clientID,listener, gameName,gameId, playerName, numOfHumanPlayersRequired);
         gameSessions.put(gameId, gameSession);
         return gameId;
     }

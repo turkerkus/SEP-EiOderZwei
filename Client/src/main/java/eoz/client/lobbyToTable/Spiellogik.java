@@ -38,7 +38,7 @@ public class Spiellogik {
         if (serverTable.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
             for (Spieler spieler : spielerArray) {              // Überprüft ob einer der Spieler gewonnen hat
                 if (spieler.getPunkte() >= 5) {
-                    // TODO : Remove this after the SWITCH TO SCORE BOARD OR SHOW A DIALOGBOX is implemented in the startPlayerTurn() in tableController
+                    // TODO : Remove this after the SWITCH TO SCORE BOARD OR SHOW A DIALOGBOX is implemented in the startPlayerTurn() in TableController
                     // this is just a placeholder
                     System.out.print(spieler.getServerPlayerName() + "hat gewonnen");
                     return true;
