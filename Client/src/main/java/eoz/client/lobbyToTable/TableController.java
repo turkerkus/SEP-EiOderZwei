@@ -482,12 +482,101 @@ public class TableController implements Serializable {
 
     }
 
-    /*
-    public void drawCard{
-        if (client.getClientId()== currentPlayerID){
 
-        };
-    };
-    */
+
+
+    public void drawCard() {
+        Platform.runLater(() -> {
+            try {
+
+                System.out.println("Draw card : the id of the client drawing the card "+client.getClientId());
+                System.out.println("Draw card : the id of the currentPlayerId  "+this.currentPlayerID);
+
+                if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
+                    client.drawCard();
+                } else {
+                    // Create an alert to inform the player that it's not their turn
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Not Your Turn");
+                    alert.setHeaderText(null);
+                    alert.setContentText("It's not your turn to play so you cannot draw a card.");
+
+                    // Show the alert
+                    alert.showAndWait();
+                }
+
+
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        });
+       
+    }
+
+    public void getEggs() {
+        Platform.runLater(() -> {
+            try {
+                if (client.getClientId() == currentPlayerID) {
+                    // TODO check if current player has enough corn to exchange for eggs
+                    client.karteUmtauschen();
+                } else {
+                    // Create an alert to inform the player that it's not their turn
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Not Your Turn");
+                    alert.setHeaderText(null);
+                    alert.setContentText("It's not your turn to play so you cannot generate eggs.");
+
+                    // Show the alert
+                    alert.showAndWait();
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
+
+    public void stealRooster() {
+        Platform.runLater(() -> {
+            try {
+                if (client.getClientId() == currentPlayerID) {
+                    // TODO check if the current player has already the rooster card.
+                    // TODO check if the Rooster Owner does have more eggs than current player
+                    client.hahnKlauen();
+                } else {
+                    // Create an alert to inform the player that it's not their turn
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Not Your Turn");
+                    alert.setHeaderText(null);
+                    alert.setContentText("It's not your turn to play so you cannot steal someones rooster card.");
+
+                    // Show the alert
+                    alert.showAndWait();
+                }
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        
+    }
+
+    public void hasDrawnACard(UUID playerId, ServerCard serverCard){
+        Platform.runLater(() -> {
+            // Convert server Card to card
+            Card drawnCard = convertCard(serverCard);
+            players.get(playerId).addCard(drawnCard,serverCard);
+        });
+
+    }
+
+    public Card convertCard(ServerCard serverCard){
+        return  new Card(
+                serverCard.getType(),
+                serverCard.getValue(),
+                serverCard.isCovered()
+        );
+    }
+
+
 
 }

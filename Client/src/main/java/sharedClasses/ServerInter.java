@@ -118,7 +118,26 @@ public interface ServerInter extends Remote {
      * Lets a player draw a card as a round action.
      *
      * @param clientId The UUID of the current Client drawing the card.
+     * @param gameId the UUID of the game session the client is in
      * @throws RemoteException if a remote communication error occurs.
      */
-    void drawCard(UUID clientId) throws RemoteException;
+    void drawCard(UUID clientId, UUID gameId) throws RemoteException;
+
+    /**
+     * Lets a player steal a rooter card .
+     *
+     * @param clientId The UUID of the current Client drawing the card.
+     * @param gameId the UUID of the game session the client is in
+     * @throws RemoteException if a remote communication error occurs.
+     */
+    void hahnKlauen(UUID clientId, UUID gameId) throws RemoteException;
+
+    /**
+     * Lets a player change card .
+     *
+     * @param clientId The UUID of the current Client drawing the card.
+     * @param gameId the UUID of the game session the client is in
+     * @throws RemoteException if a remote communication error occurs.
+     */
+    void karteUmtauschen(UUID clientId, UUID gameId) throws RemoteException;
 }

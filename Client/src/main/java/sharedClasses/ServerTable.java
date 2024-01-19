@@ -14,13 +14,20 @@ public class ServerTable implements Serializable {
     public UUID getPlayerId(Integer index) {
         return playerIdList.get(index);
     }
+    public ServerPlayer getPlayer(UUID playerID){
+        return players.get(playerID);
+    }
 
     private List<UUID> playerIdList;
     private int moveCount = 0;
     private Deck nachzieheDeck = new Deck(true); //This is the deck from which the players draw cards.
     private Deck ablageDeck = new Deck(false); //This is the deck where the players drop cards.
 
+    public ServerCard getDrawnCard() {
+        return drawnCard;
+    }
 
+    ServerCard drawnCard ;
     private volatile int active;
 
     public UUID getSpielerMitHahnKarte() {
@@ -56,8 +63,9 @@ public class ServerTable implements Serializable {
         moveCount += 1;
     }
 
-    public ServerCard karteZiehen() {
-        return nachzieheDeck.ziehen();
+    public void karteZiehen(UUID clientId) {
+        drawnCard =  nachzieheDeck.ziehen();
+        players.get(clientId).add(drawnCard);
     }
     public ServerPlayer getActiveSpieler(){
         UUID playerId = playerIdList.get(active);

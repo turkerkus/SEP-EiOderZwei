@@ -208,5 +208,20 @@ public class Client implements ClientInter {
     }
 
 
-    // Additional methods (e.g., fetchRemainingTime) can be uncommented and used as required
+    // DrawCard
+
+    @Override
+    public void drawCard() throws RemoteException {
+        serverStub.drawCard(clientId, gameId);
+    }
+
+    @Override
+    public void hahnKlauen() throws RemoteException {
+        serverStub.hahnKlauen(clientId, gameId);
+    }
+
+    @Override
+    public void karteUmtauschen() throws RemoteException {
+        serverStub.drawCard(clientId, gameId);
+    }
 }

@@ -3,6 +3,7 @@ package eoz.client.lobbyToTable;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
 import java.util.UUID;
@@ -55,5 +56,20 @@ public class Spieler extends ServerPlayer {
             }
         });
 
+    }
+
+
+    public void addCard(Card card, ServerCard servercard){
+        super.add(servercard);
+        // Create a new card ImageView for distribution
+        ImageView cardView = new ImageView(String.valueOf(card.getImage()));
+        //cardView.setPreserveRatio(true);
+        cardView.setFitHeight(50);
+        cardView.setFitWidth(80);
+        // add card to grid pane
+        int[] nextCell = this.cardGridPane.getNextAvailableCell();
+        int row = nextCell[0];
+        int col = nextCell[1];
+        this.cardGridPane.addCard(cardView,row,col);
     }
 }

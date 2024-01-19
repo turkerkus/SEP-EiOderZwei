@@ -2,6 +2,7 @@ package sharedClasses;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -26,8 +27,11 @@ public class ServerPlayer implements Serializable {
     int punkte;
     Hand cardHand;
     private int kornzahl;
-    private List<ServerCard> hand;
+    private List<ServerCard> hand = new ArrayList<>();
     private  boolean  hahnKarte;
+    public boolean isHahnKarte(){
+        return this.hahnKarte;
+    }
 
     public boolean isBot() {
         return isBot;

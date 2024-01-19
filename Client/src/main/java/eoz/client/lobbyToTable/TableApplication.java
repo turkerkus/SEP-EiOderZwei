@@ -132,7 +132,7 @@ public class TableApplication extends Application implements Serializable {
         nachzieheDeck.setOnMouseClicked(
                 event -> {
                     // add the image to the grid of player at gridPanes.get(idx)
-                    controller.distributeCards();
+                    controller.drawCard();
 
                 }
         );

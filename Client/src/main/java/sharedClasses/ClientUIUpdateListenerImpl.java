@@ -90,6 +90,11 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
         tableController.playerLeftGameSession(disconnectedPlayerID,botName);
     }
 
+    @Override
+    public void hasDrawnACard(UUID playerId, ServerCard serverCard) throws RemoteException{
+        tableController.hasDrawnACard(playerId,serverCard);
+    }
+
 
     @Override
     public void updateUI(String command) throws RemoteException {

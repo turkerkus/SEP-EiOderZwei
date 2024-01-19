@@ -1,6 +1,7 @@
 package rmi;
 
 import sharedClasses.ClientUIUpdateListener;
+import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 import sharedClasses.ServerTable;
 
@@ -227,7 +228,7 @@ public class GameSession {
         // broadCast StartGame
         try {
             broadcastSafeCommunication(BroadcastType.START_GAME);
-            startTurnTimer(10);
+            startTurnTimer(45);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -342,10 +343,65 @@ public class GameSession {
 
 
     }
+
+    /**
+     * this method end the game session by removing it form the Game Map
+     */
     public void endGameSession(){
         System.out.println("Game session with the id : "+ this.gameId+" has been ended");
         callback.endGameSession(this.gameId);
     }
+
+    /**
+     * Lets a player draw a card as a round action.
+     *
+     * @param clientId The UUID of the current Client drawing the card.
+     * @throws RemoteException if a remote communication error occurs.
+     */
+    public void drawCard(UUID clientId) throws RemoteException{
+        //Draw card 1
+        setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
+        serverTable.karteZiehen(clientId);
+        broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
+
+        // check the drawn Card
+        gameLogic.checkDrawnCard(serverTable.getDrawnCard());
+
+        // Draw Card 2
+        if (serverTable.getPlayer(clientId).hatHahnKarte()){
+            setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
+            serverTable.karteZiehen(clientId);
+            broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
+
+            // check the drawn Card
+            gameLogic.checkDrawnCard(serverTable.getDrawnCard());
+
+        }
+        endPlayerTurn();
+
+    }
+
+    /**
+     * Lets a player steal a rooter card as a round action.
+     *
+     * @param clientId The UUID of the current Client drawing the card.
+     * @throws RemoteException if a remote communication error occurs.
+     */
+    public void hahnKlauen(UUID clientId) throws RemoteException{
+
+    }
+
+    /**
+     * Lets a player change card .
+     *
+     * @param clientId The UUID of the current Client drawing the card.
+     * @param gameId the UUID of the game session the client is in
+     * @throws RemoteException if a remote communication error occurs.
+     */
+    void karteUmtauschen(UUID clientId) throws RemoteException{
+
+    }
+
 
     /**
      * Broadcasts a safe communication to all players with a specified UI update message.
@@ -355,6 +411,7 @@ public class GameSession {
      */
     private void broadcastSafeCommunication(BroadcastType broadcastType) throws RemoteException {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
+        UUID activePlayerId = serverTable.getActiveSpielerID();
         for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
             ServerPlayer player = entry.getValue();
 
@@ -381,12 +438,14 @@ public class GameSession {
                                 break;
                             case START_GAME:
                                 // set the current turn to true
-                                UUID activePlayerId = serverTable.getActiveSpielerID();
                                 listener.setCurrentPlayerID(activePlayerId);
                                 listener.updateUI("startPlayerTurn");
                                 break;
                             case UPDATE_TIMER_LABEL:
                                 listener.setTimeLeft(timeLeft);
+                                break;
+                            case HAS_DRAWN_A_CARD:
+                                listener.hasDrawnACard(activePlayerId, serverTable.getDrawnCard());
                                 break;
 
                             // Add cases for other BroadcastTypes if needed

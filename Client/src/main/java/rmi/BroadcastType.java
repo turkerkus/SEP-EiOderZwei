@@ -8,4 +8,6 @@ public enum BroadcastType {
 
     Hahn_karte_Geben,
 
+    HAS_DRAWN_A_CARD,
+
 }

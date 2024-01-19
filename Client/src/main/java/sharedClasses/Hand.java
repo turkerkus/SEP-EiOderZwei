@@ -35,4 +35,8 @@ public class Hand implements Serializable {
             }
         }
     }
+
+    public boolean isEmpty() {
+        return handCards.isEmpty();
+    }
 }

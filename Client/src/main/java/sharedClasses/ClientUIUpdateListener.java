@@ -29,4 +29,7 @@ public interface ClientUIUpdateListener extends Remote {
     void hahnKarteGeben(UUID playerId) throws RemoteException;
 
     void playerLeftGameSession(UUID disconnectedPlayerID, String botName) throws RemoteException;
+
+    void hasDrawnACard(UUID playerId, ServerCard serverCard) throws RemoteException;
+
 }

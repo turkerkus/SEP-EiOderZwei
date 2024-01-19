@@ -115,6 +115,21 @@ public class Server implements Remote, ServerInter {
         clientListeners.put(clientId, listener);
     }
 
+    // Draw card
+    @Override
+    public void drawCard(UUID clientId, UUID gameId) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).drawCard(clientId);
+    }
+
+    @Override
+    public void hahnKlauen(UUID clientId, UUID gameId) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).hahnKlauen(clientId);
+    }
+
+    @Override
+    public void karteUmtauschen(UUID clientId, UUID gameId) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).karteUmtauschen(clientId);
+    }
 
     public static void main(String[] args) {
         // Versuche, den Server zu starten
