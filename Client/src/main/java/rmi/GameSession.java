@@ -388,6 +388,8 @@ public class GameSession {
      * @throws RemoteException if a remote communication error occurs.
      */
     public void hahnKlauen(UUID clientId) throws RemoteException{
+        serverTable.setSpielerMitHahnKarte(clientId);
+        broadcastSafeCommunication(BroadcastType.CHANGE_ROOSTER_PLAYER);
 
     }
 
@@ -395,11 +397,16 @@ public class GameSession {
      * Lets a player change card .
      *
      * @param clientId The UUID of the current Client drawing the card.
-     * @param gameId the UUID of the game session the client is in
      * @throws RemoteException if a remote communication error occurs.
      */
     void karteUmtauschen(UUID clientId) throws RemoteException{
 
+    }
+
+
+    public ServerPlayer getRoosterPlayer(){
+        UUID roosterPlayerId = serverTable.getSpielerMitHahnKarte();
+        return serverTable.getPlayer(roosterPlayerId);
     }
 
 
@@ -447,7 +454,9 @@ public class GameSession {
                             case HAS_DRAWN_A_CARD:
                                 listener.hasDrawnACard(activePlayerId, serverTable.getDrawnCard());
                                 break;
-
+                            case CHANGE_ROOSTER_PLAYER:
+                                listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(),serverTable.getSpielerMitHahnKarte());
+                                break;
                             // Add cases for other BroadcastTypes if needed
                         }
                         success = true;

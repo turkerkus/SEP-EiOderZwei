@@ -100,13 +100,9 @@ public class TableController implements Serializable {
     private Label timerLabel; // This is the Label that displays the timer
 
 
-
     private Integer timeLeft; // Time left in seconds
 
     private Boolean isGameStarted = false;
-
-
-
 
 
     public Client getClient() {
@@ -197,9 +193,6 @@ public class TableController implements Serializable {
     }
 
 
-
-
-
     public void convertAndSetPlayers(Map<UUID, ServerPlayer> players) {
         // Assuming you have a way to get JavaFX components for each player
         for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
@@ -218,7 +211,7 @@ public class TableController implements Serializable {
             );
 
             // Add to your spielerList or handle as needed
-            this.players.put(spielerID,spieler);
+            this.players.put(spielerID, spieler);
         }
     }
 
@@ -234,7 +227,6 @@ public class TableController implements Serializable {
     }
 
 
-
     /**
      * Updates the timer label with the remaining time.
      */
@@ -247,16 +239,14 @@ public class TableController implements Serializable {
     }
 
 
-
     /**
      * Updates the UI to highlight the current player's label with a glowing effect.
      * Also, stops the glowing effect for all other player labels.
-     *
      */
     public void startGameUiUpdate() {
         Spieler currentPlayer = players.get(this.currentPlayerID);
         Label currentPlayerLabel = currentPlayer.getPlayerLabel();
-        System.out.println("this is the current player"+currentPlayer.toString());
+        System.out.println("this is the current player" + currentPlayer.toString());
         if (currentPlayerLabel != null) {
             // Create a glow effect
             System.out.println("this is the current player is not null");
@@ -332,12 +322,12 @@ public class TableController implements Serializable {
     // Assume this is called when the main card is clicked to start distribution
     // This is just a dummy
     public void distributeCards() {
-        if (isGameStarted){
+        if (isGameStarted) {
             Deck deck = serverTable.getNachzieheDeck();
             ServerCard serverCard = deck.ziehen();
             Card card = new Card(serverCard.getType(), serverCard.getValue(), serverCard.isCovered());
 
-            if(card != null){
+            if (card != null) {
                 String cardName = card.getType() + card.getValue();
                 // Create a new serverCard ImageView for distribution
                 ImageView cardView = new ImageView(String.valueOf(card.getImage()));
@@ -370,7 +360,6 @@ public class TableController implements Serializable {
         }
 
 
-
     }
 
     /**
@@ -380,7 +369,7 @@ public class TableController implements Serializable {
      */
     private void setupCardDragEvents(ImageView cardView) {
         // Mouse Pressed Event: Triggered when the user presses the mouse button on the card.
-        cardView.setOnMousePressed(event ->{
+        cardView.setOnMousePressed(event -> {
             // Store the card being dragged and its source GridPane.
             draggedImage = cardView;
             sourceGridPane = (CardGridPane) cardView.getParent();
@@ -450,7 +439,7 @@ public class TableController implements Serializable {
         });
     }
 
-    public void hahnKarteGeben(UUID playerID){
+    public void hahnKarteGeben(UUID playerID) {
         players.get(playerID).setHahnKarte(true);
     }
 
@@ -469,54 +458,53 @@ public class TableController implements Serializable {
             alert.showAndWait();
 
             //Swap player with bot
-            swapPlayerWithBot(disconnectedPlayerID,botName);
+            swapPlayerWithBot(disconnectedPlayerID, botName);
             //change the label of the disconnectPlayer to the Bot name
             Spieler disconnectPlayer = players.get(disconnectedPlayerID);
             disconnectPlayer.getPlayerLabel().setText(botName);
         });
 
     }
-    public void swapPlayerWithBot(UUID playerId, String botName){
+
+    public void swapPlayerWithBot(UUID playerId, String botName) {
         players.get(playerId).setBot(true);
         players.get(playerId).setServerPlayerName(botName);
 
     }
 
 
-
-
     public void drawCard() {
-        Platform.runLater(() -> {
-            try {
 
-                System.out.println("Draw card : the id of the client drawing the card "+client.getClientId());
-                System.out.println("Draw card : the id of the currentPlayerId  "+this.currentPlayerID);
+        try {
 
-                if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-                    client.drawCard();
-                } else {
-                    // Create an alert to inform the player that it's not their turn
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Not Your Turn");
-                    alert.setHeaderText(null);
-                    alert.setContentText("It's not your turn to play so you cannot draw a card.");
+            System.out.println("Draw card : the id of the client drawing the card " + client.getClientId());
+            System.out.println("Draw card : the id of the currentPlayerId  " + this.currentPlayerID);
 
-                    // Show the alert
-                    alert.showAndWait();
-                }
+            if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
+                client.drawCard();
+            } else {
+                // Create an alert to inform the player that it's not their turn
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Not Your Turn");
+                alert.setHeaderText(null);
+                alert.setContentText("It's not your turn to play so you cannot draw a card.");
 
-
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
+                // Show the alert
+                alert.showAndWait();
             }
-        });
-       
+
+
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
     public void getEggs() {
         Platform.runLater(() -> {
             try {
-                if (client.getClientId() == currentPlayerID) {
+                if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
                     // TODO check if current player has enough corn to exchange for eggs
                     client.karteUmtauschen();
                 } else {
@@ -537,46 +525,80 @@ public class TableController implements Serializable {
     }
 
     public void stealRooster() {
-        Platform.runLater(() -> {
-            try {
-                if (client.getClientId() == currentPlayerID) {
-                    // TODO check if the current player has already the rooster card.
-                    // TODO check if the Rooster Owner does have more eggs than current player
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        UUID clientId = client.getClientId();
+        Spieler player = players.get(clientId);
+        try {
+            if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
+                ServerPlayer roosterPlayer = client.getRoosterPlayer();
+                Integer roosterPlayerPoint = roosterPlayer.getPunkte();
+                if (player.getPunkte() < roosterPlayerPoint && !player.hatHahnKarte()) {
                     client.hahnKlauen();
                 } else {
-                    // Create an alert to inform the player that it's not their turn
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Not Your Turn");
-                    alert.setHeaderText(null);
-                    alert.setContentText("It's not your turn to play so you cannot steal someones rooster card.");
+                    if (player.getPunkte() < roosterPlayerPoint) {
+                        alert.setTitle("Illegal Move");
+                        alert.setHeaderText("Steal Rooster Card");
+                        alert.setContentText("you don't have enough points to steal the Rooster Card");
 
-                    // Show the alert
-                    alert.showAndWait();
+                        // Show the alert
+                        alert.showAndWait();
+                    } else {
+                        alert.setTitle("Illegal Move");
+                        alert.setHeaderText("Steal Rooster Card");
+                        alert.setContentText("You already have the Rooster Card");
+
+                        // Show the alert
+                        alert.showAndWait();
+                    }
                 }
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
+
+            } else {
+                // Create an alert to inform the player that it's not their turn
+
+                alert.setTitle("Not Your Turn");
+                alert.setHeaderText(null);
+                alert.setContentText("It's not your turn to play so you cannot steal someones rooster card.");
+
+                // Show the alert
+                alert.showAndWait();
             }
-        });
-        
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
-    public void hasDrawnACard(UUID playerId, ServerCard serverCard){
+    public void hasDrawnACard(UUID playerId, ServerCard serverCard) {
         Platform.runLater(() -> {
             // Convert server Card to card
             Card drawnCard = convertCard(serverCard);
-            players.get(playerId).addCard(drawnCard,serverCard);
+            players.get(playerId).addCard(drawnCard, serverCard);
         });
 
     }
 
-    public Card convertCard(ServerCard serverCard){
-        return  new Card(
+    public Card convertCard(ServerCard serverCard) {
+        return new Card(
                 serverCard.getType(),
                 serverCard.getValue(),
                 serverCard.isCovered()
         );
     }
 
+    public void changeRoosterPlayer(UUID oldRoosterPlayerID, UUID newRoosterPlayerID) {
+        Platform.runLater(() -> {
+            Spieler newRoosterPlayer = players.get(newRoosterPlayerID);
+            Spieler oldRoosterPlayer = players.get(oldRoosterPlayerID);
+
+            oldRoosterPlayer.setHahnKarte(false);
+
+
+            newRoosterPlayer.setHahnKarte(true);
+
+        });
+    }
 
 
 }

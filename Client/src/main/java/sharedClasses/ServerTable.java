@@ -28,14 +28,21 @@ public class ServerTable implements Serializable {
     }
 
     ServerCard drawnCard ;
+
+    public UUID getAlteSpielerMitHahnKarte() {
+        return alteSpielerMitHahnKarte;
+    }
+
+    UUID alteSpielerMitHahnKarte;
     private volatile int active;
 
     public UUID getSpielerMitHahnKarte() {
         return spielerMitHahnKarte;
     }
 
-    public void setSpielerMitHahnKarte(UUID spielerMitHahnKarte) {
-        this.spielerMitHahnKarte = spielerMitHahnKarte;
+    public void setSpielerMitHahnKarte(UUID NeuSpielerMitHahnKarte) {
+        alteSpielerMitHahnKarte = this.spielerMitHahnKarte;
+        this.spielerMitHahnKarte = NeuSpielerMitHahnKarte;
     }
 
     public void swapPlayerWithBot(UUID playerId, String botName){

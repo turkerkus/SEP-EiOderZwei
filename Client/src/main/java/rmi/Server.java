@@ -131,6 +131,11 @@ public class Server implements Remote, ServerInter {
         gameSessionManager.getGameSession(gameId).karteUmtauschen(clientId);
     }
 
+    @Override
+    public ServerPlayer getRoosterPlayer(UUID gameId) throws RemoteException {
+        return gameSessionManager.getGameSession(gameId).getRoosterPlayer();
+    }
+
     public static void main(String[] args) {
         // Versuche, den Server zu starten
         try {

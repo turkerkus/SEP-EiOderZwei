@@ -224,4 +224,9 @@ public class Client implements ClientInter {
     public void karteUmtauschen() throws RemoteException {
         serverStub.drawCard(clientId, gameId);
     }
+
+    @Override
+    public ServerPlayer getRoosterPlayer() throws RemoteException {
+        return serverStub.getRoosterPlayer(gameId);
+    }
 }

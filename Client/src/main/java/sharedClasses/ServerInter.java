@@ -1,5 +1,7 @@
 package sharedClasses;
 
+import rmi.Server;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Map;
@@ -140,4 +142,6 @@ public interface ServerInter extends Remote {
      * @throws RemoteException if a remote communication error occurs.
      */
     void karteUmtauschen(UUID clientId, UUID gameId) throws RemoteException;
+
+    ServerPlayer getRoosterPlayer(UUID gameId) throws RemoteException;
 }

@@ -95,6 +95,11 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
         tableController.hasDrawnACard(playerId,serverCard);
     }
 
+    @Override
+    public void changeRoosterPlayer(UUID oldRoosterPlayerID, UUID newRoosterPlayerID) throws RemoteException {
+        tableController.changeRoosterPlayer(oldRoosterPlayerID,newRoosterPlayerID);
+    }
+
 
     @Override
     public void updateUI(String command) throws RemoteException {

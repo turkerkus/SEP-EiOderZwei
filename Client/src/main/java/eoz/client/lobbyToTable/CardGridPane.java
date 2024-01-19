@@ -29,7 +29,6 @@ public class CardGridPane extends GridPane {
 
     // Method to add a card to a cell
     public void addCard(Node card, int row, int col) {
-
         if (row < 1 || row > 4 || col < 0 || col > 4) {
             // Outside allowed range
             return;
@@ -100,7 +99,10 @@ public class CardGridPane extends GridPane {
             removeCard(roosterCard);
 
             // Put the last card at the first cell
-            addCard(lastCard, 1,0);
+            if (lastCard != null){
+                addCard(lastCard, 1,0);
+            }
+
         }
     }
 

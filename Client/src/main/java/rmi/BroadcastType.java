@@ -10,4 +10,6 @@ public enum BroadcastType {
 
     HAS_DRAWN_A_CARD,
 
+    CHANGE_ROOSTER_PLAYER,
+
 }

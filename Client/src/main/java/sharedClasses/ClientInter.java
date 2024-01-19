@@ -157,4 +157,6 @@ public interface ClientInter extends Remote, Serializable {
      * @throws RemoteException if a remote communication error occurs.
      */
     void karteUmtauschen() throws RemoteException;
+
+    ServerPlayer getRoosterPlayer() throws  RemoteException;
 }
