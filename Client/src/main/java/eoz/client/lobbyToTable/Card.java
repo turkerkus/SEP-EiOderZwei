@@ -9,7 +9,7 @@ public class Card extends ServerCard {
     public void setImage() {
         if(Objects.equals(getType(), "Koerner")){
             if (getValue() == 2){
-                image = new ImageIcon(Objects.requireNonNull(getClass().getResource("/cards/drei.png")).toString());
+                image = new ImageIcon(Objects.requireNonNull(getClass().getResource("/cards/zwei.png")).toString());
             } else if (getValue() == 3) {
                 image = new ImageIcon(Objects.requireNonNull(getClass().getResource("/cards/drei.png")).toString());
             } else {
@@ -21,7 +21,9 @@ public class Card extends ServerCard {
         } else if (Objects.equals(getType(), "Hahn")) {
             image = new ImageIcon(Objects.requireNonNull(getClass().getResource("/cards/hahn.png")).toString());
         } else if (Objects.equals(getType(), "BioKoerner")) {
-            if (getValue() == 2 || getValue() == 1){
+            if (getValue() == 1){
+                image = new ImageIcon(Objects.requireNonNull(getClass().getResource("/cards/einb.png")).toString());
+            }else if (getValue() == 2){
                 image = new ImageIcon(Objects.requireNonNull(getClass().getResource("/cards/zweib.png")).toString());
             }  else {
                 image = new ImageIcon(Objects.requireNonNull(getClass().getResource("/cards/dreib.png")).toString());

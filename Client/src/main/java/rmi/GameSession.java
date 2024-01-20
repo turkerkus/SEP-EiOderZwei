@@ -375,22 +375,25 @@ public class GameSession {
 
             // check the drawn Card
             gameLogic.checkDrawnCard(serverTable.getDrawnCard());
-
+            endPlayerTurn();
         }
-        endPlayerTurn();
+        else {
+            endPlayerTurn();
+        }
 
     }
 
     /**
-     * Lets a player steal a rooter card as a round action.
+     * Lets a player steal a rooster card as a round action.
      *
      * @param clientId The UUID of the current Client drawing the card.
      * @throws RemoteException if a remote communication error occurs.
      */
     public void hahnKlauen(UUID clientId) throws RemoteException{
+        setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
         serverTable.setSpielerMitHahnKarte(clientId);
         broadcastSafeCommunication(BroadcastType.CHANGE_ROOSTER_PLAYER);
-
+        endPlayerTurn();
     }
 
     /**

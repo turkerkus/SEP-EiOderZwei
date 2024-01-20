@@ -115,5 +115,10 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
         });
     }
+
+    @Override
+    public void drawnKuckuck(UUID playerId) throws RemoteException {
+        tableController.drawnKuckuck(playerId);
+    }
 }
 

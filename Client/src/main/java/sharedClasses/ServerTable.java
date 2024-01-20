@@ -73,6 +73,8 @@ public class ServerTable implements Serializable {
     public void karteZiehen(UUID clientId) {
         drawnCard =  nachzieheDeck.ziehen();
         players.get(clientId).add(drawnCard);
+        int tempkorn = drawnCard.getValue() + players.get(clientId).getKornzahl();
+        players.get(clientId).setKornzahl(tempkorn);
     }
     public ServerPlayer getActiveSpieler(){
         UUID playerId = playerIdList.get(active);

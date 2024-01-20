@@ -33,9 +33,12 @@ public class Spieler extends ServerPlayer {
         this.cardGridPane = cardGridPane;
     }
 
+
+
     public CardGridPane getCardGridPane() {
         return cardGridPane;
     }
+
 
     @Override
     public void setHahnKarte(boolean hahnKarte) {

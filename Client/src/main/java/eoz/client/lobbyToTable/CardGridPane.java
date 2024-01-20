@@ -108,7 +108,7 @@ public class CardGridPane extends GridPane {
 
 
     // Get the card Node in the specified cell
-    private Node getCardInCell(Integer key) {
+    public Node getCardInCell(Integer key) {
         int row = key / this.getColumnCount();
         int col = key % this.getColumnCount();
         for (Node child : this.getChildren()) {

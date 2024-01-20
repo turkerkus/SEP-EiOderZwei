@@ -3,6 +3,7 @@ package eoz.client.lobbyToTable;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
@@ -18,6 +19,7 @@ import sharedClasses.Deck;
 import sharedClasses.ServerTable;
 import sharedClasses.ServerPlayer;
 
+import javax.swing.*;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -501,12 +503,45 @@ public class TableController implements Serializable {
 
     }
 
+    public ArrayList<ImageView> auswahl(){
+        ArrayList<ImageView> select= new ArrayList<ImageView>();
+        UUID clientId = client.getClientId();
+        Spieler player = players.get(clientId);
+        CardGridPane grid= player.getCardGridPane();
+        for(int i=0;i<grid.getChildren().size();i++){
+            ImageView node =(ImageView) grid.getCardInCell(i);
+            node.setOnMouseClicked(e ->{
+                select.add(node);
+                String Source = node.getImage().getUrl();
+            });
+
+
+
+
+
+        }
+        return select;
+    }
+
+
+
     public void getEggs() {
         Platform.runLater(() -> {
             try {
                 if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
                     // TODO check if current player has enough corn to exchange for eggs
-                    client.karteUmtauschen();
+                    Spieler player = players.get(client.getClientId());
+                    if (player.getKornzahl()>=5){
+                        System.out.println("LAY EGGS BOOOCK BOOOOOOOOOOOCK!"); //TODO delete after
+                        client.karteUmtauschen();
+                    }
+                    else{
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Illegal Move");
+                        alert.setHeaderText("Not enough corns!");
+                        alert.setContentText("5 or more corns are needed to lay eggs.");
+                        alert.showAndWait();
+                    };
                 } else {
                     // Create an alert to inform the player that it's not their turn
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -536,17 +571,17 @@ public class TableController implements Serializable {
                 if (player.getPunkte() < roosterPlayerPoint && !player.hatHahnKarte()) {
                     client.hahnKlauen();
                 } else {
-                    if (player.getPunkte() < roosterPlayerPoint) {
+                    if (player.hatHahnKarte()) {
                         alert.setTitle("Illegal Move");
                         alert.setHeaderText("Steal Rooster Card");
-                        alert.setContentText("you don't have enough points to steal the Rooster Card");
+                        alert.setContentText("You already have the Rooster Card");
 
                         // Show the alert
                         alert.showAndWait();
                     } else {
                         alert.setTitle("Illegal Move");
                         alert.setHeaderText("Steal Rooster Card");
-                        alert.setContentText("You already have the Rooster Card");
+                        alert.setContentText("you don't have less points than the rooster owner to steal the rooster card!");
 
                         // Show the alert
                         alert.showAndWait();
@@ -598,6 +633,16 @@ public class TableController implements Serializable {
             newRoosterPlayer.setHahnKarte(true);
 
         });
+    }
+
+    public void drawnKuckuck(UUID playerId) {
+        if (Objects.equals(playerId, client.getClientId())){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("A Kuckuck card!");
+            alert.setHeaderText("Congratulations!");
+            alert.setContentText("You have drawn a Kuckuck card. Your egg-Score has been increased by 1!");
+            alert.showAndWait();
+        }
     }
 
 
