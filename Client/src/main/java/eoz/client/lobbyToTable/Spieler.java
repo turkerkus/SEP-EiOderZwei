@@ -3,6 +3,7 @@ package eoz.client.lobbyToTable;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
@@ -13,6 +14,26 @@ public class Spieler extends ServerPlayer {
     private CardGridPane cardGridPane;
 
     private Label playerLabel;
+
+    public Label getPlayerPoint() {
+        return playerPoint;
+    }
+
+    public void setPlayerPoint(Label playerPoint) {
+        this.playerPoint = playerPoint;
+    }
+
+    public GridPane getPlayerLabelGrid() {
+        return playerLabelGrid;
+    }
+
+    public void setPlayerLabelGrid(GridPane playerLabelGrid) {
+        this.playerLabelGrid = playerLabelGrid;
+    }
+
+    private Label playerPoint;
+
+    private GridPane playerLabelGrid;
 
     public Label getPlayerLabel() {
         return playerLabel;
@@ -52,13 +73,17 @@ public class Spieler extends ServerPlayer {
                 cardView.setFitHeight(50);
                 cardView.setFitWidth(80);
                 // add card to grid pane
-                this.cardGridPane.addRoosterCard(cardView);
+                this.playerLabelGrid.add(cardView,1,0);
 
             }else {
-                this.cardGridPane.removeRoosterCard();
+                this.playerLabelGrid.getChildren().remove(1,0);
             }
         });
 
+    }
+    @Override
+    public void setPunkte(int punkte) {
+        super.setPunkte(punkte);
     }
 
 

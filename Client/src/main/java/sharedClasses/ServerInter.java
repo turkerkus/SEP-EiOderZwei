@@ -144,4 +144,6 @@ public interface ServerInter extends Remote {
     void karteUmtauschen(UUID clientId, UUID gameId) throws RemoteException;
 
     ServerPlayer getRoosterPlayer(UUID gameId) throws RemoteException;
+
+    void unregisterClient(UUID clientId, UUID gameID) throws RemoteException;
 }

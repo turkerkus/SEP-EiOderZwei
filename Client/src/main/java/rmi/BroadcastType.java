@@ -12,4 +12,6 @@ public enum BroadcastType {
 
     CHANGE_ROOSTER_PLAYER,
 
+    EXCHANGING_CARDS,
+
 }

@@ -1,6 +1,7 @@
 package eoz.client.lobbyToTable;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -9,15 +10,23 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.util.Objects;
 
 public class LobbyApplication extends Application {
 
+    private Client client ;
+
     @Override
     public void start(Stage stage) {
+        this.client =  new Client();
         try {
             // Set and show the Stage
-            Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("lobbyStage.fxml")));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage.fxml"));
+            Parent root = loader.load();
+            LobbyController lobbyController = loader.getController();
+            lobbyController.setClient(this.client);
+
             Scene scene1 = new Scene(root,800,800);
             stage.setScene(scene1);
             stage.show();
@@ -51,9 +60,27 @@ public class LobbyApplication extends Application {
             throw new RuntimeException(e);
         }
     }
+    @Override
+    public void stop() {
+        try {
+            // Close RMI connections or other network connections
+            if (client != null) {
+                client.disconnectFromServer(); // Ensure this method closes all RMI resources
+            }
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+        } finally {
+            // Other cleanup if necessary
 
-        public static void main (String[]args){
-            launch(args);
+            Platform.exit(); // Ensure JavaFX thread is terminated
+            System.exit(0);  // Force JVM shutdown (use cautiously)
         }
+    }
+
+
+
+    public static void main (String[]args){
+        launch(args);
+    }
 
 }

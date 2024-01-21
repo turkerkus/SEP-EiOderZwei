@@ -159,4 +159,6 @@ public interface ClientInter extends Remote, Serializable {
     void karteUmtauschen() throws RemoteException;
 
     ServerPlayer getRoosterPlayer() throws  RemoteException;
+
+    void disconnectFromServer() throws RemoteException;
 }

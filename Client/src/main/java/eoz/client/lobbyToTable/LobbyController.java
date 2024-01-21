@@ -21,6 +21,11 @@ public class LobbyController {
 
     @FXML
     TextField usernameField;
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
     private Client client;
 
     @FXML
@@ -68,28 +73,27 @@ public class LobbyController {
 
     public void switchToScene2(ActionEvent event){
 
-
-
         try {
             // Set and show the Stage
             String username = usernameField.getText();
-            // Create a client
-            client = new Client(usernameField.getText());
-            client.connectToServer();
-            if (!client.isConnectedToServer) {
+
+            if (username.isEmpty()) {
                 // Show alert if the game name is empty
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Cannot Connect to server");
-                alert.setHeaderText("Check if the server is online");
-                alert.setContentText("Server offline");
+                alert.setTitle("Invalid Username");
+                alert.setHeaderText("You have to input the Username!");
+                alert.setContentText("You can not leave the Username empty.");
                 alert.showAndWait();
             }else {
-                if (username.isEmpty()) {
+                // Create a client
+                client.setClientName(username);
+                client.connectToServer();
+                if (!client.isConnectedToServer) {
                     // Show alert if the game name is empty
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Invalid Username");
-                    alert.setHeaderText("You have to input the Username!");
-                    alert.setContentText("You can not leave the Username empty.");
+                    alert.setTitle("Cannot Connect to server");
+                    alert.setHeaderText("Check if the server is online");
+                    alert.setContentText("Server offline");
                     alert.showAndWait();
                 } else {
 

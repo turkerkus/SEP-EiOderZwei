@@ -72,8 +72,8 @@ public class GameSession {
         setBroadcastSent(BroadcastType.SWITCH_TO_TABLE, true);
 
     }
-    public void setBroadcastSent(BroadcastType type, boolean sent) {
-        broadcastStatus.put(type, sent);
+    public void setBroadcastSent(BroadcastType type, boolean notSent) {
+        broadcastStatus.put(type, notSent);
     }
 
     public boolean BroadcastIsNotSent(BroadcastType type) {
@@ -227,6 +227,7 @@ public class GameSession {
         }
         // broadCast StartGame
         try {
+            setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL,true);
             broadcastSafeCommunication(BroadcastType.START_GAME);
             startTurnTimer(45);
         } catch (RemoteException e) {
@@ -281,7 +282,7 @@ public class GameSession {
         // Move to the next player's turn
         serverTable.nextSpieler();
         System.out.println("active = " + serverTable.getActive());
-        setBroadcastSent(BroadcastType.START_GAME, true);
+        //setBroadcastSent(BroadcastType.START_GAME, true);
         startPlayerTurn(); // Start the next player's turn
     }
 
@@ -306,17 +307,17 @@ public class GameSession {
     /**
      * Handles a disconnected client by printing a message.
      *
-     * @param player The disconnected player.
+     * @param disconnectedPlayerId The disconnected player id.
      * @throws RemoteException If a remote communication error occurs.
      */
-    private void handleDisconnectedClient(ServerPlayer player) throws RemoteException {
+    public void handleDisconnectedClient(UUID disconnectedPlayerId) throws RemoteException {
+        ServerPlayer player = serverTable.getPlayer(disconnectedPlayerId);
         System.out.println("Player " + player.getServerPlayerName() + " has left the game and has been replaced by a bot.");
         numOfBotPlayers ++;
         if(clientListeners.isEmpty()){  // meaning there is no human player left, so you end the game
             timer.cancel();
             endGameSession();
         } else if(!player.isBot()){
-            UUID disconnectedPlayerId = player.getServerPlayerId();
             String botName = generateFunnyBotName() + "_@Bot" + numOfBotPlayers;
             // remove the player listener
             clientListeners.remove(disconnectedPlayerId);
@@ -339,6 +340,10 @@ public class GameSession {
                     }
                 });
             }
+        }
+        if(clientListeners.isEmpty()){  // meaning there is no human player left, so you end the game
+            timer.cancel();
+            endGameSession();
         }
 
 
@@ -367,6 +372,8 @@ public class GameSession {
         // check the drawn Card
         gameLogic.checkDrawnCard(serverTable.getDrawnCard());
 
+        System.out.println(serverTable.getPlayer(clientId).toString() + " has the ?  "+serverTable.getPlayer(clientId).hatHahnKarte());
+
         // Draw Card 2
         if (serverTable.getPlayer(clientId).hatHahnKarte()){
             setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
@@ -375,12 +382,9 @@ public class GameSession {
 
             // check the drawn Card
             gameLogic.checkDrawnCard(serverTable.getDrawnCard());
-            endPlayerTurn();
-        }
-        else {
-            endPlayerTurn();
-        }
 
+        }
+        endPlayerTurn();
     }
 
     /**
@@ -392,6 +396,7 @@ public class GameSession {
     public void hahnKlauen(UUID clientId) throws RemoteException{
         setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
         serverTable.setSpielerMitHahnKarte(clientId);
+        setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
         broadcastSafeCommunication(BroadcastType.CHANGE_ROOSTER_PLAYER);
         endPlayerTurn();
     }
@@ -422,66 +427,67 @@ public class GameSession {
     private void broadcastSafeCommunication(BroadcastType broadcastType) throws RemoteException {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         UUID activePlayerId = serverTable.getActiveSpielerID();
-        for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
-            ServerPlayer player = entry.getValue();
-
-            // Now use safeClientCommunication for each player
-            safeClientCommunication(player, listener -> {
-                // Implementing a retry mechanism before deciding to remove a client due to the client
-                // disconnected from the server or leaves game  session
-                boolean success = false;
-                final int maxRetries = 3;
-                for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
-                    try {
-                        // Perform the actions based on the BroadcastType
-                        switch (broadcastType) {
-                            case SWITCH_TO_TABLE:
-                                // Perform specific action for this broadcast type
-                                player.einsteigen();
-                                listener.setNumOfPlayers(getMaxNumOfPlayers());
-                                listener.updateUI("switchToTable");
-                                break;
-                            case Hahn_karte_Geben:
-                                System.out.println("hahn");
-                                UUID roosterCardHolder = serverTable.getSpielerMitHahnKarte();
-                                listener.hahnKarteGeben(roosterCardHolder);
-                                break;
-                            case START_GAME:
-                                // set the current turn to true
-                                listener.setCurrentPlayerID(activePlayerId);
-                                listener.updateUI("startPlayerTurn");
-                                break;
-                            case UPDATE_TIMER_LABEL:
-                                listener.setTimeLeft(timeLeft);
-                                break;
-                            case HAS_DRAWN_A_CARD:
-                                listener.hasDrawnACard(activePlayerId, serverTable.getDrawnCard());
-                                break;
-                            case CHANGE_ROOSTER_PLAYER:
-                                listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(),serverTable.getSpielerMitHahnKarte());
-                                break;
-                            // Add cases for other BroadcastTypes if needed
-                        }
-                        success = true;
-                    } catch (RemoteException e) {
-                        if (attempt == maxRetries - 1) {
-                            // Log retry attempt here
-                            try {
-                                Thread.sleep(1000);  // Wait for a second before retrying
-                            } catch (InterruptedException ie) {
-                                Thread.currentThread().interrupt();  // Restore the interrupted status
+            for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
+                UUID playerID = entry.getKey();
+                ServerPlayer player = entry.getValue();
+                // Now use safeClientCommunication for each player
+                safeClientCommunication(player, listener -> {
+                    // Implementing a retry mechanism before deciding to remove a client due to the client
+                    // disconnected from the server or leaves game  session
+                    boolean success = false;
+                    final int maxRetries = 3;
+                    for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
+                        try {
+                            // Perform the actions based on the BroadcastType
+                            switch (broadcastType) {
+                                case SWITCH_TO_TABLE:
+                                    // Perform specific action for this broadcast type
+                                    player.einsteigen();
+                                    listener.setNumOfPlayers(getMaxNumOfPlayers());
+                                    listener.updateUI("switchToTable");
+                                    break;
+                                case Hahn_karte_Geben:
+                                    System.out.println("hahn");
+                                    UUID roosterCardHolder = serverTable.getSpielerMitHahnKarte();
+                                    listener.hahnKarteGeben(roosterCardHolder);
+                                    break;
+                                case START_GAME:
+                                    // set the current turn to true
+                                    listener.setCurrentPlayerID(activePlayerId);
+                                    listener.updateUI("startPlayerTurn");
+                                    break;
+                                case UPDATE_TIMER_LABEL:
+                                    listener.setTimeLeft(timeLeft);
+                                    break;
+                                case HAS_DRAWN_A_CARD:
+                                    listener.hasDrawnACard(activePlayerId, serverTable.getDrawnCard());
+                                    break;
+                                case CHANGE_ROOSTER_PLAYER:
+                                    listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(),serverTable.getSpielerMitHahnKarte());
+                                    break;
+                                // Add cases for other BroadcastTypes if needed
                             }
-                        } else {
-                            // If all retries fail, handle as a disconnected client
-                            try {
-                                handleDisconnectedClient(player);
-                            } catch (RemoteException ex) {
-                                throw new RuntimeException(ex);
+                            success = true;
+                        } catch (RemoteException e) {
+                            if (attempt == maxRetries - 1) {
+                                // Log retry attempt here
+                                try {
+                                    Thread.sleep(1000);  // Wait for a second before retrying
+                                } catch (InterruptedException ie) {
+                                    Thread.currentThread().interrupt();  // Restore the interrupted status
+                                }
+                            } else {
+                                // If all retries fail, handle as a disconnected client
+                                try {
+                                    handleDisconnectedClient(playerID);
+                                } catch (RemoteException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+
         }
         // Update the broadcast status after all players have been handled
         setBroadcastSent(broadcastType, false);

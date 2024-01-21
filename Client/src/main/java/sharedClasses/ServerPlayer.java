@@ -29,9 +29,6 @@ public class ServerPlayer implements Serializable {
     private int kornzahl;
     private List<ServerCard> hand = new ArrayList<>();
     private  boolean  hahnKarte;
-    public boolean isHahnKarte(){
-        return this.hahnKarte;
-    }
 
     public boolean isBot() {
         return isBot;

@@ -2,9 +2,11 @@ package eoz.client.lobbyToTable;
 
 import sharedClasses.*;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Map;
 import java.util.UUID;
 
@@ -38,7 +40,7 @@ public class Client implements ClientInter {
     boolean isConnectedToServer = false;
 
     // Constructor for initializing with player name only
-    public Client(String playerName) {
+    public void setClientName(String playerName) {
         this.playerName = playerName;
         try {
             updateListener = new ClientUIUpdateListenerImpl();
@@ -206,6 +208,18 @@ public class Client implements ClientInter {
 
         }
     }
+
+    public void disconnectFromServer() {
+        try {
+            if (serverStub != null) {
+                serverStub.unregisterClient(this.clientId, gameId);
+            }
+        } catch (RemoteException e) {
+            throw  new RuntimeException(e);
+        }
+    }
+
+
 
 
     // DrawCard

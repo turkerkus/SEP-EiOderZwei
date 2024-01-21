@@ -136,6 +136,21 @@ public class Server implements Remote, ServerInter {
         return gameSessionManager.getGameSession(gameId).getRoosterPlayer();
     }
 
+    @Override
+    public void unregisterClient(UUID clientId, UUID gameID) throws RemoteException {
+
+        if (gameID != null){
+            gameSessionManager.getGameSession(gameID).handleDisconnectedClient(clientId);
+        }
+
+        ClientUIUpdateListener listener = clientListeners.get(clientId);
+        if (listener != null) {
+            clientListeners.remove(clientId);
+        }
+
+    }
+
+
     public static void main(String[] args) {
         // Versuche, den Server zu starten
         try {

@@ -3,7 +3,6 @@ package eoz.client.lobbyToTable;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
@@ -15,11 +14,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import sharedClasses.ServerCard;
-import sharedClasses.Deck;
-import sharedClasses.ServerTable;
 import sharedClasses.ServerPlayer;
 
-import javax.swing.*;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
@@ -81,8 +77,19 @@ public class TableController implements Serializable {
     @FXML
     public Button leaveLobbyButton;
     public ImageView ablageDeck;
+    public Label pt6;
+    public Label pt5;
+    public Label pt4;
+    public Label pt3;
+    public Label pt1;
+    public Label pt2;
+    public GridPane player6LabelGrid;
+    public GridPane player5LabelGrid;
+    public GridPane player4LabelGrid;
+    public GridPane player3LabelGrid;
+    public GridPane player1LabelGrid;
+    public GridPane player2LabelGrid;
 
-    Map<String, ImageView> imageViewMap = new HashMap<>();
     private ImageView draggedImage;
     private CardGridPane sourceGridPane;
 
@@ -90,7 +97,6 @@ public class TableController implements Serializable {
     // create a list of player grid panes
     List<CardGridPane> gridPanesList = new ArrayList<>();
     List<Label> labelList = new ArrayList<>();
-    private ServerTable serverTable;
     private Map<UUID, Spieler> players = new ConcurrentHashMap<>();
     private Map<UUID, ServerPlayer> serverPlayers;
 
@@ -102,7 +108,7 @@ public class TableController implements Serializable {
     private Label timerLabel; // This is the Label that displays the timer
 
 
-    private Integer timeLeft; // Time left in seconds
+    // Time left in seconds
 
     private Boolean isGameStarted = false;
 
@@ -132,7 +138,7 @@ public class TableController implements Serializable {
         }
 
         //set the labels to ""
-        Label[] labels = new Label[]{p1, p2, p3, p4, p5, p6};
+        Label[] labels = new Label[]{ p2, p3, p4, p5, p6, pt2, pt3, pt4, pt5, pt6,};
         // Set all labels to empty initially
         for (Label label : labels) {
             label.setText("");
@@ -140,8 +146,28 @@ public class TableController implements Serializable {
 
 
         int numPlayers = players.size();
-
         // Arrays for labels and grid panes based on the number of players
+        Label[][] pointLabels = {
+                {},  // Case 0 (unused)
+                {},  // Case 1 (unused)
+                {pt5},  // Case 2
+                {pt4, pt6},  // Case 3
+                {pt4, pt5, pt6},  // Case 4
+                {pt3, pt4, pt5, pt6},  // Case 5
+                {pt2, pt3, pt4, pt5, pt6}  // Case 6
+        };
+
+        GridPane[][] playersLabelGrid = {
+                {},  // Case 0 (unused)
+                {},  // Case 1 (unused)
+                {player5LabelGrid},  // Case 2
+                {player4LabelGrid, player6LabelGrid},  // Case 3
+                {player4LabelGrid, player5LabelGrid, player6LabelGrid},  // Case 4
+                {player3LabelGrid, player4LabelGrid, player5LabelGrid, player6LabelGrid},  // Case 5
+                {player2LabelGrid, player3LabelGrid, player4LabelGrid, player5LabelGrid, player6LabelGrid}  // Case 6
+        };
+
+
         Label[][] labelCases = {
                 {},  // Case 0 (unused)
                 {},  // Case 1 (unused)
@@ -167,6 +193,7 @@ public class TableController implements Serializable {
         gridPanesList.add(player1GridPane);
         // Setup drag and drop for each player grid pane
         setupGridPaneForDrop(player1GridPane);
+        
 
         // Iterate over players and assign labels and grid panes
         int nonHostPlayerIndex = 0;
@@ -182,6 +209,12 @@ public class TableController implements Serializable {
                 if (numPlayers >= 2 && numPlayers <= 6) {
                     player.setPlayerLabel(labelCases[numPlayers][nonHostPlayerIndex]);
                     player.setCardGridPane(gridPaneCases[numPlayers][nonHostPlayerIndex]);
+                    player.setPlayerLabelGrid(playersLabelGrid[numPlayers][nonHostPlayerIndex]);
+                    // set the player pt label
+                    pointLabels[numPlayers][nonHostPlayerIndex].setText("Pt: 0");
+                    
+                    player.setPlayerPoint(pointLabels[numPlayers][nonHostPlayerIndex]);
+
 
                     //add the Labels and GridPane to their respective list to be able to distribute the cards respectively
                     labelList.add(labelCases[numPlayers][nonHostPlayerIndex]);
@@ -248,7 +281,7 @@ public class TableController implements Serializable {
     public void startGameUiUpdate() {
         Spieler currentPlayer = players.get(this.currentPlayerID);
         Label currentPlayerLabel = currentPlayer.getPlayerLabel();
-        System.out.println("this is the current player" + currentPlayer.toString());
+        System.out.println("this is the current player" + currentPlayer);
         if (currentPlayerLabel != null) {
             // Create a glow effect
             System.out.println("this is the current player is not null");
@@ -319,50 +352,6 @@ public class TableController implements Serializable {
     }
 
 
-    Integer gridPanesIdx = 0;
-
-    // Assume this is called when the main card is clicked to start distribution
-    // This is just a dummy
-    public void distributeCards() {
-        if (isGameStarted) {
-            Deck deck = serverTable.getNachzieheDeck();
-            ServerCard serverCard = deck.ziehen();
-            Card card = new Card(serverCard.getType(), serverCard.getValue(), serverCard.isCovered());
-
-            if (card != null) {
-                String cardName = card.getType() + card.getValue();
-                // Create a new serverCard ImageView for distribution
-                ImageView cardView = new ImageView(String.valueOf(card.getImage()));
-                cardView.setId(cardName);
-                imageViewMap.put(cardName, cardView);
-                // Set a unique ID for the ImageView
-                cardView.setFitHeight(50);
-                cardView.setFitWidth(80);
-                setupCardDragEvents(cardView);
-
-                // Add the serverCard to the grid, then update the position for the next serverCard
-                CardGridPane gridPane = gridPanesList.get(gridPanesIdx);
-                int[] nextCell = gridPane.getNextAvailableCell();
-
-                // Find the cell in the grid where the drop occurred
-                int rowIndex = nextCell[0];
-                int colIndex = nextCell[1];
-                gridPane.addCard(imageViewMap.get(cardName), rowIndex, colIndex);
-                gridPanesIdx++;
-
-                // Check if the serverCard has been distributed to all panes at the current cell
-                if (gridPanesIdx >= gridPanesList.size()) {
-                    // Reset the distribution counter
-                    gridPanesIdx = 0;
-
-                    // Increment the index to cycle through the GridPanes
-                    gridPanesIdx = (gridPanesIdx) % gridPanesList.size();
-                }
-            }
-        }
-
-
-    }
 
     /**
      * Sets up drag events for a given ImageView representing a card.

@@ -40,9 +40,17 @@ public class ServerTable implements Serializable {
         return spielerMitHahnKarte;
     }
 
-    public void setSpielerMitHahnKarte(UUID NeuSpielerMitHahnKarte) {
+    public void setSpielerMitHahnKarte(UUID neuSpielerMitHahnKarteID) {
+        // set the old player with rooster card value to false
         alteSpielerMitHahnKarte = this.spielerMitHahnKarte;
-        this.spielerMitHahnKarte = NeuSpielerMitHahnKarte;
+        if(alteSpielerMitHahnKarte != null){
+            players.get(alteSpielerMitHahnKarte).setHahnKarte(false);
+        }
+
+
+        // set the new player with the rooster card
+        this.spielerMitHahnKarte = neuSpielerMitHahnKarteID;
+        players.get(neuSpielerMitHahnKarteID).setHahnKarte(true);
     }
 
     public void swapPlayerWithBot(UUID playerId, String botName){
@@ -73,8 +81,8 @@ public class ServerTable implements Serializable {
     public void karteZiehen(UUID clientId) {
         drawnCard =  nachzieheDeck.ziehen();
         players.get(clientId).add(drawnCard);
-        int tempkorn = drawnCard.getValue() + players.get(clientId).getKornzahl();
-        players.get(clientId).setKornzahl(tempkorn);
+        int tempKorn = drawnCard.getValue() + players.get(clientId).getKornzahl();
+        players.get(clientId).setKornzahl(tempKorn);
     }
     public ServerPlayer getActiveSpieler(){
         UUID playerId = playerIdList.get(active);
