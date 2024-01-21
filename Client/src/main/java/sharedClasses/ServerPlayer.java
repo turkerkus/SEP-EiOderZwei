@@ -64,9 +64,14 @@ public class ServerPlayer implements Serializable {
         this.punkte = punkte;
     }
 
+    // Raises the Egg Counter by 1
+    public void raisePunkte() {
+        punkte += 1;
+    }
+
     public int getKornzahl() {return kornzahl;}
 
-    public void setKornzahl(int kornzahl) {this.kornzahl += kornzahl;}
+    public void setKornzahl(int kornzahl) {this.kornzahl = kornzahl;}
 
     public Hand getCardHand() {
         return cardHand;

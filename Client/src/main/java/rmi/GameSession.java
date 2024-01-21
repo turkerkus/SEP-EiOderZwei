@@ -365,26 +365,42 @@ public class GameSession {
      */
     public void drawCard(UUID clientId) throws RemoteException{
         //Draw card 1
-        setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
         serverTable.karteZiehen(clientId);
-        broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
-
         // check the drawn Card
-        gameLogic.checkDrawnCard(serverTable.getDrawnCard());
+        checkDrawnCard(clientId);
 
         System.out.println(serverTable.getPlayer(clientId).toString() + " has the ?  "+serverTable.getPlayer(clientId).hatHahnKarte());
 
         // Draw Card 2
         if (serverTable.getPlayer(clientId).hatHahnKarte()){
-            setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
             serverTable.karteZiehen(clientId);
-            broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
-
             // check the drawn Card
-            gameLogic.checkDrawnCard(serverTable.getDrawnCard());
+            checkDrawnCard(clientId);
 
         }
         endPlayerTurn();
+    }
+
+    public void checkDrawnCard(UUID clientId) throws RemoteException {
+        ServerCard card = serverTable.getDrawnCard();
+        if (serverTable.getDrawnCard().getType() == "Kuckuck") {
+            System.out.println("Kuckuck drawn. Sending info to player.");
+            serverTable.karteAblegen(clientId, card);
+            serverTable.getPlayer(clientId).raisePunkte();
+            setBroadcastSent(BroadcastType.DRAWN_KUCKUCK_CARD, true);
+            broadcastSafeCommunication(BroadcastType.DRAWN_KUCKUCK_CARD);
+        }
+        else if (serverTable.getDrawnCard().getType() == "Fuchs") {
+            System.out.println("Fox drawn. Sending info to player.");
+            serverTable.karteAblegen(clientId, card);
+            setBroadcastSent(BroadcastType.DRAWN_FOX_CARD, true);
+            broadcastSafeCommunication(BroadcastType.DRAWN_FOX_CARD);
+        }
+        else {
+            System.out.println("Corn drawn, client can save that.");
+            setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
+            broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
+        }
     }
 
     /**
@@ -464,6 +480,12 @@ public class GameSession {
                                     break;
                                 case CHANGE_ROOSTER_PLAYER:
                                     listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(),serverTable.getSpielerMitHahnKarte());
+                                    break;
+                                case DRAWN_KUCKUCK_CARD:
+                                    listener.drawnKuckuckCard();
+                                    break;
+                                case DRAWN_FOX_CARD:
+                                    listener.drawnFoxCard();
                                     break;
                                 // Add cases for other BroadcastTypes if needed
                             }

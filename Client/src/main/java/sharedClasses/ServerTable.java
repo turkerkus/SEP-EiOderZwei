@@ -95,7 +95,8 @@ public class ServerTable implements Serializable {
     public void setActive(int activeSpieler){
         this.active = activeSpieler;
     }
-    public void karteAblegen(ServerCard serverCard) { //This method drops the chosen serverCard on the AblageDeck.
+    public void karteAblegen(UUID clientId, ServerCard serverCard) { //This method drops the chosen serverCard on the AblageDeck.
+        players.get(clientId).remove(serverCard);
         ablageDeck.ablegen(serverCard);
     }
 
