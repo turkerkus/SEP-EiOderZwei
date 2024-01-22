@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import eoz.client.lobbyToTable.CardGridPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <GridPane prefHeight="400.0" prefWidth="600.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints maxHeight="186.0" minHeight="10.0" prefHeight="85.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="112.0" minHeight="0.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="255.0" minHeight="10.0" prefHeight="243.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="236.0" minHeight="10.0" prefHeight="42.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label alignment="CENTER" prefHeight="247.0" prefWidth="600.0" text="Choose a player and steal one card or the whole hand! " textAlignment="CENTER">
+               <font>
+                  <Font size="18.0" />
+               </font>
+            </Label>
+            <GridPane GridPane.rowIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.0" minWidth="10.0" prefWidth="172.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="429.0" minWidth="10.0" prefWidth="428.0" />
+              </columnConstraints>
+               <children>
+                  <Label alignment="CENTER" prefHeight="247.0" prefWidth="600.0" text="Player:" textAlignment="CENTER">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <ChoiceBox prefHeight="40.0" prefWidth="347.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
+               </children>
+            </GridPane>
+            <CardGridPane fx:id="player6GridPane" prefHeight="151.0" prefWidth="600.0" GridPane.rowIndex="2">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="116.0" />
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="104.0" />
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="130.0" />
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="130.0" />
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="90.0" minWidth="10.0" percentWidth="19" prefWidth="113.0" />
+                  <ColumnConstraints hgrow="ALWAYS" maxWidth="16.0" minWidth="10.0" percentWidth="5" prefWidth="31.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" percentHeight="11.0" prefHeight="70.0" vgrow="ALWAYS" />
+                  <RowConstraints minHeight="10.0" percentHeight="26.0" prefHeight="70.0" vgrow="ALWAYS" />
+                  <RowConstraints minHeight="10.0" percentHeight="25.0" prefHeight="70.0" vgrow="ALWAYS" />
+                  <RowConstraints minHeight="10.0" percentHeight="27.0" prefHeight="70.0" vgrow="ALWAYS" />
+                  <RowConstraints minHeight="10.0" percentHeight="26.0" prefHeight="70.0" vgrow="ALWAYS" />
+                  <RowConstraints minHeight="10.0" percentHeight="8.0" prefHeight="30.0" vgrow="ALWAYS" />
+               </rowConstraints>
+            </CardGridPane>
+            <GridPane prefHeight="63.0" prefWidth="600.0" GridPane.rowIndex="3">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Button mnemonicParsing="false" prefHeight="80.0" prefWidth="300.0" text="Steal chosen card" />
+                  <Button mnemonicParsing="false" prefHeight="94.0" prefWidth="300.0" text="Steal all cards" GridPane.columnIndex="1" />
+               </children>
+            </GridPane>
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>

@@ -23,4 +23,6 @@ public enum BroadcastType {
 
     CHAT,
 
+    CARD_DISCARDED,
+
 }

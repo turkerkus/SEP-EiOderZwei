@@ -2,11 +2,9 @@ package eoz.client.lobbyToTable;
 
 import sharedClasses.*;
 
-import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.Map;
 import java.util.UUID;
 
@@ -227,6 +225,11 @@ public class Client implements ClientInter {
     @Override
     public void drawCard() throws RemoteException {
         serverStub.drawCard(clientId, gameId);
+    }
+
+    @Override
+    public void discardCard(ServerCard card) throws RemoteException {
+        serverStub.discardCard(card, clientId, gameId);
     }
 
     @Override

@@ -14,6 +14,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import rmi.Server;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
@@ -514,8 +515,8 @@ public class TableController implements Serializable {
 
     }
 
-    public ArrayList<Card> auswahl() {
-        ArrayList<Card> selectedCards = new ArrayList<>();
+    public ArrayList<ServerCard> auswahl() {
+        ArrayList<ServerCard> selectedCards = new ArrayList<>();
 
         UUID clientId = client.getClientId();
         Spieler player = players.get(clientId);
@@ -524,17 +525,17 @@ public class TableController implements Serializable {
         for (Node node : grid.getChildren()) {
             node.setOnMouseClicked(e->{
                 if (node instanceof ImageView) {
-                    ServerCard serverCard = (ServerCard) node.getUserData();
-                    Card card = convertCard(serverCard);
+                    ServerCard card = (ServerCard) node.getUserData();
                     selectedCards.add(card);
                 }
             });
         }
-        for (Card c : selectedCards){
+        for (ServerCard c : selectedCards){
             if (!Objects.equals(c.getType(), "Korn")||!Objects.equals(c.getType(), "BKorn")){
                 auswahl(); //nochmal auswählen, falls keine Kornkarte ausgewählt wird mit Alert
             }
         }
+        System.out.println(selectedCards);
         return selectedCards;
     }
 
@@ -546,13 +547,15 @@ public class TableController implements Serializable {
             try {
                 if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
                     // TODO check if current player has enough corn to exchange for eggs
-                    //Spieler player = players.get(client.getClientId());
-                    ArrayList<Card> selected = auswahl();
+                    Spieler player = players.get(client.getClientId());
+
+                    ArrayList<ServerCard> selected = auswahl();
                     int kornzahl = 0;
                     int bkornzahl = 0;
                     int kornzahlwert = 0;
                     int bkornzahlwert = 0;
-                    for (Card c:selected){
+
+                    for (ServerCard c:selected){
                         if(c.getType().equals("Korn")){
                             kornzahl +=1;
                         }
@@ -560,7 +563,7 @@ public class TableController implements Serializable {
                             bkornzahl +=1;
                         }
                     }
-                    for (Card c:selected){
+                    for (ServerCard c:selected){
                         if(kornzahl==0&&bkornzahl>=1){
                             bkornzahlwert +=c.getValue();
                         }
@@ -577,11 +580,11 @@ public class TableController implements Serializable {
                         int rest = 0;
                         if(bkornzahlwert > 0){
                             eier = (int) Math.floor(bkornzahlwert/5)*2;
-                            
+                            player.setPunkte(player.getPunkte()+eier);
                             rest=selected.size() - eier;
-                                for(Card c: selected){
+                                for(ServerCard c: selected){
                                     if(eier>=0){
-                                        c.setImage(); //zu Ei setten
+                                        c.setCovered(true);
                                         eier-=1;
                                     }
                                     else{
@@ -593,19 +596,33 @@ public class TableController implements Serializable {
                         }
                         else{
                             eier = (int) Math.floor(bkornzahlwert / 5);
+                            player.setPunkte(player.getPunkte()+eier);
                             rest = selected.size() - eier;
-                              for(Card c : selected){
-                                  if(eier>=0){
-                                      c.setImage(); //zu Ei setten
+                              for(ServerCard c : selected){
+                                  if(eier>0){
+                                      c.setCovered(true); //zu Ei setten
                                       eier-=1;
+
                                   }
                                   else{
                                       break;
                                   }
                               }
+                            for(int i=selected.size()-1;i<=0; i--){
+                                if(rest>0){
+                                    ServerCard c= selected.get(i);
+                                    rest-=1;
+
+                                }
+                            }
                         }
                         client.karteUmtauschen();
+                        for (ServerCard card : selected){
+                            client.discardCard(card);
+                        }
+
                     }
+
                     else{
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Illegal Move");
@@ -759,6 +776,12 @@ public class TableController implements Serializable {
                     }
                 });
             }
+        });
+    }
+
+    public void cardDiscarded (UUID playerID, ServerCard card) {
+        Platform.runLater(() -> {
+           players.get(playerID).removeCard(card.getCardCell(), card.getServeCardID(), card.getType());
         });
     }
 

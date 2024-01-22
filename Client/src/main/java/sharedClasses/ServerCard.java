@@ -45,6 +45,7 @@ public class ServerCard implements Serializable {
         this.cardCell = cardCell;
     }
 
+    public void setCovered(boolean x){this.covered = x;}
 
 
 

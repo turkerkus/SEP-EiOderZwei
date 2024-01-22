@@ -405,6 +405,12 @@ public class GameSession {
         broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
     }
 
+    public void discardCard(ServerCard card, UUID clientId) throws RemoteException {
+        serverTable.karteAblegen(clientId, card);
+        setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
+        broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
+    }
+
     /**
      * Lets a player steal a rooster card as a round action.
      *
@@ -489,6 +495,8 @@ public class GameSession {
                                 case DRAWN_FOX_CARD:
                                     listener.drawnFoxCard(serverTable.getActiveSpielerID());
                                     break;
+                                case CARD_DISCARDED:
+                                    listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded());
                                 // Add cases for other BroadcastTypes if needed
                             }
                             success = true;

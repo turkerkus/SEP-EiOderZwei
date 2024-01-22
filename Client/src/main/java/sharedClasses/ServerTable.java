@@ -207,4 +207,8 @@ public class ServerTable implements Serializable {
         return nachzieheDeck;
     }
 
+    public ServerCard getDiscarded() {
+        return ablageDeck.getTopCard();
+    }
+
 }
