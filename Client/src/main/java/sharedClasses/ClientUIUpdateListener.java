@@ -35,8 +35,8 @@ public interface ClientUIUpdateListener extends Remote {
 
     void changeRoosterPlayer(UUID oldRoosterPlayerID, UUID newRoosterPlayerID) throws RemoteException;
 
-    void drawnKuckuckCard() throws RemoteException;
+    void drawnKuckuckCard(UUID playerID) throws RemoteException;
 
-    void drawnFoxCard () throws RemoteException;
+    void drawnFoxCard (UUID playerID) throws RemoteException;
 
 }

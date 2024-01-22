@@ -363,34 +363,35 @@ public class GameSession {
      * @param clientId The UUID of the current Client drawing the card.
      * @throws RemoteException if a remote communication error occurs.
      */
-    public void drawCard(UUID clientId) throws RemoteException{
-        //Draw card 1
-        serverTable.karteZiehen(clientId);
-        // check the drawn Card
-        checkDrawnCard(clientId);
+    public void drawCard(UUID clientId) throws RemoteException {
+        ServerPlayer player = serverTable.getPlayer(clientId);
 
-        System.out.println(serverTable.getPlayer(clientId).toString() + " has the ?  "+serverTable.getPlayer(clientId).hatHahnKarte());
+        drawAndCheckCard(player);
 
-        // Draw Card 2
-        if (serverTable.getPlayer(clientId).hatHahnKarte()){
-            serverTable.karteZiehen(clientId);
-            // check the drawn Card
-            checkDrawnCard(clientId);
-
+        if (player.hatHahnKarte()) {
+            drawAndCheckCard(player);
         }
+
         endPlayerTurn();
     }
 
+    private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
+        serverTable.karteZiehen(player.getServerPlayerId());
+        checkDrawnCard(player.getServerPlayerId());
+        System.out.println(player.toString() + " has the ?  " + player.hatHahnKarte());
+    }
+
+
     public void checkDrawnCard(UUID clientId) throws RemoteException {
         ServerCard card = serverTable.getDrawnCard();
-        if (serverTable.getDrawnCard().getType() == "Kuckuck") {
+        if (Objects.equals(serverTable.getDrawnCard().getType(), "Kuckuck")) {
             System.out.println("Kuckuck drawn. Sending info to player.");
             serverTable.karteAblegen(clientId, card);
             serverTable.getPlayer(clientId).raisePunkte();
             setBroadcastSent(BroadcastType.DRAWN_KUCKUCK_CARD, true);
             broadcastSafeCommunication(BroadcastType.DRAWN_KUCKUCK_CARD);
         }
-        else if (serverTable.getDrawnCard().getType() == "Fuchs") {
+        else if (Objects.equals(serverTable.getDrawnCard().getType(), "Fuchs")) {
             System.out.println("Fox drawn. Sending info to player.");
             serverTable.karteAblegen(clientId, card);
             setBroadcastSent(BroadcastType.DRAWN_FOX_CARD, true);
@@ -398,9 +399,10 @@ public class GameSession {
         }
         else {
             System.out.println("Corn drawn, client can save that.");
-            setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
-            broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
+
         }
+        setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
+        broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
     }
 
     /**
@@ -482,10 +484,10 @@ public class GameSession {
                                     listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(),serverTable.getSpielerMitHahnKarte());
                                     break;
                                 case DRAWN_KUCKUCK_CARD:
-                                    listener.drawnKuckuckCard();
+                                    listener.drawnKuckuckCard(serverTable.getActiveSpielerID());
                                     break;
                                 case DRAWN_FOX_CARD:
-                                    listener.drawnFoxCard();
+                                    listener.drawnFoxCard(serverTable.getActiveSpielerID());
                                     break;
                                 // Add cases for other BroadcastTypes if needed
                             }

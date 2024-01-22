@@ -3,7 +3,6 @@ package eoz.client.lobbyToTable;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
@@ -205,6 +204,8 @@ public class TableController implements Serializable {
                 // Assign the host player to p1 and player1GridPane
                 player.setPlayerLabel(p1);
                 player.setCardGridPane(player1GridPane);
+                player.setPlayerLabelGrid(player1LabelGrid);
+                player.setPlayerPoint(pt1);
             } else {
                 // Handle non-host players
                 if (numPlayers >= 2 && numPlayers <= 6) {
@@ -493,67 +494,37 @@ public class TableController implements Serializable {
 
     }
 
-    public ArrayList<Card> auswahl() {
-        ArrayList<Card> selectedCards = new ArrayList<>();
-
-        UUID clientId = client.getClientId();
-        Spieler player = players.get(clientId);
-        CardGridPane grid = player.getCardGridPane();
-
-        for (Node node : grid.getChildren()) {
-            node.setOnMouseClicked(e->{
-            if (node instanceof ImageView) {
-                ServerCard serverCard = (ServerCard) node.getUserData();
-                Card card = convertCard(serverCard);
-                selectedCards.add(card);
-            }
-            });
-        }
-        for (Card c : selectedCards){
-            if (!Objects.equals(c.getType(), "Korn")||!Objects.equals(c.getType(), "BKorn")){
-                selectedCards.remove(c);
-            }
-        }
-        return selectedCards;
-    }
-    /*
-    public ArrayList<Node> auswahl(){
-        ArrayList<Node> select= new ArrayList<Node>();
+    public ArrayList<ImageView> auswahl(){
+        ArrayList<ImageView> select= new ArrayList<ImageView>();
         UUID clientId = client.getClientId();
         Spieler player = players.get(clientId);
         CardGridPane grid= player.getCardGridPane();
-
-    for(int i=0;i<grid.getChildren().size();i++){
-            Node node = grid.getCardInCell(i);
+        for(int i=0;i<grid.getChildren().size();i++){
+            ImageView node =(ImageView) grid.getCardInCell(i);
             node.setOnMouseClicked(e ->{
                 select.add(node);
-
-                //String Source = node.getImage().getUrl();
+                String Source = node.getImage().getUrl();
             });
 
 
-        }
-    }
 
+
+
+        }
         return select;
     }
-    */
+
+
+
     public void getEggs() {
         Platform.runLater(() -> {
             try {
                 if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
                     // TODO check if current player has enough corn to exchange for eggs
                     Spieler player = players.get(client.getClientId());
-                    ArrayList<Card> selected = auswahl();
-                    int kornzahl = 0;
-                    for (Card c:selected){
-                        kornzahl += c.getValue();
-                    }
-                    player.setKornzahl(kornzahl);
                     if (player.getKornzahl()>=5){
                         System.out.println("LAY EGGS BOOOCK BOOOOOOOOOOOCK!"); //TODO delete after
                         client.karteUmtauschen();
-                        player.setKornzahl(0);
                     }
                     else{
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -655,30 +626,45 @@ public class TableController implements Serializable {
         });
     }
 
-    public void drawnKuckuckCard() {
-        if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-            System.out.println("INCOMING KUCKUCK ALERT");
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("A Kuckuck card!");
-            alert.setHeaderText("Congratulations!");
-            alert.setContentText("You have drawn a Kuckuck card. Your egg-Score has been increased by 1!");
-            alert.getButtonTypes().setAll(ButtonType.OK);
-            System.out.println("DISPLAYING ALERT");
-            alert.showAndWait();
-        }
+
+    public void drawnKuckuckCard(UUID playerId){
+        Platform.runLater(() -> {
+            if (Objects.equals(playerId, client.getClientId())){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("A Kuckuck card!");
+                alert.setHeaderText("Congratulations!");
+                alert.setContentText("You have drawn a Kuckuck card. Your egg-Score has been increased by 1!");
+                alert.showAndWait();
+            }
+        });
+
+    }
+
+    public void drawnFoxCard(UUID playerID){
+        Platform.runLater(() -> {
+            if (Objects.equals(playerID, client.getClientId())){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("A Fox Card");
+                alert.setHeaderText("You have drawn a Fox Card");
+                alert.setContentText("Do you want to use your Fox Card?");
+
+                ButtonType yesButton = new ButtonType("Yes");
+                ButtonType noButton = new ButtonType("No");
+
+                alert.getButtonTypes().setAll(yesButton, noButton);
+
+                alert.showAndWait().ifPresent(response -> {
+                    if (response == yesButton) {
+                        System.out.println("Player chose to use the Fox Card.");
+                        // Perform the action for using the Fox Card here
+                    } else if (response == noButton) {
+                        System.out.println("Player chose not to use the Fox Card.");
+                        // Perform any other action here if needed
+                    }
+                });
+            }
+        });
     }
 
 
-    public void drawnFoxCard() {
-        if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-            System.out.println("INCOMING FOX ALERT");
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("A Fox card!");
-            alert.setHeaderText("Congratulations!");
-            alert.setContentText("You have drawn a fox card. Time to steal cards from another player! >:)");
-            alert.getButtonTypes().setAll(ButtonType.OK);
-            System.out.println("DISPLAYING ALERT");
-            alert.showAndWait();
-        }
-    }
 }
