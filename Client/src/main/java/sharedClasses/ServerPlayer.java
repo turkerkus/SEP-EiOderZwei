@@ -2,8 +2,6 @@ package sharedClasses;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -26,8 +24,7 @@ public class ServerPlayer implements Serializable {
     private  String serverPlayerName;
     int punkte;
     Hand cardHand;
-    private int kornzahl;
-    private List<ServerCard> hand = new ArrayList<>();
+
     private  boolean  hahnKarte;
 
     public boolean isBot() {
@@ -39,11 +36,11 @@ public class ServerPlayer implements Serializable {
     }
 
     private boolean isBot = false;
-    public ServerPlayer(UUID id, String playerName, boolean hahnKarte, int kornzahl) {
+    public ServerPlayer(UUID id, String playerName, boolean hahnKarte) {
         this.serverPlayerId = id;
         this.serverPlayerName = playerName;
         this.hahnKarte = hahnKarte;
-        this.kornzahl = kornzahl;
+        this.cardHand = new Hand();
 
     }
 
@@ -64,28 +61,43 @@ public class ServerPlayer implements Serializable {
         this.punkte = punkte;
     }
 
+    public void increasePointsBy(int punkte){
+        this.punkte += punkte;
+    }
+    public void decreasePointsBy(int punkte){
+        this.punkte -= punkte;
+    }
+
     // Raises the Egg Counter by 1
     public void raisePunkte() {
         punkte += 1;
     }
 
-    public int getKornzahl() {return kornzahl;}
+    public int getBioKornzahl() {return cardHand.getNumOfBioCornCard();}
 
-    public void setKornzahl(int kornzahl) {this.kornzahl = kornzahl;}
+    public int getKornzahl(){return cardHand.getNumOfCornCard();}
+
+    public ServerCard getKuckuckCard(){
+        return cardHand.getKuckuck();
+    }
+
 
     public Hand getCardHand() {
         return cardHand;
     }
 
     public int getCardCount(){
-        return cardHand.getHandCards().size();
+        return cardHand.size();
     }
 
-    public void add( ServerCard serverCard) {
-        hand.add(serverCard);
+    public void addCard( ServerCard serverCard) {
+        cardHand.addCardToHand(serverCard);
+
     }
 
-    public void remove(ServerCard serverCard) { hand.remove(serverCard); }
+    public void remove(UUID cardID, String cardType) {
+        cardHand.removeCard(cardID, cardType);
+    }
 
     public boolean hatHahnKarte() {
         return hahnKarte;
@@ -117,20 +129,6 @@ public class ServerPlayer implements Serializable {
         leftServer = bool;
     }
 
-    public int getNewCard(){
-        return newCard;
-    }
-    public boolean getCardDrawn(){
-        return cardDrawn;
-    }
-
-    public void setCardDrawn(boolean cardDrawn) {
-        this.cardDrawn = cardDrawn;
-    }
-
-    public void setNewCard(int newCard) {
-        this.newCard = newCard;
-    }
 
     @Override
     public int hashCode() {

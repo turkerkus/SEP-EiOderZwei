@@ -1,6 +1,5 @@
 package sharedClasses;
 
-import javax.swing.*;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -14,20 +13,21 @@ public class ServerCard implements Serializable {
     boolean covered;
     private final String type; // Give cards unique effects
 
-    final int value; // ServerCard's value, especially for seed cards
+    private final int value; // ServerCard's value, especially for seed cards
 
-    public UUID getId() {
-        return id;
+    public UUID getServeCardID() {
+        return serveCardID;
     }
 
-    private final UUID id;
+    private final UUID serveCardID;
+    private int[] cardCell;
 
     // Construct
     public ServerCard(String type,  int value, boolean covered){
         this.covered = covered;
         this.type = type;
         this.value = value;
-        this.id = UUID.randomUUID();
+        this.serveCardID = UUID.randomUUID();
     }
 
     // Methods
@@ -37,9 +37,23 @@ public class ServerCard implements Serializable {
         return type;
     }
 
+    public int[] getCardCell() {
+        return cardCell;
+    }
+
+    public void setCardCell(int[] cardCell) {
+        this.cardCell = cardCell;
+    }
+
+
+
 
 
     public int getValue(){
         return value;
+    }
+    @Override
+    public String toString() {
+        return "(" + getValue()+ " "+ getType()+ ")";
     }
 }

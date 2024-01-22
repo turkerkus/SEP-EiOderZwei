@@ -12,24 +12,40 @@ public class CardGridPane extends GridPane {
     private int nextAvailableRow = 1;
     private int nextAvailableCol = 0;
 
+    public void setStartFromZero(boolean startFromZero) {
+        this.startFromZero = startFromZero;
+    }
+
+    private boolean startFromZero = true;
+
+    private int startRow = 0;
+    private int endRow = 5;
+
+    public void setRow(){
+        if (!startFromZero){
+            this.startRow = 1;
+            this.endRow = 4;
+        }
+    }
+
     public CardGridPane() {
         // Assuming the grid has rows 0-5 and columns 0-5
         // We only allow card placement in rows 1-4 and columns 0-4
-        for (int row = 1; row <= 4; row++) {
-            for (int col = 0; col <= 4; col++) {
+        for (int row = startRow; row <= endRow; row++) {
+            for (int col = 0; col <= 5; col++) {
                 cellOccupancy.put(getCellKey(row, col), false);
             }
         }
     }
 
     // Utility method to create a unique key for each cell based on its row and column
-    private Integer getCellKey(int row, int col) {
+    public Integer getCellKey(int row, int col) {
         return row * this.getColumnCount() + col;
     }
 
     // Method to add a card to a cell
     public void addCard(Node card, int row, int col) {
-        if (row < 1 || row > 4 || col < 0 || col > 4) {
+        if (row < startRow || row > endRow || col < 0 || col > 5) {
             // Outside allowed range
             return;
         }
@@ -42,8 +58,8 @@ public class CardGridPane extends GridPane {
         }
     }
     public void updateNextAvailableCell() {
-        for (int row = 1; row <= 4; row++) {
-            for (int col = 0; col <= 4; col++) {
+        for (int row = startRow; row <= endRow; row++) {
+            for (int col = 0; col <= 5; col++) {
                 Integer key = getCellKey(row, col);
                 if (cellOccupancy.get(key) == null || !cellOccupancy.get(key)) {
                     nextAvailableRow = row;

@@ -3,6 +3,7 @@ package eoz.client.lobbyToTable;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
@@ -157,6 +158,16 @@ public class TableController implements Serializable {
                 {pt2, pt3, pt4, pt5, pt6}  // Case 6
         };
 
+        boolean[][] setStartingRowIndex = {
+                {},  // Case 0 (unused)
+                {},  // Case 1 (unused)
+                {true},  // Case 2
+                {true, true},  // Case 3
+                {true, true, true},  // Case 4
+                {false, true, true, true},  // Case 5
+                {false, false, true, true, true}  // Case 6
+        };
+
         GridPane[][] playersLabelGrid = {
                 {},  // Case 0 (unused)
                 {},  // Case 1 (unused)
@@ -203,19 +214,29 @@ public class TableController implements Serializable {
 
                 // Assign the host player to p1 and player1GridPane
                 player.setPlayerLabel(p1);
+                player1GridPane.setStartFromZero(false);
+                player1GridPane.setRow();
                 player.setCardGridPane(player1GridPane);
                 player.setPlayerLabelGrid(player1LabelGrid);
-                player.setPlayerPoint(pt1);
+                player.setPlayerPointlabel(pt1);
+
             } else {
                 // Handle non-host players
                 if (numPlayers >= 2 && numPlayers <= 6) {
+                    // configure the starting row index of the gridPane
+                    boolean startingIndex = setStartingRowIndex[numPlayers][nonHostPlayerIndex];
                     player.setPlayerLabel(labelCases[numPlayers][nonHostPlayerIndex]);
+                    gridPaneCases[numPlayers][nonHostPlayerIndex].setStartFromZero(startingIndex);
+                    gridPaneCases[numPlayers][nonHostPlayerIndex].setRow();
+
+                    // assign the gridPane to the player
                     player.setCardGridPane(gridPaneCases[numPlayers][nonHostPlayerIndex]);
                     player.setPlayerLabelGrid(playersLabelGrid[numPlayers][nonHostPlayerIndex]);
+
                     // set the player pt label
                     pointLabels[numPlayers][nonHostPlayerIndex].setText("Pt: 0");
                     
-                    player.setPlayerPoint(pointLabels[numPlayers][nonHostPlayerIndex]);
+                    player.setPlayerPointlabel(pointLabels[numPlayers][nonHostPlayerIndex]);
 
 
                     //add the Labels and GridPane to their respective list to be able to distribute the cards respectively
@@ -242,7 +263,6 @@ public class TableController implements Serializable {
                     player.getServerPlayerId(),
                     player.getServerPlayerName(),
                     player.hatHahnKarte(),
-                    player.getKornzahl(),
                     dummyPane,
                     dummyLabel
             );
@@ -494,25 +514,30 @@ public class TableController implements Serializable {
 
     }
 
-    public ArrayList<ImageView> auswahl(){
-        ArrayList<ImageView> select= new ArrayList<ImageView>();
+    public ArrayList<Card> auswahl() {
+        ArrayList<Card> selectedCards = new ArrayList<>();
+
         UUID clientId = client.getClientId();
         Spieler player = players.get(clientId);
-        CardGridPane grid= player.getCardGridPane();
-        for(int i=0;i<grid.getChildren().size();i++){
-            ImageView node =(ImageView) grid.getCardInCell(i);
-            node.setOnMouseClicked(e ->{
-                select.add(node);
-                String Source = node.getImage().getUrl();
+        CardGridPane grid = player.getCardGridPane();
+
+        for (Node node : grid.getChildren()) {
+            node.setOnMouseClicked(e->{
+                if (node instanceof ImageView) {
+                    ServerCard serverCard = (ServerCard) node.getUserData();
+                    Card card = convertCard(serverCard);
+                    selectedCards.add(card);
+                }
             });
-
-
-
-
-
         }
-        return select;
+        for (Card c : selectedCards){
+            if (!Objects.equals(c.getType(), "Korn")||!Objects.equals(c.getType(), "BKorn")){
+                auswahl(); //nochmal auswählen, falls keine Kornkarte ausgewählt wird mit Alert
+            }
+        }
+        return selectedCards;
     }
+
 
 
 
@@ -521,9 +546,64 @@ public class TableController implements Serializable {
             try {
                 if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
                     // TODO check if current player has enough corn to exchange for eggs
-                    Spieler player = players.get(client.getClientId());
-                    if (player.getKornzahl()>=5){
-                        System.out.println("LAY EGGS BOOOCK BOOOOOOOOOOOCK!"); //TODO delete after
+                    //Spieler player = players.get(client.getClientId());
+                    ArrayList<Card> selected = auswahl();
+                    int kornzahl = 0;
+                    int bkornzahl = 0;
+                    int kornzahlwert = 0;
+                    int bkornzahlwert = 0;
+                    for (Card c:selected){
+                        if(c.getType().equals("Korn")){
+                            kornzahl +=1;
+                        }
+                        else{
+                            bkornzahl +=1;
+                        }
+                    }
+                    for (Card c:selected){
+                        if(kornzahl==0&&bkornzahl>=1){
+                            bkornzahlwert +=c.getValue();
+                        }
+                        else {
+                            kornzahlwert +=c.getValue();
+
+                        }
+                    }
+
+
+
+                    if (kornzahlwert >= 5|| bkornzahlwert>=5){//TODO delete after
+                        int eier = 0;
+                        int rest = 0;
+                        if(bkornzahlwert > 0){
+                            eier = (int) Math.floor(bkornzahlwert/5)*2;
+                            
+                            rest=selected.size() - eier;
+                                for(Card c: selected){
+                                    if(eier>=0){
+                                        c.setImage(); //zu Ei setten
+                                        eier-=1;
+                                    }
+                                    else{
+                                        break;
+                                }
+                        }
+
+
+                        }
+                        else{
+                            eier = (int) Math.floor(bkornzahlwert / 5);
+                            rest = selected.size() - eier;
+                              for(Card c : selected){
+                                  if(eier>=0){
+                                      c.setImage(); //zu Ei setten
+                                      eier-=1;
+                                  }
+                                  else{
+                                      break;
+                                  }
+                              }
+                        }
                         client.karteUmtauschen();
                     }
                     else{
@@ -635,6 +715,22 @@ public class TableController implements Serializable {
                 alert.setHeaderText("Congratulations!");
                 alert.setContentText("You have drawn a Kuckuck card. Your egg-Score has been increased by 1!");
                 alert.showAndWait();
+                Spieler player = players.get(playerId);
+                player.raisePunkte();
+                ServerCard kuckuckCard = player.getKuckuckCard();
+                player.removeCard(kuckuckCard.getCardCell(), null, "Kuckuck");
+                players.get(playerId).reorganizeGridPane();
+            } else {
+                Spieler player = players.get(playerId);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("A Kuckuck card!");
+                alert.setHeaderText(player.getServerPlayerName() + " has drawn a Kuckuck card!");
+                alert.setContentText("His/her egg-Score has been increased by 1!");
+                alert.showAndWait();
+                player.raisePunkte();
+                ServerCard kuckuckCard = player.getKuckuckCard();
+                player.removeCard(kuckuckCard.getCardCell(), null, "Kuckuck");
+                players.get(playerId).reorganizeGridPane();
             }
         });
 

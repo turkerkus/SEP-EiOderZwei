@@ -1,6 +1,7 @@
 package eoz.client.lobbyToTable;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -15,12 +16,12 @@ public class Spieler extends ServerPlayer {
 
     private Label playerLabel;
 
-    public Label getPlayerPoint() {
-        return playerPoint;
+    public Label getPlayerPointlabel() {
+        return playerPointlabel;
     }
 
-    public void setPlayerPoint(Label playerPoint) {
-        this.playerPoint = playerPoint;
+    public void setPlayerPointlabel(Label playerPointlabel) {
+        this.playerPointlabel = playerPointlabel;
     }
 
     public GridPane getPlayerLabelGrid() {
@@ -31,7 +32,7 @@ public class Spieler extends ServerPlayer {
         this.playerLabelGrid = playerLabelGrid;
     }
 
-    private Label playerPoint;
+    private Label playerPointlabel;
 
     private GridPane playerLabelGrid;
 
@@ -44,8 +45,8 @@ public class Spieler extends ServerPlayer {
         this.playerLabel.setText(getServerPlayerName());
     }
 
-    public Spieler(UUID id, String playerName, boolean hahnKarte, int kornzahl, CardGridPane cardGridPane, Label playerLabel) {
-        super(id,playerName,hahnKarte,kornzahl); //Create player with following parameters
+    public Spieler(UUID id, String playerName, boolean hahnKarte, CardGridPane cardGridPane, Label playerLabel) {
+        super(id,playerName,hahnKarte); //Create player with following parameters
         this.cardGridPane = cardGridPane;
         setPlayerLabel(playerLabel);
     }
@@ -69,7 +70,7 @@ public class Spieler extends ServerPlayer {
 
                 Card hahnServerCard = new Card( "Hahn",  0, false);
                 // Create a new card ImageView for distribution
-                ImageView cardView = new ImageView(String.valueOf(hahnServerCard.getImage()));
+                ImageView cardView = new ImageView(hahnServerCard.getImage());
                 cardView.setFitHeight(50);
                 cardView.setFitWidth(80);
                 // add card to grid pane
@@ -84,20 +85,82 @@ public class Spieler extends ServerPlayer {
     @Override
     public void setPunkte(int punkte) {
         super.setPunkte(punkte);
+        this.playerPointlabel.setText("Pt: "+ punkte);
+    }
+    @Override
+    public void increasePointsBy(int punkte){
+        super.increasePointsBy(punkte);
+        this.playerPointlabel.setText("Pt: "+getPunkte());
+    }
+    @Override
+    public void decreasePointsBy(int punkte){
+        super.decreasePointsBy(punkte);
+        this.playerPointlabel.setText("Pt: "+getPunkte());
+    }
+
+    @Override
+    public void raisePunkte(){
+        super.raisePunkte();
+        this.playerPointlabel.setText("Pt: "+getPunkte());
     }
 
 
     public void addCard(Card card, ServerCard servercard){
-        super.add(servercard);
-        // Create a new card ImageView for distribution
-        ImageView cardView = new ImageView(String.valueOf(card.getImage()));
-        //cardView.setPreserveRatio(true);
-        cardView.setFitHeight(50);
-        cardView.setFitWidth(80);
-        // add card to grid pane
+        //set the cell of the card
         int[] nextCell = this.cardGridPane.getNextAvailableCell();
+        servercard.setCardCell(nextCell);
         int row = nextCell[0];
         int col = nextCell[1];
+        // add the card to the hand
+        super.addCard(servercard);
+
+        // Create a new card ImageView for distribution
+        ImageView cardView =  new ImageView(card.getImage());
+        cardView.setUserData(servercard);
+        cardView.setFitHeight(50);
+        cardView.setFitWidth(80);
+
+        // add card to grid pane
         this.cardGridPane.addCard(cardView,row,col);
+    }
+
+    public void removeCard (int[] cell ,UUID cardID, String cardType){
+        // get the cell  key from the cardGridPane
+        Integer key = cardGridPane.getCellKey(cell[0], cell[1]);
+        // get the card
+        Node card = cardGridPane.getCardInCell(key);
+
+        if ( cardType == "Kuckuck") {
+            //set the kuckuck card to null
+            getCardHand().setKuckuck(null);
+        } else {
+            remove(cardID,cardType);
+        }
+
+        // remove the card
+        cardGridPane.removeCard(card);
+
+    }
+
+    public  void reorganizeGridPane() {
+        int numRows = cardGridPane.getRowCount();
+        int numCols = cardGridPane.getColumnCount();
+        int index = 0;
+
+        for (int row = 1; row <= 4; row++) {
+            for (int col = 0; col <= 4; col++) {
+                if (index >= cardGridPane.getChildren().size()) {
+                    return; // Exit if all nodes have been reorganized
+                }
+
+                Node child = cardGridPane.getChildren().get(index);
+
+                // Reorganize the child node to the new row and column
+                GridPane.setRowIndex(child, row);
+                GridPane.setColumnIndex(child, col);
+
+                index++;
+            }
+        }
     }
 }

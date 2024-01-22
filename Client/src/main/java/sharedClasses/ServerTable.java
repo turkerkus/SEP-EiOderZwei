@@ -80,9 +80,7 @@ public class ServerTable implements Serializable {
 
     public void karteZiehen(UUID clientId) {
         drawnCard =  nachzieheDeck.ziehen();
-        players.get(clientId).add(drawnCard);
-        int tempKorn = drawnCard.getValue() + players.get(clientId).getKornzahl();
-        players.get(clientId).setKornzahl(tempKorn);
+        players.get(clientId).addCard(drawnCard);
     }
     public ServerPlayer getActiveSpieler(){
         UUID playerId = playerIdList.get(active);
@@ -96,7 +94,7 @@ public class ServerTable implements Serializable {
         this.active = activeSpieler;
     }
     public void karteAblegen(UUID clientId, ServerCard serverCard) { //This method drops the chosen serverCard on the AblageDeck.
-        players.get(clientId).remove(serverCard);
+        players.get(clientId).remove(serverCard.getServeCardID(), serverCard.getType());
         ablageDeck.ablegen(serverCard);
     }
 

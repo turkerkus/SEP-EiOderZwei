@@ -107,7 +107,7 @@ public class GameSession {
         // reached
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         if (!gameStarted && players.size() < getMaxNumOfPlayers()) {
-            serverTable.addplayer(clientID,new ServerPlayer(clientID, playerName, false, 0));
+            serverTable.addplayer(clientID,new ServerPlayer(clientID, playerName, false ));
             clientListeners.put(clientID, listener);
             this.numberOfHumanPlayersPresent++;
         }
@@ -123,7 +123,7 @@ public class GameSession {
 
             // Check if the game is already started or the maximum number of players is
             // reached
-            ServerPlayer player = new ServerPlayer(botId, botName, false, 0);
+            ServerPlayer player = new ServerPlayer(botId, botName, false);
             player.setBot(true);
             if (!isGameSessionReady && players.size() < getMaxNumOfPlayers()) {
 
