@@ -21,4 +21,6 @@ public enum BroadcastType {
 
     EXCHANGING_CARDS,
 
+    CHAT,
+
 }

@@ -6,13 +6,14 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.JoinGameController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #714F0F;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.JoinGameController">
 
-    <Label layoutX="165.0" layoutY="33.0" text="Join Game Room">
+    <Label layoutX="165.0" layoutY="33.0" text="Join Game Room" textFill="WHITE">
       <font>
          <Font size="34.0" />
       </font></Label>
-    <TextField fx:id="gameIdField" layoutX="130.0" layoutY="158.0" onAction="#joinGame" prefHeight="50.0" prefWidth="326.0" promptText="Enter Game ID" />
-    <Button fx:id="joinGameButton" layoutX="257.0" layoutY="286.0" onAction="#joinGame" text="Join Game" />
+    <TextField fx:id="gameIdField" layoutX="130.0" layoutY="158.0" onAction="#joinGame" prefHeight="50.0" prefWidth="326.0" promptText="Enter Game ID" style="-fx-font-family: Quicksand; -fx-border-color: grey; -fx-border-width: 5; -fx-border-radius: 5; -fx-background-color: transparent;" />
+    <Button fx:id="joinGameButton" layoutX="349.0" layoutY="287.0" onAction="#joinGame" text="Join Game" />
+   <Button fx:id="backToGameLobby" layoutX="165.0" layoutY="287.0" text="Back" />
 
 </AnchorPane>
