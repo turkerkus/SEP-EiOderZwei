@@ -2,7 +2,10 @@ package eoz.client.lobbyToTable;
 
 import javafx.animation.*;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -12,18 +15,44 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+import sharedClasses.ChatController;
+import sharedClasses.ChatObserver;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TableController implements Serializable {
-
+public class TableController implements Serializable, ChatObserver, Initializable {
+    //chat Vars start
+    private ChatObserver chatObserver;
+    private ChatController controller;
+    @FXML
+    public AnchorPane chatPane;
+    @FXML
+    public TextArea txtMsg;
+    @FXML
+    public ScrollPane scrollPane;
+    @FXML
+    public VBox chatBox;
+    @FXML
+    public Button btnSend;
+    @FXML
+    public TextFlow emojiList;
+    @FXML
+    public Button btnEmoji;
+    //Chat Vars end
     @FXML
     public Label p1;
     @FXML
@@ -37,8 +66,6 @@ public class TableController implements Serializable {
     @FXML
     public Label p3;
 
-    @FXML
-    public AnchorPane anchorPane1;
     @FXML
     public AnchorPane anchorPane2;
     @FXML
@@ -112,6 +139,90 @@ public class TableController implements Serializable {
     // Time left in seconds
 
     private Boolean isGameStarted = false;
+
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle){
+        for(Node text : emojiList.getChildren()){
+            text.setOnMouseClicked(event -> {
+                txtMsg.setText(txtMsg.getText()+ " " +((Text)text).getText());
+                emojiList.setVisible(false);
+            });
+        }
+        scrollPane.vvalueProperty().bind(chatBox.heightProperty());
+        try {
+            chatObserver = new ChatObserverImpl(this);
+            if(controller != null){
+                controller.addChatObserver(chatObserver);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public ChatObserver getChatObserver(){
+        return chatObserver;
+    }
+
+    @FXML
+    void emojiAction(ActionEvent event){
+        emojiList.setVisible(!emojiList.isVisible());
+    }
+
+    @FXML
+    void sendAction(ActionEvent event){
+        try{
+            if(txtMsg.getText().trim().equals(""))return;
+            controller.notifyAllClients(client.getClientName(), txtMsg.getText().trim());
+        } catch (RemoteException e){
+            e.printStackTrace();
+        }
+        txtMsg.setText("");
+        txtMsg.requestFocus();
+    }
+
+    @Override
+    public boolean update(String username, String message) throws RemoteException {
+        Text text = new Text(message);
+
+        text.setFill(Color.WHITE);
+        text.getStyleClass().add("message");
+        TextFlow tempFlow = new TextFlow();
+        if(!this.client.getClientName().equals(username)){
+            Text txtName = new Text(username + "\n");
+            tempFlow.getChildren().add(txtName);
+        }
+        tempFlow.getChildren().add(text);
+        tempFlow.setMaxWidth(200);
+
+        TextFlow flow = new TextFlow(tempFlow);
+
+        HBox hbox = new HBox(12);
+        if(!this.client.getClientName().equals(username)){
+            tempFlow.getStyleClass().add("tempFlowFlipped");
+            flow.getStyleClass().add("tempFlowFlipped");
+            chatBox.setAlignment(Pos.TOP_LEFT);
+            hbox.getChildren().add(flow);
+        } else{
+            text.setFill(Color.WHITE);
+            tempFlow.getStyleClass().add("tempFlow");
+            flow.getStyleClass().add("tempFlow");
+            hbox.setAlignment(Pos.BOTTOM_RIGHT);
+            hbox.getChildren().add(flow);
+        }
+        hbox.getStyleClass().add("hbox");
+        Platform.runLater(() -> chatBox.getChildren().addAll(hbox));
+
+
+        return true;
+    }
+
+    @Override
+    public String getUsername() throws RemoteException {
+        return client.getClientName();
+    }
+
 
 
     public Client getClient() {

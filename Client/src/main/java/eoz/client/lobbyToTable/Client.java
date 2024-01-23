@@ -20,6 +20,7 @@ public class Client implements ClientInter {
 
 
     // Attributes
+    private ChatController controller;
     private UUID clientId = UUID.randomUUID();
 
     private ServerInter serverStub;
@@ -49,6 +50,10 @@ public class Client implements ClientInter {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public ChatController getController(){
+        return controller;
     }
 
     // Getter for clientId
