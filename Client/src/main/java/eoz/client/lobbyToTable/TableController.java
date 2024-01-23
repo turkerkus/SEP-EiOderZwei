@@ -4,6 +4,8 @@ import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
@@ -786,26 +788,43 @@ public class TableController implements Serializable {
     public void drawnFoxCard(UUID playerID) {
         Platform.runLater(() -> {
             if (Objects.equals(playerID, client.getClientId())) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("A Fox Card");
-                alert.setHeaderText("You have drawn a Fox Card");
-                alert.setContentText("Do you want to use your Fox Card?");
+                // Create dialog for stealing a card.
+                Dialog<Void> steal = new Dialog<>();
+                steal.setTitle("Fox card drawn!");
+                steal.setHeaderText("You have drawn a fox card.");
+                steal.setContentText("Please select a player and choose whether you like to steal a specific card or all cards.");
 
-                ButtonType yesButton = new ButtonType("Yes");
-                ButtonType noButton = new ButtonType("No");
+                // TODO Choicebox with a selectable list of all opponents (perhaps keep the current player out of this list
+                ChoiceBox<String> opponent = new ChoiceBox<>();
 
-                alert.getButtonTypes().setAll(yesButton, noButton);
+                // TODO Vbox to display all cards of the selected opponent. Note that this box gets updated when the player is chosen
+                VBox dialogContent = new VBox(10);
+                dialogContent.getChildren().add(opponent);
 
-                alert.showAndWait().ifPresent(response -> {
-                    if (response == yesButton) {
-                        System.out.println("Player chose to use the Fox Card.");
-                        // Perform the action for using the Fox Card here
-                    } else if (response == noButton) {
-                        System.out.println("Player chose not to use the Fox Card.");
-                        // Perform any other action here if needed
-                    }
-                });
+
+                // TODO Buttons for choice to steal one card or all cards.
+                ButtonType stealOne = new ButtonType("Steal one card", ButtonBar.ButtonData.OK_DONE);
+                ButtonType stealAll = new ButtonType("Steal all cards", ButtonBar.ButtonData.OK_DONE);
             }
+        });
+    }
+
+    public void stolenOneCard(UUID playerId, ServerCard stolencard){
+        Platform.runLater(() -> {
+            if (client.getClientId().equals(playerId)){
+                // TODO set an alert for the opponent who gets stolen. No action needed.
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("A fox appears!");
+                alert.setHeaderText();
+            }
+        });
+    }
+
+    public void stolenAllCards(UUID playerId){
+        Platform.runLater(() -> {
+           if (client.getClientId().equals(playerId)){
+               // TODO Selection like getEgg, but only one card is selectable and this gets protected from stealing.
+           }
         });
     }
 
@@ -867,11 +886,43 @@ public class TableController implements Serializable {
 
     }
 
-    public void sendAction(){
+    private Parent root;
 
+    public void setRoot(Parent root) {
+        this.root = root;
     }
 
-    public void emojiAction(){
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    private Stage stage;
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    private String gameName;
+    public void switchToResults() {
+
+        Platform.runLater(() ->{
+            // If gameName is not empty, proceed to switch scenes
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("Spielauswertung.fxml"));
+            try {
+                root = loader.load();
+                //create the ServerTable Application and TableController
+                //SpielauswertungApplication spielauswertungApplication = new SpielauswertungApplication();
+                SpielauswertungController spielauswertungController = loader.getController();
+                spielauswertungController.setClient(client);
+                // assign the ServerCard Grid Pane
+                spielauswertungController.getPlayers();
+
+                // set up the stage
+                Scene scene = new Scene(root);
+                stage.setScene(scene);
+                stage.show();
+                stage.setTitle(gameName + "@gameId:  " + client.getGameId());
+
 
     }
 

@@ -83,6 +83,9 @@ public class LobbyRoomController implements Serializable {
                 TableApplication tableApplication = new TableApplication();
                 TableController tableController = loader.getController();
                 tableController.setClient(client);
+                tableController.setStage(this.stage);
+                tableController.setRoot(this.root);
+                tableController.setGameName(gameName);
                 try {
                     // assign the ServerCard Grid Pane
                     tableController.assignCardGridPane();

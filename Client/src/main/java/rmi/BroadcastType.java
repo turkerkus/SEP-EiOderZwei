@@ -19,7 +19,7 @@ public enum BroadcastType {
 
     CHANGE_ROOSTER_PLAYER,
 
-    EXCHANGING_CARDS,
+    SWITCH_TO_RESULTS,
 
     CHAT,
 

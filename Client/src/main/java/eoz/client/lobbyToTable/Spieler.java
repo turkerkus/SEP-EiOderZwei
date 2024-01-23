@@ -19,6 +19,8 @@ public class Spieler extends ServerPlayer {
 
     private Label playerLabel;
 
+
+
     public Label getPlayerPointlabel() {
         return playerPointlabel;
     }
@@ -141,7 +143,7 @@ public class Spieler extends ServerPlayer {
             //set the kuckuck card to null
             getCardHand().setKuckuck(null);
         } else {
-            remove(cardID,cardType);
+            remove(card.getServeCardID(), card.getType());
         }
         // Copy the list of children to avoid ConcurrentModificationException
         List<Node> childrenCopy = new ArrayList<>(cardGridPane.getChildren());

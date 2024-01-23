@@ -112,6 +112,8 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
                 lobbyRoomController.switchSceneToTable();
             } else if ("startPlayerTurn".equals(command)) {
                 tableController.startGameUiUpdate();
+            } else if ("switchResults".equals(command)) {
+                tableController.switchToResults();
             }
 
         });

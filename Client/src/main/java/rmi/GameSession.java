@@ -219,10 +219,15 @@ public class GameSession {
 
             //TODO implement what will happen if the player wins
             System.out.print(GameWinner.getServerPlayerName() + "hat gewonnen");
-            // Handle game over (declare winner, etc.)
-            // TODO: SWITCH TO SCORE BOARD OR SHOW A DIALOG BOX
-            //
-            // This is just a placeholder
+            timeLeft = 0;
+
+            setBroadcastSent(BroadcastType.SWITCH_TO_RESULTS,true);
+            try {
+                broadcastSafeCommunication(BroadcastType.SWITCH_TO_RESULTS);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+
             return;
         }
         // broadCast StartGame
@@ -509,6 +514,9 @@ public class GameSession {
                                     break;
                                 case DRAWN_FOX_CARD:
                                     listener.drawnFoxCard(serverTable.getActiveSpielerID());
+                                    break;
+                                case SWITCH_TO_RESULTS:
+                                    listener.updateUI("switchToTable");
                                     break;
                                 case CARD_DISCARDED:
                                     listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(),serverTable.getEggPoints(),serverTable.getDiscardedSelectedCards());
