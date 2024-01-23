@@ -1,11 +1,13 @@
 package sharedClasses;
 
+import eoz.client.lobbyToTable.Card;
 import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.TableController;
 
 import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -141,6 +143,13 @@ public interface ClientInter extends Remote, Serializable {
      * @throws RemoteException if a remote communication error occurs.
      */
     void drawCard() throws RemoteException;
+
+    /**
+     * Lets a player discard a card
+     * @ The UUID of the current Client discarding the selected cards.
+     * @throws RemoteException if a remote communication error occurs.
+     */
+    void discardCard(ServerCard card) throws RemoteException;
 
     /**
      * Let a player draw a card as a round action.

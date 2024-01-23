@@ -300,7 +300,7 @@
                             <rowConstraints>
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
-                            <GridPane fx:id="player6LabelGrid" GridPane.columnIndex="4">
+                            <CardGridPane fx:id="player6LabelGrid" GridPane.columnIndex="4">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="57.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
@@ -319,8 +319,8 @@
                                         <Font size="36.0" />
                                     </font>
                                 </Label>
-                            </GridPane>
-                            <GridPane fx:id="player5LabelGrid" GridPane.columnIndex="2">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player5LabelGrid" GridPane.columnIndex="2">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="57.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
@@ -334,8 +334,8 @@
                                         <Font size="36.0" />
                                     </font>
                                 </Label>
-                            </GridPane>
-                            <GridPane fx:id="player4LabelGrid">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player4LabelGrid">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="57.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
@@ -349,7 +349,7 @@
                                         <Font size="36.0" />
                                     </font>
                                 </Label>
-                            </GridPane>
+                            </CardGridPane>
                             <Label fx:id="p5" text="Player 5" textFill="WHITE" GridPane.columnIndex="2">
                                 <font>
                                     <Font size="36.0" />
@@ -372,7 +372,7 @@
                             <rowConstraints>
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
-                            <GridPane fx:id="player3LabelGrid">
+                            <CardGridPane fx:id="player3LabelGrid">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="57.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
@@ -391,8 +391,8 @@
                                         <Font size="36.0" />
                                     </font>
                                 </Label>
-                            </GridPane>
-                            <GridPane fx:id="player1LabelGrid" GridPane.columnIndex="2">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player1LabelGrid" GridPane.columnIndex="2">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="57.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
@@ -411,8 +411,8 @@
                                         <Font size="36.0" />
                                     </font>
                                 </Label>
-                            </GridPane>
-                            <GridPane fx:id="player2LabelGrid" GridPane.columnIndex="4">
+                            </CardGridPane>
+                            <CardGridPane fx:id="player2LabelGrid" GridPane.columnIndex="4">
                                 <columnConstraints>
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="57.0" prefWidth="100.0" />
                                     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20.0" prefWidth="100.0" />
@@ -431,7 +431,7 @@
                                         <Font size="36.0" />
                                     </font>
                                 </Label>
-                            </GridPane>
+                            </CardGridPane>
                         </GridPane>
                     </GridPane>
                 </AnchorPane>
@@ -451,7 +451,7 @@
                     <Button fx:id="leaveLobbyButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="201.0" text="Leave Game" textAlignment="CENTER" GridPane.columnIndex="3" />
                     <Button fx:id="startButton" mnemonicParsing="false" onAction="#startGame" prefHeight="33.0" prefWidth="201.0" text="Start" textAlignment="CENTER" GridPane.columnIndex="4" />
                     <Button fx:id="takeRoosterButton" mnemonicParsing="false" onAction="#stealRooster" prefHeight="33.0" prefWidth="201.0" text="Take Rooster" textAlignment="CENTER" GridPane.columnIndex="2" />
-                    <Button fx:id="getEggsButton" mnemonicParsing="false" onAction="#getEggs" prefHeight="33.0" prefWidth="201.0" text="Get Eggs" textAlignment="CENTER" GridPane.columnIndex="1" />
+                    <Button fx:id="getEggsButton" mnemonicParsing="false" onAction="#auswahl" prefHeight="33.0" prefWidth="201.0" text="Get Eggs" textAlignment="CENTER" GridPane.columnIndex="1" />
                     <Button fx:id="drawCardButton" mnemonicParsing="false" onAction="#drawCard" prefHeight="33.0" prefWidth="201.0" text="Draw Card" textAlignment="CENTER" />
                 </GridPane>
             </AnchorPane>

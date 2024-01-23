@@ -1,6 +1,7 @@
 package rmi;
 
 import sharedClasses.ClientUIUpdateListener;
+import sharedClasses.ServerCard;
 import sharedClasses.ServerInter;
 import sharedClasses.ServerPlayer;
 
@@ -9,6 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -119,6 +121,11 @@ public class Server implements Remote, ServerInter {
     @Override
     public void drawCard(UUID clientId, UUID gameId) throws RemoteException {
         gameSessionManager.getGameSession(gameId).drawCard(clientId);
+    }
+
+    @Override
+    public void discardCard(ServerCard card, UUID clientId, UUID gameId) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).discardCard(card, clientId);
     }
 
     @Override

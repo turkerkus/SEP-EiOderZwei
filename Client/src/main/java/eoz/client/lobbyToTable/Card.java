@@ -47,5 +47,4 @@ public class Card extends ServerCard {
         return image;
     }
 
-
 }

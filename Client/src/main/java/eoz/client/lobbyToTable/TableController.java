@@ -2,10 +2,7 @@ package eoz.client.lobbyToTable;
 
 import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -15,44 +12,19 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
-import sharedClasses.ChatController;
-import sharedClasses.ChatObserver;
+import rmi.Server;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.URL;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class TableController implements Serializable, ChatObserver, Initializable {
-    //chat Vars start
-    private ChatObserver chatObserver;
-    private ChatController controller;
-    @FXML
-    public AnchorPane chatPane;
-    @FXML
-    public TextArea txtMsg;
-    @FXML
-    public ScrollPane scrollPane;
-    @FXML
-    public VBox chatBox;
-    @FXML
-    public Button btnSend;
-    @FXML
-    public TextFlow emojiList;
-    @FXML
-    public Button btnEmoji;
-    //Chat Vars end
+public class TableController implements Serializable {
+
     @FXML
     public Label p1;
     @FXML
@@ -66,6 +38,8 @@ public class TableController implements Serializable, ChatObserver, Initializabl
     @FXML
     public Label p3;
 
+    @FXML
+    public AnchorPane anchorPane1;
     @FXML
     public AnchorPane anchorPane2;
     @FXML
@@ -111,12 +85,12 @@ public class TableController implements Serializable, ChatObserver, Initializabl
     public Label pt3;
     public Label pt1;
     public Label pt2;
-    public GridPane player6LabelGrid;
-    public GridPane player5LabelGrid;
-    public GridPane player4LabelGrid;
-    public GridPane player3LabelGrid;
-    public GridPane player1LabelGrid;
-    public GridPane player2LabelGrid;
+    public CardGridPane player6LabelGrid;
+    public CardGridPane player5LabelGrid;
+    public CardGridPane player4LabelGrid;
+    public CardGridPane player3LabelGrid;
+    public CardGridPane player1LabelGrid;
+    public CardGridPane player2LabelGrid;
 
     private ImageView draggedImage;
     private CardGridPane sourceGridPane;
@@ -139,90 +113,6 @@ public class TableController implements Serializable, ChatObserver, Initializabl
     // Time left in seconds
 
     private Boolean isGameStarted = false;
-
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle){
-        for(Node text : emojiList.getChildren()){
-            text.setOnMouseClicked(event -> {
-                txtMsg.setText(txtMsg.getText()+ " " +((Text)text).getText());
-                emojiList.setVisible(false);
-            });
-        }
-        scrollPane.vvalueProperty().bind(chatBox.heightProperty());
-        try {
-            chatObserver = new ChatObserverImpl(this);
-            if(controller != null){
-                controller.addChatObserver(chatObserver);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public ChatObserver getChatObserver(){
-        return chatObserver;
-    }
-
-    @FXML
-    void emojiAction(ActionEvent event){
-        emojiList.setVisible(!emojiList.isVisible());
-    }
-
-    @FXML
-    void sendAction(ActionEvent event){
-        try{
-            if(txtMsg.getText().trim().equals(""))return;
-            controller.notifyAllClients(client.getClientName(), txtMsg.getText().trim());
-        } catch (RemoteException e){
-            e.printStackTrace();
-        }
-        txtMsg.setText("");
-        txtMsg.requestFocus();
-    }
-
-    @Override
-    public boolean update(String username, String message) throws RemoteException {
-        Text text = new Text(message);
-
-        text.setFill(Color.WHITE);
-        text.getStyleClass().add("message");
-        TextFlow tempFlow = new TextFlow();
-        if(!this.client.getClientName().equals(username)){
-            Text txtName = new Text(username + "\n");
-            tempFlow.getChildren().add(txtName);
-        }
-        tempFlow.getChildren().add(text);
-        tempFlow.setMaxWidth(200);
-
-        TextFlow flow = new TextFlow(tempFlow);
-
-        HBox hbox = new HBox(12);
-        if(!this.client.getClientName().equals(username)){
-            tempFlow.getStyleClass().add("tempFlowFlipped");
-            flow.getStyleClass().add("tempFlowFlipped");
-            chatBox.setAlignment(Pos.TOP_LEFT);
-            hbox.getChildren().add(flow);
-        } else{
-            text.setFill(Color.WHITE);
-            tempFlow.getStyleClass().add("tempFlow");
-            flow.getStyleClass().add("tempFlow");
-            hbox.setAlignment(Pos.BOTTOM_RIGHT);
-            hbox.getChildren().add(flow);
-        }
-        hbox.getStyleClass().add("hbox");
-        Platform.runLater(() -> chatBox.getChildren().addAll(hbox));
-
-
-        return true;
-    }
-
-    @Override
-    public String getUsername() throws RemoteException {
-        return client.getClientName();
-    }
-
 
 
     public Client getClient() {
@@ -279,7 +169,7 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                 {false, false, true, true, true}  // Case 6
         };
 
-        GridPane[][] playersLabelGrid = {
+        CardGridPane[][] playersLabelGrid = {
                 {},  // Case 0 (unused)
                 {},  // Case 1 (unused)
                 {player5LabelGrid},  // Case 2
@@ -327,6 +217,7 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                 player.setPlayerLabel(p1);
                 player1GridPane.setStartFromZero(false);
                 player1GridPane.setRow();
+                player1GridPane.updateNextAvailableCell();
                 player.setCardGridPane(player1GridPane);
                 player.setPlayerLabelGrid(player1LabelGrid);
                 player.setPlayerPointlabel(pt1);
@@ -339,6 +230,7 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                     player.setPlayerLabel(labelCases[numPlayers][nonHostPlayerIndex]);
                     gridPaneCases[numPlayers][nonHostPlayerIndex].setStartFromZero(startingIndex);
                     gridPaneCases[numPlayers][nonHostPlayerIndex].setRow();
+                    gridPaneCases[numPlayers][nonHostPlayerIndex].updateNextAvailableCell();
 
                     // assign the gridPane to the player
                     player.setCardGridPane(gridPaneCases[numPlayers][nonHostPlayerIndex]);
@@ -625,8 +517,8 @@ public class TableController implements Serializable, ChatObserver, Initializabl
 
     }
 
-    public ArrayList<Card> auswahl() {
-        ArrayList<Card> selectedCards = new ArrayList<>();
+    public ArrayList<ServerCard> auswahl() {
+        ArrayList<ServerCard> selectedCards = new ArrayList<>();
 
         UUID clientId = client.getClientId();
         Spieler player = players.get(clientId);
@@ -635,17 +527,17 @@ public class TableController implements Serializable, ChatObserver, Initializabl
         for (Node node : grid.getChildren()) {
             node.setOnMouseClicked(e->{
                 if (node instanceof ImageView) {
-                    ServerCard serverCard = (ServerCard) node.getUserData();
-                    Card card = convertCard(serverCard);
+                    ServerCard card = (ServerCard) node.getUserData();
                     selectedCards.add(card);
                 }
             });
         }
-        for (Card c : selectedCards){
+        for (ServerCard c : selectedCards){
             if (!Objects.equals(c.getType(), "Korn")||!Objects.equals(c.getType(), "BKorn")){
                 auswahl(); //nochmal auswählen, falls keine Kornkarte ausgewählt wird mit Alert
             }
         }
+        System.out.println(selectedCards);
         return selectedCards;
     }
 
@@ -657,13 +549,15 @@ public class TableController implements Serializable, ChatObserver, Initializabl
             try {
                 if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
                     // TODO check if current player has enough corn to exchange for eggs
-                    //Spieler player = players.get(client.getClientId());
-                    ArrayList<Card> selected = auswahl();
+                    Spieler player = players.get(client.getClientId());
+
+                    ArrayList<ServerCard> selected = auswahl();
                     int kornzahl = 0;
                     int bkornzahl = 0;
                     int kornzahlwert = 0;
                     int bkornzahlwert = 0;
-                    for (Card c:selected){
+
+                    for (ServerCard c:selected){
                         if(c.getType().equals("Korn")){
                             kornzahl +=1;
                         }
@@ -671,7 +565,7 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                             bkornzahl +=1;
                         }
                     }
-                    for (Card c:selected){
+                    for (ServerCard c:selected){
                         if(kornzahl==0&&bkornzahl>=1){
                             bkornzahlwert +=c.getValue();
                         }
@@ -688,11 +582,11 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                         int rest = 0;
                         if(bkornzahlwert > 0){
                             eier = (int) Math.floor(bkornzahlwert/5)*2;
-                            
+                            player.setPunkte(player.getPunkte()+eier);
                             rest=selected.size() - eier;
-                                for(Card c: selected){
+                                for(ServerCard c: selected){
                                     if(eier>=0){
-                                        c.setImage(); //zu Ei setten
+                                        c.setCovered(true);
                                         eier-=1;
                                     }
                                     else{
@@ -704,19 +598,33 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                         }
                         else{
                             eier = (int) Math.floor(bkornzahlwert / 5);
+                            player.setPunkte(player.getPunkte()+eier);
                             rest = selected.size() - eier;
-                              for(Card c : selected){
-                                  if(eier>=0){
-                                      c.setImage(); //zu Ei setten
+                              for(ServerCard c : selected){
+                                  if(eier>0){
+                                      c.setCovered(true); //zu Ei setten
                                       eier-=1;
+
                                   }
                                   else{
                                       break;
                                   }
                               }
+                            for(int i=selected.size()-1;i<=0; i--){
+                                if(rest>0){
+                                    ServerCard c= selected.get(i);
+                                    rest-=1;
+
+                                }
+                            }
                         }
                         client.karteUmtauschen();
+                        for (ServerCard card : selected){
+                            client.discardCard(card);
+                        }
+
                     }
+
                     else{
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Illegal Move");
@@ -841,7 +749,7 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                 player.raisePunkte();
                 ServerCard kuckuckCard = player.getKuckuckCard();
                 player.removeCard(kuckuckCard.getCardCell(), null, "Kuckuck");
-                players.get(playerId).reorganizeGridPane();
+
             }
         });
 
@@ -870,6 +778,12 @@ public class TableController implements Serializable, ChatObserver, Initializabl
                     }
                 });
             }
+        });
+    }
+
+    public void cardDiscarded (UUID playerID, ServerCard card) {
+        Platform.runLater(() -> {
+           players.get(playerID).removeCard(card.getCardCell(), card.getServeCardID(), card.getType());
         });
     }
 

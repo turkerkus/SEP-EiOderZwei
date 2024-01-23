@@ -125,5 +125,10 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     public void drawnFoxCard (UUID playerID) throws RemoteException {
         tableController.drawnFoxCard(playerID);
     }
+
+    @Override
+    public void cardDiscarded(UUID playerID, ServerCard card) throws RemoteException {
+        tableController.cardDiscarded(playerID, card);
+    }
 }
 
