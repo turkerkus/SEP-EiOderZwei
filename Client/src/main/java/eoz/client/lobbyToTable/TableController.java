@@ -85,12 +85,12 @@ public class TableController implements Serializable {
     public Label pt3;
     public Label pt1;
     public Label pt2;
-    public GridPane player6LabelGrid;
-    public GridPane player5LabelGrid;
-    public GridPane player4LabelGrid;
-    public GridPane player3LabelGrid;
-    public GridPane player1LabelGrid;
-    public GridPane player2LabelGrid;
+    public CardGridPane player6LabelGrid;
+    public CardGridPane player5LabelGrid;
+    public CardGridPane player4LabelGrid;
+    public CardGridPane player3LabelGrid;
+    public CardGridPane player1LabelGrid;
+    public CardGridPane player2LabelGrid;
 
     private ImageView draggedImage;
     private CardGridPane sourceGridPane;
@@ -169,7 +169,7 @@ public class TableController implements Serializable {
                 {false, false, true, true, true}  // Case 6
         };
 
-        GridPane[][] playersLabelGrid = {
+        CardGridPane[][] playersLabelGrid = {
                 {},  // Case 0 (unused)
                 {},  // Case 1 (unused)
                 {player5LabelGrid},  // Case 2
@@ -217,6 +217,7 @@ public class TableController implements Serializable {
                 player.setPlayerLabel(p1);
                 player1GridPane.setStartFromZero(false);
                 player1GridPane.setRow();
+                player1GridPane.updateNextAvailableCell();
                 player.setCardGridPane(player1GridPane);
                 player.setPlayerLabelGrid(player1LabelGrid);
                 player.setPlayerPointlabel(pt1);
@@ -229,6 +230,7 @@ public class TableController implements Serializable {
                     player.setPlayerLabel(labelCases[numPlayers][nonHostPlayerIndex]);
                     gridPaneCases[numPlayers][nonHostPlayerIndex].setStartFromZero(startingIndex);
                     gridPaneCases[numPlayers][nonHostPlayerIndex].setRow();
+                    gridPaneCases[numPlayers][nonHostPlayerIndex].updateNextAvailableCell();
 
                     // assign the gridPane to the player
                     player.setCardGridPane(gridPaneCases[numPlayers][nonHostPlayerIndex]);
@@ -747,7 +749,7 @@ public class TableController implements Serializable {
                 player.raisePunkte();
                 ServerCard kuckuckCard = player.getKuckuckCard();
                 player.removeCard(kuckuckCard.getCardCell(), null, "Kuckuck");
-                players.get(playerId).reorganizeGridPane();
+
             }
         });
 

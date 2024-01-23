@@ -28,13 +28,13 @@ public class Spieler extends ServerPlayer {
         return playerLabelGrid;
     }
 
-    public void setPlayerLabelGrid(GridPane playerLabelGrid) {
+    public void setPlayerLabelGrid(CardGridPane playerLabelGrid) {
         this.playerLabelGrid = playerLabelGrid;
     }
 
     private Label playerPointlabel;
 
-    private GridPane playerLabelGrid;
+    private CardGridPane playerLabelGrid;
 
     public Label getPlayerLabel() {
         return playerLabel;
@@ -74,10 +74,10 @@ public class Spieler extends ServerPlayer {
                 cardView.setFitHeight(50);
                 cardView.setFitWidth(80);
                 // add card to grid pane
-                this.playerLabelGrid.add(cardView,1,0);
+                this.playerLabelGrid.addRoosterCard(cardView);
 
             }else {
-                this.playerLabelGrid.getChildren().remove(1,0);
+                this.playerLabelGrid.removeRoosterCard();
             }
         });
 
@@ -108,9 +108,11 @@ public class Spieler extends ServerPlayer {
     public void addCard(Card card, ServerCard servercard){
         //set the cell of the card
         int[] nextCell = this.cardGridPane.getNextAvailableCell();
+
         servercard.setCardCell(nextCell);
         int row = nextCell[0];
         int col = nextCell[1];
+
         // add the card to the hand
         super.addCard(servercard);
 
@@ -122,6 +124,7 @@ public class Spieler extends ServerPlayer {
 
         // add card to grid pane
         this.cardGridPane.addCard(cardView,row,col);
+        reorganizeGridPane();
     }
 
     public void removeCard (int[] cell ,UUID cardID, String cardType){
@@ -139,16 +142,17 @@ public class Spieler extends ServerPlayer {
 
         // remove the card
         cardGridPane.removeCard(card);
+        reorganizeGridPane();
 
     }
 
     public  void reorganizeGridPane() {
-        int numRows = cardGridPane.getRowCount();
-        int numCols = cardGridPane.getColumnCount();
+        int StartRows = cardGridPane.getStartRow();
+        int endRow = cardGridPane.getEndRow();
         int index = 0;
 
-        for (int row = 1; row <= 4; row++) {
-            for (int col = 0; col <= 4; col++) {
+        for (int row = StartRows; row <= endRow; row++) {
+            for (int col = 0; col <= 5; col++) {
                 if (index >= cardGridPane.getChildren().size()) {
                     return; // Exit if all nodes have been reorganized
                 }
@@ -162,5 +166,6 @@ public class Spieler extends ServerPlayer {
                 index++;
             }
         }
+        cardGridPane.updateNextAvailableCell();
     }
 }

@@ -18,12 +18,23 @@ public class CardGridPane extends GridPane {
 
     private boolean startFromZero = true;
 
-    private int startRow = 0;
-    private int endRow = 5;
+    public int getStartRow() {
+        return startRow;
+    }
+
+    public int getEndRow() {
+        return endRow;
+    }
+
+    private int startRow ;
+    private int endRow ;
 
     public void setRow(){
-        if (!startFromZero){
+        if (startFromZero){
             this.startRow = 1;
+            this.endRow = 5;
+        } else {
+            this.startRow = 0;
             this.endRow = 4;
         }
     }
@@ -101,8 +112,21 @@ public class CardGridPane extends GridPane {
      */
     public void removeRoosterCard() {
         // Check if cell (1, 0) contains a rooster card
+        int row = 0;            // Default row for the rooster card
+        int col = 1;            // Default column for the rooster card
+        for (Node node : this.getChildren()) {
+            if (GridPane.getRowIndex(node) != null && GridPane.getColumnIndex(node) != null) {
+                if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
+                    // Remove the node from the GridPane
+                    this.getChildren().remove(node);
+                    break; // Exit the loop after removing the node
+                }
+            }
+        }
+
+        /*
         if (isCellOccupied(1, 0)) {
-            Node roosterCard = getCardInCell(getCellKey(1, 0));
+            Node roosterCard = getCardInCell(getCellKey(0, 1));
 
             //get the last card
             int[] nextCell = getNextAvailableCell();
@@ -120,6 +144,7 @@ public class CardGridPane extends GridPane {
             }
 
         }
+         */
     }
 
 
@@ -143,9 +168,12 @@ public class CardGridPane extends GridPane {
      * @param roosterCard The Node representing the rooster card to be added.
      */
     public void addRoosterCard(Node roosterCard) {
-        int row = 1;            // Default row for the rooster card
-        int col = 0;            // Default column for the rooster card
+        int row = 0;            // Default row for the rooster card
+        int col = 1;            // Default column for the rooster card
+
+        /*
         Node existingCard;   // Stores any existing card in cell (1, 0)
+
 
         // Check if cell (1, 0) is occupied with a card
         if (isCellOccupied(1, 0)) {
@@ -166,6 +194,8 @@ public class CardGridPane extends GridPane {
             // Add the existing card to the next available cell
             this.add(existingCard, row, col);
         }
+
+         */
 
         // Add the rooster card to its designated cell
         this.addCard(roosterCard, row, col);
