@@ -12,9 +12,9 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import rmi.Server;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
@@ -22,6 +22,9 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class TableController implements Serializable {
 
@@ -140,7 +143,7 @@ public class TableController implements Serializable {
         }
 
         //set the labels to ""
-        Label[] labels = new Label[]{ p2, p3, p4, p5, p6, pt2, pt3, pt4, pt5, pt6,};
+        Label[] labels = new Label[]{p2, p3, p4, p5, p6, pt2, pt3, pt4, pt5, pt6,};
         // Set all labels to empty initially
         for (Label label : labels) {
             label.setText("");
@@ -205,7 +208,7 @@ public class TableController implements Serializable {
         gridPanesList.add(player1GridPane);
         // Setup drag and drop for each player grid pane
         setupGridPaneForDrop(player1GridPane);
-        
+
 
         // Iterate over players and assign labels and grid panes
         int nonHostPlayerIndex = 0;
@@ -238,7 +241,7 @@ public class TableController implements Serializable {
 
                     // set the player pt label
                     pointLabels[numPlayers][nonHostPlayerIndex].setText("Pt: 0");
-                    
+
                     player.setPlayerPointlabel(pointLabels[numPlayers][nonHostPlayerIndex]);
 
 
@@ -377,7 +380,6 @@ public class TableController implements Serializable {
     }
 
 
-
     /**
      * Sets up drag events for a given ImageView representing a card.
      *
@@ -441,6 +443,7 @@ public class TableController implements Serializable {
                 // Add image to the target grid pane at the same cell
                 // If dropping on an empty grid cell, you might need to calculate the cell
                 // indices based on drop location
+                //TODO CHECK THIS FOR THE DRAG FEATURE
                 gridPane.addCard(draggedImage, rowIndex, colIndex);
 
                 success = true;
@@ -517,121 +520,145 @@ public class TableController implements Serializable {
 
     }
 
-    public ArrayList<ServerCard> auswahl() {
-        ArrayList<ServerCard> selectedCards = new ArrayList<>();
-
-        UUID clientId = client.getClientId();
-        Spieler player = players.get(clientId);
-        CardGridPane grid = player.getCardGridPane();
-
-        for (Node node : grid.getChildren()) {
-            node.setOnMouseClicked(e->{
-                if (node instanceof ImageView) {
-                    ServerCard card = (ServerCard) node.getUserData();
-                    selectedCards.add(card);
-                }
-            });
+    private void handleCardClick(ImageView imageView) {
+        ServerCard card = (ServerCard) imageView.getUserData();
+        // Toggle selection
+        if (selectedCards.contains(card)) {
+            selectedCards.remove(card);
+            imageView.setStyle(""); // Reset style for unselected card
+        } else {
+            selectedCards.add(card);
+            imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(30, 30, 133, 1), 10, 0, 0, 0)"); // Style for selected card
         }
-        for (ServerCard c : selectedCards){
-            if (!Objects.equals(c.getType(), "Korn")||!Objects.equals(c.getType(), "BKorn")){
-                auswahl(); //nochmal auswählen, falls keine Kornkarte ausgewählt wird mit Alert
+
+
+    }
+
+    private CardGridPane cloneGridPaneWithImageViews(CardGridPane originalGridPane) {
+        CardGridPane clonedGridPane = new CardGridPane();
+        for (Node node : originalGridPane.getChildren()) {
+            if (node instanceof ImageView) {
+                ImageView originalImageView = (ImageView) node;
+                ImageView clonedImageView = new ImageView(originalImageView.getImage());
+
+                // Set a maximum width and height for the clonedImageView
+                clonedImageView.setFitWidth(80); // Adjust the values as needed
+                clonedImageView.setFitHeight(50);
+                ServerCard card = (ServerCard) originalImageView.getUserData();
+                clonedImageView.setUserData(card); // Preserve the card data
+                if (Objects.equals(card.getType(), "Koerner") || Objects.equals(card.getType(), "BioKoerner")) {
+                    clonedImageView.setOnMouseClicked(event -> handleCardClick(clonedImageView));
+                }
+                // Add clonedImageView to the clonedGridPane at the same position as the original
+                clonedGridPane.add(clonedImageView, GridPane.getColumnIndex(originalImageView), GridPane.getRowIndex(originalImageView));
             }
         }
-        System.out.println(selectedCards);
-        return selectedCards;
+        return clonedGridPane;
     }
 
 
+    ArrayList<ServerCard> selectedCards;
+
+    public void auswahl() {
+
+
+        UUID clientId = client.getClientId();
+        Spieler player = players.get(clientId);
+        CardGridPane sourceGridPane = cloneGridPaneWithImageViews(player.getCardGridPane());
+
+        // Create the dialog
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Card Selection");
+        dialog.setHeaderText("Select Cards");
+
+        // Dialog content
+        VBox dialogContent = new VBox(10);
+        dialogContent.getChildren().add(sourceGridPane);
+
+
+        // Add confirm and cancel buttons
+        ButtonType confirmButtonType = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
+
+        // Set content
+        dialog.getDialogPane().setContent(dialogContent);
+
+        // Handle the confirmation action
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == confirmButtonType) {
+                dialog.close();
+            }
+            return null;
+        });
+
+        // Show dialog
+        dialog.showAndWait();
+
+    }
+
+    public ArrayList<Integer> calculateEggPoints(ArrayList<ServerCard> selectedCards) {
+        int kornzahl = 0;
+        int bkornzahl = 0;
+        int kornzahlwert = 0;
+        int bKornzahlwert = 0;
+        int eggPoints = 0;
+
+        for (ServerCard c : selectedCards) {
+            if (c.getType().equals("Koerner")) {
+                kornzahl += 1;
+            } else {
+                bkornzahl += 1;
+            }
+        }
+
+        for (ServerCard c : selectedCards) {
+            if (kornzahl == 0 && bkornzahl >= 1) {      //nur Biokörner
+                bKornzahlwert += c.getValue();
+            } else {                              //normale oder gemischte Körner
+                kornzahlwert += c.getValue();
+
+            }
+        }
+
+
+        // Calculate the total value for Koerner and BioKoerner cards
+
+
+        // Each egg needs at least five seeds, organic grains count double
+        // Every 5 grains make an egg, and every 5 organic grains make two eggs
+        eggPoints += (int) Math.floor(kornzahlwert / 5);
+        eggPoints += (int) Math.floor(bKornzahlwert / 5) * 2;
+
+
+
+
+        return new ArrayList<>(Arrays.asList(eggPoints, kornzahlwert, bKornzahlwert));
+    }
 
 
     public void getEggs() {
         Platform.runLater(() -> {
             try {
                 if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-                    // TODO check if current player has enough corn to exchange for eggs
-                    Spieler player = players.get(client.getClientId());
+                    selectedCards = new ArrayList<>();
+                    auswahl();
+                    ArrayList<Integer> points = calculateEggPoints(selectedCards);
+                    Integer eggPoints = points.get(0);
+                    Integer kornzahlwert = points.get(1);
+                    Integer bKornzahlwert = points.get(2);
 
-                    ArrayList<ServerCard> selected = auswahl();
-                    int kornzahl = 0;
-                    int bkornzahl = 0;
-                    int kornzahlwert = 0;
-                    int bkornzahlwert = 0;
+                    //TODO: ask if we will get any card from the ablageDeck
 
-                    for (ServerCard c:selected){
-                        if(c.getType().equals("Korn")){
-                            kornzahl +=1;
-                        }
-                        else{
-                            bkornzahl +=1;
-                        }
-                    }
-                    for (ServerCard c:selected){
-                        if(kornzahl==0&&bkornzahl>=1){
-                            bkornzahlwert +=c.getValue();
-                        }
-                        else {
-                            kornzahlwert +=c.getValue();
+                    if (kornzahlwert >= 5 || bKornzahlwert >= 5) {
+                        client.karteUmtauschen(eggPoints, selectedCards);
 
-                        }
-                    }
-
-
-
-                    if (kornzahlwert >= 5|| bkornzahlwert>=5){//TODO delete after
-                        int eier = 0;
-                        int rest = 0;
-                        if(bkornzahlwert > 0){
-                            eier = (int) Math.floor(bkornzahlwert/5)*2;
-                            player.setPunkte(player.getPunkte()+eier);
-                            rest=selected.size() - eier;
-                                for(ServerCard c: selected){
-                                    if(eier>=0){
-                                        c.setCovered(true);
-                                        eier-=1;
-                                    }
-                                    else{
-                                        break;
-                                }
-                        }
-
-
-                        }
-                        else{
-                            eier = (int) Math.floor(bkornzahlwert / 5);
-                            player.setPunkte(player.getPunkte()+eier);
-                            rest = selected.size() - eier;
-                              for(ServerCard c : selected){
-                                  if(eier>0){
-                                      c.setCovered(true); //zu Ei setten
-                                      eier-=1;
-
-                                  }
-                                  else{
-                                      break;
-                                  }
-                              }
-                            for(int i=selected.size()-1;i<=0; i--){
-                                if(rest>0){
-                                    ServerCard c= selected.get(i);
-                                    rest-=1;
-
-                                }
-                            }
-                        }
-                        client.karteUmtauschen();
-                        for (ServerCard card : selected){
-                            client.discardCard(card);
-                        }
-
-                    }
-
-                    else{
+                    } else {
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
                         alert.setTitle("Illegal Move");
                         alert.setHeaderText("Not enough corns!");
                         alert.setContentText("5 or more corns are needed to lay eggs.");
                         alert.showAndWait();
-                    };
+                    }
                 } else {
                     // Create an alert to inform the player that it's not their turn
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -656,7 +683,7 @@ public class TableController implements Serializable {
         Spieler player = players.get(clientId);
         try {
             if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-                ServerPlayer roosterPlayer = client.getRoosterPlayer();
+                Spieler roosterPlayer = players.get(client.getRoosterPlayer().getServerPlayerId()) ;
                 Integer roosterPlayerPoint = roosterPlayer.getPunkte();
                 if (player.getPunkte() < roosterPlayerPoint && !player.hatHahnKarte()) {
                     client.hahnKlauen();
@@ -726,21 +753,22 @@ public class TableController implements Serializable {
     }
 
 
-    public void drawnKuckuckCard(UUID playerId){
+    public void drawnKuckuckCard(UUID playerId) {
         Platform.runLater(() -> {
-            if (Objects.equals(playerId, client.getClientId())){
+            Spieler player = players.get(playerId);
+            if (Objects.equals(playerId, client.getClientId())) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("A Kuckuck card!");
                 alert.setHeaderText("Congratulations!");
                 alert.setContentText("You have drawn a Kuckuck card. Your egg-Score has been increased by 1!");
                 alert.showAndWait();
-                Spieler player = players.get(playerId);
+
                 player.raisePunkte();
                 ServerCard kuckuckCard = player.getKuckuckCard();
-                player.removeCard(kuckuckCard.getCardCell(), null, "Kuckuck");
-                players.get(playerId).reorganizeGridPane();
+                removeMultipleCards(playerId, new ArrayList<>(Collections.singletonList(kuckuckCard)));
+
+
             } else {
-                Spieler player = players.get(playerId);
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("A Kuckuck card!");
                 alert.setHeaderText(player.getServerPlayerName() + " has drawn a Kuckuck card!");
@@ -748,16 +776,16 @@ public class TableController implements Serializable {
                 alert.showAndWait();
                 player.raisePunkte();
                 ServerCard kuckuckCard = player.getKuckuckCard();
-                player.removeCard(kuckuckCard.getCardCell(), null, "Kuckuck");
-
+                removeMultipleCards(playerId, new ArrayList<>(Collections.singletonList(kuckuckCard)));
             }
+
         });
 
     }
 
-    public void drawnFoxCard(UUID playerID){
+    public void drawnFoxCard(UUID playerID) {
         Platform.runLater(() -> {
-            if (Objects.equals(playerID, client.getClientId())){
+            if (Objects.equals(playerID, client.getClientId())) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("A Fox Card");
                 alert.setHeaderText("You have drawn a Fox Card");
@@ -781,10 +809,70 @@ public class TableController implements Serializable {
         });
     }
 
-    public void cardDiscarded (UUID playerID, ServerCard card) {
+    public void cardDiscarded(UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> discardedCards) {
         Platform.runLater(() -> {
-           players.get(playerID).removeCard(card.getCardCell(), card.getServeCardID(), card.getType());
+            Spieler player = players.get(playerID);
+
+            if (Objects.equals(playerID, client.getClientId())) {
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Eggs has been laid");
+                alert.setHeaderText("You has laid eggs successfully!");
+                alert.setContentText(" Your egg-Score has been increased by " + eggPoints + "!");
+                alert.showAndWait();
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Eggs has been laid");
+                alert.setHeaderText(player.getServerPlayerName() + " has laid eggs!");
+                alert.setContentText(player.getServerPlayerName() + "'s egg-Score has been increased by " + eggPoints + "!");
+                alert.showAndWait();
+
+            }
+            player.increasePointsBy(eggPoints);
+
+            // remove the cards
+            removeMultipleCards(playerID,discardedCards);
+
+
+            //display the discarded card on the AblageDeck
+            Card newDiscardcard = convertCard(discardedCard);
+            // Create a new card ImageView for distribution
+            ImageView cardView = new ImageView(newDiscardcard.getImage());
+            cardView.setFitHeight(89);
+            cardView.setFitWidth(97);
+            mainCardsGridPane.add(cardView, 0, 0);
+
+
+
         });
+    }
+
+    public void removeMultipleCards(UUID playerID, ArrayList<ServerCard> discardedCards){
+        // Executor to schedule card removal with delays
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+
+        // Schedule the card removal with a delay
+        int delay = 0; // Initial delay
+        for (ServerCard card : discardedCards) { // No need to create a new ArrayList here
+            executorService.schedule(() -> Platform.runLater(() -> players.get(playerID).removeCard(card)), delay, TimeUnit.SECONDS);
+            delay += 1; // Increment delay for the next card
+        }
+
+        // Ensure the executor service is properly shutdown after all tasks
+        executorService.schedule(() -> {
+            // Reorganize the GridPane after all removals are complete
+            Platform.runLater(() -> players.get(playerID).reorganizeGridPane());
+            executorService.shutdown();
+        }, delay + 1, TimeUnit.SECONDS); // Schedule this after the last removal
+
+    }
+
+    public void sendAction(){
+
+    }
+
+    public void emojiAction(){
+
     }
 
 

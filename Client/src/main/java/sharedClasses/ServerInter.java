@@ -1,12 +1,8 @@
 package sharedClasses;
 
-import eoz.client.lobbyToTable.Card;
-import rmi.Server;
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -128,14 +124,6 @@ public interface ServerInter extends Remote {
      */
     void drawCard(UUID clientId, UUID gameId) throws RemoteException;
 
-    /**
-     *
-     * @param card The card to discard.
-     * @param clientId The Client who wants to discard.
-     * @param gameId The UUID of the game where this is happening.
-     * @throws RemoteException if a remote communication error occurs.
-     */
-    void discardCard(ServerCard card, UUID clientId, UUID gameId) throws RemoteException;
 
     /**
      * Lets a player steal a rooter card .
@@ -153,7 +141,7 @@ public interface ServerInter extends Remote {
      * @param gameId the UUID of the game session the client is in
      * @throws RemoteException if a remote communication error occurs.
      */
-    void karteUmtauschen(UUID clientId, UUID gameId) throws RemoteException;
+    void karteUmtauschen(UUID clientId, UUID gameId, Integer eggPoints,ArrayList<ServerCard> selectedCards ) throws RemoteException;
 
     ServerPlayer getRoosterPlayer(UUID gameId) throws RemoteException;
 

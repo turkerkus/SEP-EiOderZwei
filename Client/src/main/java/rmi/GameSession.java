@@ -378,7 +378,7 @@ public class GameSession {
     private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
         serverTable.karteZiehen(player.getServerPlayerId());
         checkDrawnCard(player.getServerPlayerId());
-        System.out.println(player.toString() + " has the ?  " + player.hatHahnKarte());
+
     }
 
 
@@ -407,8 +407,7 @@ public class GameSession {
 
     public void discardCard(ServerCard card, UUID clientId) throws RemoteException {
         serverTable.karteAblegen(clientId, card);
-        setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
-        broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
+
     }
 
     /**
@@ -431,7 +430,23 @@ public class GameSession {
      * @param clientId The UUID of the current Client drawing the card.
      * @throws RemoteException if a remote communication error occurs.
      */
-    void karteUmtauschen(UUID clientId) throws RemoteException{
+    void karteUmtauschen(UUID clientId, Integer eggPoints, ArrayList<ServerCard> selectedCards ) throws RemoteException{
+        // discard all the cards on the serverTable
+        for (ServerCard serverCard : selectedCards){
+            serverTable.karteAblegen(clientId,serverCard);
+        }
+        serverTable.getPlayer(clientId).setPunkte(eggPoints);
+        serverTable.setEggPoints(eggPoints)  ;
+        serverTable.setDiscardedSelectedCards(selectedCards);
+        System.out.println("egg points: "+serverTable.getEggPoints());
+        //TODO REMOVE THIS
+        for (ServerCard element : selectedCards) {
+            System.out.println(element.toString());
+        }
+
+        setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
+        broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
+        endPlayerTurn();
 
     }
 
@@ -496,7 +511,7 @@ public class GameSession {
                                     listener.drawnFoxCard(serverTable.getActiveSpielerID());
                                     break;
                                 case CARD_DISCARDED:
-                                    listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded());
+                                    listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(),serverTable.getEggPoints(),serverTable.getDiscardedSelectedCards());
                                 // Add cases for other BroadcastTypes if needed
                             }
                             success = true;

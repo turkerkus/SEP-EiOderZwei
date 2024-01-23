@@ -1,10 +1,13 @@
 package eoz.client.lobbyToTable;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class CardGridPane extends GridPane {
     // This map will hold the occupancy status for each cell
@@ -42,7 +45,7 @@ public class CardGridPane extends GridPane {
     public CardGridPane() {
         // Assuming the grid has rows 0-5 and columns 0-5
         // We only allow card placement in rows 1-4 and columns 0-4
-        for (int row = startRow; row <= endRow; row++) {
+for (int row = startRow; row <= endRow; row++) {
             for (int col = 0; col <= 5; col++) {
                 cellOccupancy.put(getCellKey(row, col), false);
             }
@@ -63,6 +66,8 @@ public class CardGridPane extends GridPane {
 
         Integer key = getCellKey(row, col);
         if (cellOccupancy.get(key) == null || !cellOccupancy.get(key)) {
+            //TODO REMOVE
+            System.out.println(row +" ," + col);
             this.add(card, col, row);
             cellOccupancy.put(key, true);
             updateNextAvailableCell();
@@ -110,41 +115,23 @@ public class CardGridPane extends GridPane {
      * Removes the rooster card from the cell (1, 0) if it exists.
      * If the cell (1, 0) is empty or contains a different card, no action is taken.
      */
-    public void removeRoosterCard() {
-        // Check if cell (1, 0) contains a rooster card
-        int row = 0;            // Default row for the rooster card
-        int col = 1;            // Default column for the rooster card
-        for (Node node : this.getChildren()) {
-            if (GridPane.getRowIndex(node) != null && GridPane.getColumnIndex(node) != null) {
-                if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
-                    // Remove the node from the GridPane
-                    this.getChildren().remove(node);
-                    break; // Exit the loop after removing the node
+    public void removeRoosterCard(UUID hahnCardID ) {
+        Platform.runLater(() -> {
+            // Iterate through the children of the playerLabelGrid
+            for (Node node : this.getChildren()) {
+                if (node instanceof ImageView) {
+                    ImageView imageView = (ImageView) node;
+                    String cardId = imageView.getId();
+
+                    // Check if the cardId matches the hahnCardID
+                    if (cardId != null && cardId.equals(hahnCardID.toString())) {
+                        // Remove the matching ImageView from the playerLabelGrid
+                        this.getChildren().remove(imageView);
+                        break; // Exit the loop after removing the card
+                    }
                 }
             }
-        }
-
-        /*
-        if (isCellOccupied(1, 0)) {
-            Node roosterCard = getCardInCell(getCellKey(0, 1));
-
-            //get the last card
-            int[] nextCell = getNextAvailableCell();
-            int row = nextCell[0];
-            int col = nextCell[1];
-            Node lastCard = getCardInCell(getCellKey(row, col));
-
-
-            // Remove the rooster card from cell (1, 0)
-            removeCard(roosterCard);
-
-            // Put the last card at the first cell
-            if (lastCard != null){
-                addCard(lastCard, 1,0);
-            }
-
-        }
-         */
+        });
     }
 
 
@@ -170,32 +157,6 @@ public class CardGridPane extends GridPane {
     public void addRoosterCard(Node roosterCard) {
         int row = 0;            // Default row for the rooster card
         int col = 1;            // Default column for the rooster card
-
-        /*
-        Node existingCard;   // Stores any existing card in cell (1, 0)
-
-
-        // Check if cell (1, 0) is occupied with a card
-        if (isCellOccupied(1, 0)) {
-            // Get the existing card in cell (1, 0)
-            existingCard = getCardInCell(getCellKey(1, 0));
-
-            // Remove the existing card from cell (1, 0)
-            removeCard(existingCard);
-
-            // Add the provided rooster card to cell (1, 0)
-            this.add(roosterCard, 1, 0);
-
-            // Find the next available cell for the existing card
-            int[] nextCell = getNextAvailableCell();
-            row = nextCell[0];
-            col = nextCell[1];
-
-            // Add the existing card to the next available cell
-            this.add(existingCard, row, col);
-        }
-
-         */
 
         // Add the rooster card to its designated cell
         this.addCard(roosterCard, row, col);

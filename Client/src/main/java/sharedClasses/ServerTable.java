@@ -207,6 +207,24 @@ public class ServerTable implements Serializable {
         return nachzieheDeck;
     }
 
+    public ArrayList<ServerCard> getDiscardedSelectedCards() {
+        return discardedSelectedCards;
+    }
+
+    public void setDiscardedSelectedCards(ArrayList<ServerCard> discardedSelectedCards) {
+        this.discardedSelectedCards = discardedSelectedCards;
+    }
+
+    public Integer getEggPoints() {
+        return eggPoints;
+    }
+
+    public void setEggPoints(Integer eggPoints) {
+        this.eggPoints = eggPoints;
+    }
+
+    private ArrayList<ServerCard> discardedSelectedCards ;
+    private Integer eggPoints;
     public ServerCard getDiscarded() {
         return ablageDeck.getTopCard();
     }

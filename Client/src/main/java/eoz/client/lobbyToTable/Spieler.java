@@ -8,6 +8,9 @@ import javafx.scene.layout.GridPane;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Spieler extends ServerPlayer {
@@ -61,23 +64,24 @@ public class Spieler extends ServerPlayer {
         return cardGridPane;
     }
 
+    private UUID hahnCardID = UUID.randomUUID();
 
     @Override
     public void setHahnKarte(boolean hahnKarte) {
         super.setHahnKarte(hahnKarte);
-        Platform.runLater(()->{
-            if (hahnKarte){
-
-                Card hahnServerCard = new Card( "Hahn",  0, false);
-                // Create a new card ImageView for distribution
+        Platform.runLater(() -> {
+            if (hahnKarte) {
+                // Add the rooster card ImageView to the grid
+                Card hahnServerCard = new Card("Hahn", 0, false);
                 ImageView cardView = new ImageView(hahnServerCard.getImage());
+                cardView.setId(hahnCardID.toString());
                 cardView.setFitHeight(50);
                 cardView.setFitWidth(80);
-                // add card to grid pane
-                this.playerLabelGrid.addRoosterCard(cardView);
-
-            }else {
-                this.playerLabelGrid.removeRoosterCard();
+                playerLabelGrid.add(cardView, 1, 0); // col=1, row=0
+            } else {
+                // Remove the rooster card ImageView from the grid
+                playerLabelGrid.getChildren().removeIf(node ->
+                        node instanceof ImageView && node.getId().equals(hahnCardID.toString()));
             }
         });
 
@@ -118,6 +122,7 @@ public class Spieler extends ServerPlayer {
 
         // Create a new card ImageView for distribution
         ImageView cardView =  new ImageView(card.getImage());
+        cardView.setId(servercard.getServeCardID().toString());
         cardView.setUserData(servercard);
         cardView.setFitHeight(50);
         cardView.setFitWidth(80);
@@ -127,24 +132,34 @@ public class Spieler extends ServerPlayer {
         reorganizeGridPane();
     }
 
-    public void removeCard (int[] cell ,UUID cardID, String cardType){
-        // get the cell  key from the cardGridPane
-        Integer key = cardGridPane.getCellKey(cell[0], cell[1]);
-        // get the card
-        Node card = cardGridPane.getCardInCell(key);
 
-        if ( cardType == "Kuckuck") {
+
+    public void removeCard (ServerCard card){
+
+
+        if (Objects.equals(card.getType(), "Kuckuck")) {
             //set the kuckuck card to null
             getCardHand().setKuckuck(null);
         } else {
             remove(cardID,cardType);
         }
+        // Copy the list of children to avoid ConcurrentModificationException
+        List<Node> childrenCopy = new ArrayList<>(cardGridPane.getChildren());
 
-        // remove the card
-        cardGridPane.removeCard(card);
-        reorganizeGridPane();
+        for (Node image : childrenCopy) {
+            if (Objects.equals(card.getServeCardID().toString(), image.getId())) {
+                // remove the card
+                Platform.runLater(() -> cardGridPane.getChildren().remove(image));
+                break; // Assuming there's only one card with this ID, we can break the loop
+            }
+        }
+
+        // The reorganization of the GridPane should probably also be run on the JavaFX Application Thread
+        Platform.runLater(this::reorganizeGridPane);
+
 
     }
+
 
     public  void reorganizeGridPane() {
         int StartRows = cardGridPane.getStartRow();

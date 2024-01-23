@@ -123,10 +123,7 @@ public class Server implements Remote, ServerInter {
         gameSessionManager.getGameSession(gameId).drawCard(clientId);
     }
 
-    @Override
-    public void discardCard(ServerCard card, UUID clientId, UUID gameId) throws RemoteException {
-        gameSessionManager.getGameSession(gameId).discardCard(card, clientId);
-    }
+
 
     @Override
     public void hahnKlauen(UUID clientId, UUID gameId) throws RemoteException {
@@ -134,8 +131,8 @@ public class Server implements Remote, ServerInter {
     }
 
     @Override
-    public void karteUmtauschen(UUID clientId, UUID gameId) throws RemoteException {
-        gameSessionManager.getGameSession(gameId).karteUmtauschen(clientId);
+    public void karteUmtauschen(UUID clientId, UUID gameId, Integer eggPoints,ArrayList<ServerCard> selectedCards ) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).karteUmtauschen(clientId,eggPoints,selectedCards);
     }
 
     @Override

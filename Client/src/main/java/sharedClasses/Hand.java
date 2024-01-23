@@ -9,9 +9,9 @@ public class Hand implements Serializable {
 
 
 
-    private Map<UUID, ServerCard> bioCornCards = new ConcurrentHashMap();
-    private Map<UUID, ServerCard> foxCards = new ConcurrentHashMap();
-    private Map<UUID, ServerCard> cornCards = new ConcurrentHashMap();
+    private Map<UUID, ServerCard> bioCornCards = new ConcurrentHashMap<>();
+    private Map<UUID, ServerCard> foxCards = new ConcurrentHashMap<>();
+    private Map<UUID, ServerCard> cornCards = new ConcurrentHashMap<>();
 
     public void setKuckuck(ServerCard kuckuck) {
         this.kuckuck = kuckuck;
@@ -45,7 +45,7 @@ public class Hand implements Serializable {
     }
 
     public void setBioCornCards(Map<UUID, ServerCard> bioCornCards) {
-        bioCornCards = bioCornCards;
+        this.bioCornCards = bioCornCards;
     }
 
     public Map<UUID, ServerCard> getFoxCards() {
@@ -66,15 +66,12 @@ public class Hand implements Serializable {
 
 
     public ServerCard getCard(UUID cardID, String cardType){ //returns the card at a particular position "pos" on the hand.
-        switch (cardType){
-            case "Koerner":
-                return cornCards.get(cardID);
-            case "BioKoerner":
-                return bioCornCards.get(cardID);
-            case "Fuchs":
-                return foxCards.get(cardID);
-        }
-        return null;
+        return switch (cardType) {
+            case "Koerner" -> cornCards.get(cardID);
+            case "BioKoerner" -> bioCornCards.get(cardID);
+            case "Fuchs" -> foxCards.get(cardID);
+            default -> null;
+        };
     }
 
     public void addCardToHand(ServerCard serverCard){

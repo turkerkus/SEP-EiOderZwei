@@ -55,6 +55,6 @@ public class ServerCard implements Serializable {
     }
     @Override
     public String toString() {
-        return "(" + getValue()+ " "+ getType()+ ")";
+        return "( Card value: " + getValue()+ " , Card type: "+ getType()+ ")";
     }
 }

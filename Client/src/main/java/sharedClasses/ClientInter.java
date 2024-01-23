@@ -1,6 +1,5 @@
 package sharedClasses;
 
-import eoz.client.lobbyToTable.Card;
 import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.TableController;
 
@@ -144,12 +143,6 @@ public interface ClientInter extends Remote, Serializable {
      */
     void drawCard() throws RemoteException;
 
-    /**
-     * Lets a player discard a card
-     * @ The UUID of the current Client discarding the selected cards.
-     * @throws RemoteException if a remote communication error occurs.
-     */
-    void discardCard(ServerCard card) throws RemoteException;
 
     /**
      * Let a player draw a card as a round action.
@@ -162,10 +155,10 @@ public interface ClientInter extends Remote, Serializable {
     /**
      * Lets a player change card .
      *
-     * @  The UUID of the current Client drawing the card.
+     * @param eggPoints  contains the eggPoint, rest
      * @throws RemoteException if a remote communication error occurs.
      */
-    void karteUmtauschen() throws RemoteException;
+    void karteUmtauschen( Integer eggPoints,ArrayList<ServerCard> selectedCards ) throws RemoteException;
 
     ServerPlayer getRoosterPlayer() throws  RemoteException;
 

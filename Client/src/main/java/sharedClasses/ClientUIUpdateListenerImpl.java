@@ -3,6 +3,7 @@ package sharedClasses;
 import java.io.Serializable;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import eoz.client.lobbyToTable.LobbyRoomController;
@@ -127,8 +128,8 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     }
 
     @Override
-    public void cardDiscarded(UUID playerID, ServerCard card) throws RemoteException {
-        tableController.cardDiscarded(playerID, card);
+    public void cardDiscarded(UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException {
+        tableController.cardDiscarded(playerID, discardedCard,eggPoints,selectedCards);
     }
 }
 

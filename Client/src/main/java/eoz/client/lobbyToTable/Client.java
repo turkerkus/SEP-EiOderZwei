@@ -5,6 +5,7 @@ import sharedClasses.*;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 
@@ -232,10 +233,7 @@ public class Client implements ClientInter {
         serverStub.drawCard(clientId, gameId);
     }
 
-    @Override
-    public void discardCard(ServerCard card) throws RemoteException {
-        serverStub.discardCard(card, clientId, gameId);
-    }
+
 
     @Override
     public void hahnKlauen() throws RemoteException {
@@ -243,8 +241,8 @@ public class Client implements ClientInter {
     }
 
     @Override
-    public void karteUmtauschen() throws RemoteException {
-        serverStub.drawCard(clientId, gameId);
+    public void karteUmtauschen( Integer eggPoints, ArrayList<ServerCard> selectedCards ) throws RemoteException {
+        serverStub.karteUmtauschen(clientId, gameId,eggPoints,selectedCards);
     }
 
     @Override

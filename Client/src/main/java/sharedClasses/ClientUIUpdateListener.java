@@ -5,6 +5,7 @@ import eoz.client.lobbyToTable.TableController;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public interface ClientUIUpdateListener extends Remote {
@@ -39,5 +40,5 @@ public interface ClientUIUpdateListener extends Remote {
 
     void drawnFoxCard (UUID playerID) throws RemoteException;
 
-    void cardDiscarded (UUID playerID, ServerCard card) throws RemoteException;
+    void cardDiscarded (UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException;
 }
