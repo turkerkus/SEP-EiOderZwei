@@ -11,7 +11,7 @@ public class ServerPlayer implements Serializable {
     private boolean cardDrawn = false;
     private int newCard;
     private final UUID serverPlayerId;
-    private int rank;
+    private int rank = 0;
 
 
     public boolean isAussteigen() {
@@ -149,5 +149,9 @@ public class ServerPlayer implements Serializable {
 
     public void setRank(int value){
         this.rank = value;
+    }
+
+    public int getRank() {
+        return rank;
     }
 }

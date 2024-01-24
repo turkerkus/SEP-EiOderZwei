@@ -163,4 +163,10 @@ public interface ClientInter extends Remote, Serializable {
     ServerPlayer getRoosterPlayer() throws  RemoteException;
 
     void disconnectFromServer() throws RemoteException;
+
+    void sendChatMessage(String content) throws RemoteException;
+
+    void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards) throws RemoteException;
+    
+    void stealAllCards(UUID target) throws RemoteException;
 }

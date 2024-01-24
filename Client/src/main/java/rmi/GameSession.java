@@ -461,6 +461,25 @@ public class GameSession {
         return serverTable.getPlayer(roosterPlayerId);
     }
 
+    public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId){
+        serverTable.setStolenCard(selectedCards.get(0));
+        serverTable.setTarget(target);
+        serverTable.getPlayer(target).remove(serverTable.getStolenCard().getServeCardID(), serverTable.getStolenCard().getType());
+        serverTable.getPlayer(clientId).addCard(selectedCards.get(0));
+        setBroadcastSent(BroadcastType.ONE_CARD_STOLEN, true);
+        //TODO FINISH THIS
+        //broadcastSafeCommunication(BroadcastType.ONE_CARD_STOLEN);
+    }
+
+    public void stealAllCards(UUID target, UUID clientId){
+        //TODO FINISH THIS
+        serverTable.setTarget(target);
+        ServerPlayer targetedPlayer = serverTable.getPlayer(target);
+        ArrayList<Map<UUID, ServerCard>> hand = new ArrayList<>();
+        hand.add(targetedPlayer.getCardHand().getBioCornCards());
+        hand.add(targetedPlayer.getCardHand().getCornCards());
+    }
+
 
     /**
      * Broadcasts a safe communication to all players with a specified UI update message.
@@ -520,6 +539,13 @@ public class GameSession {
                                     break;
                                 case CARD_DISCARDED:
                                     listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(),serverTable.getEggPoints(),serverTable.getDiscardedSelectedCards());
+                                    break;
+                                case ONE_CARD_STOLEN:
+                                    listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), serverTable.getActiveSpielerID());
+                                    break;
+                                case ALL_CARDS_STOLEN:
+                                    listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpieler());
+                                    break;
                                 // Add cases for other BroadcastTypes if needed
                             }
                             success = true;

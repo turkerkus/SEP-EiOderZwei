@@ -2,34 +2,62 @@ package eoz.client.lobbyToTable;
 
 import javafx.animation.*;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.util.Duration;
+import sharedClasses.Message;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
+import javafx.scene.text.TextFlow;
+import javafx.scene.text.Text;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.URL;
 import java.rmi.RemoteException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class TableController implements Serializable {
+public class TableController implements Serializable, Initializable {
+    //chat Vars start
+    @FXML
+    public AnchorPane chatPane;
+    @FXML
+    public TextArea txtMsg;
+    @FXML
+    public ScrollPane scrollPane;
+    @FXML
+    public VBox chatBox;
+    @FXML
+    public Button btnSend;
+    @FXML
+    public TextFlow emojiList;
+    @FXML
+    public Button btnEmoji;
 
+    private SimpleDateFormat tformatter;
+    //Chat Vars end
     @FXML
     public Label p1;
     @FXML
@@ -42,9 +70,6 @@ public class TableController implements Serializable {
     public Label p6;
     @FXML
     public Label p3;
-
-    @FXML
-    public AnchorPane anchorPane1;
     @FXML
     public AnchorPane anchorPane2;
     @FXML
@@ -118,6 +143,64 @@ public class TableController implements Serializable {
     // Time left in seconds
 
     private Boolean isGameStarted = false;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        for(Node text : emojiList.getChildren()){
+            text.setOnMouseClicked(event -> {
+                txtMsg.setText(txtMsg.getText()+ " " +((Text)text).getText());
+                emojiList.setVisible(false);
+            });
+        }
+        scrollPane.vvalueProperty().bind(chatBox.heightProperty());
+        this.txtMsg.textProperty().addListener(new ChangeListener<Object>() {
+            @Override
+            public void changed(ObservableValue<?> observable, Object oldValue, Object newValue){
+                txtMsg.setScrollTop(Double.MAX_VALUE);
+            }
+        });
+
+        this.tformatter = new SimpleDateFormat("[HH:mm:ss]");
+    }
+
+    @FXML
+    public void sendAction(ActionEvent actionEvent) throws RemoteException{
+        String msg = this.txtMsg.getText();
+        if(!msg.isEmpty() && !msg.isBlank())
+            this.client.sendChatMessage(msg);
+        this.txtMsg.setText("");
+    }
+    @FXML
+    public void enterChatHandle(KeyEvent event) throws RemoteException{
+        if(event.getCode().equals(KeyCode.ENTER)){
+            String msg = this.txtMsg.getText();
+            if(!msg.isEmpty() && !msg.isBlank())
+                this.client.sendChatMessage(msg);
+            this.txtMsg.setText("");
+        }
+    }
+
+    @FXML
+    public void emojiAction(ActionEvent actionEvent) {
+        emojiList.setVisible(!emojiList.isVisible());
+    }
+
+    public String getCurrentTimestamp(){
+        Date date = new Date(System.currentTimeMillis());
+        String timestamp = this.tformatter.format(date);
+
+        return  timestamp;
+    }
+
+    public void addToTextArea(String text){
+        if(this.txtMsg.getText().isEmpty())
+            this.txtMsg.setText(text);
+        else this.txtMsg.appendText("\n" + text);
+    }
+
+    public void addToTextArea(Message message){
+        this.addToTextArea(message.getTimestamp() + " " + message.getPlayerName() + ": " + message.getContent());
+    }
 
 
     public Client getClient() {
@@ -214,7 +297,7 @@ public class TableController implements Serializable {
 
         // Iterate over players and assign labels and grid panes
         int nonHostPlayerIndex = 0;
-        for (Map.Entry<UUID, Spieler> entry : players.entrySet()) {
+        for (Entry<UUID, Spieler> entry : players.entrySet()) {
             Spieler player = entry.getValue();
             if (player.getServerPlayerName().equals(this.client.getClientName())) {
 
@@ -261,7 +344,7 @@ public class TableController implements Serializable {
 
     public void convertAndSetPlayers(Map<UUID, ServerPlayer> players) {
         // Assuming you have a way to get JavaFX components for each player
-        for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
+        for (Entry<UUID, ServerPlayer> entry : players.entrySet()) {
             UUID spielerID = entry.getKey();
             ServerPlayer player = entry.getValue();
             CardGridPane dummyPane = new CardGridPane();
@@ -532,12 +615,35 @@ public class TableController implements Serializable {
             selectedCards.add(card);
             imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(30, 30, 133, 1), 10, 0, 0, 0)"); // Style for selected card
         }
-
-
     }
 
-    private CardGridPane cloneGridPaneWithImageViews(CardGridPane originalGridPane) {
+    private Map<ServerCard, ImageView> cardImageViewMap = new HashMap<>();
+
+
+    private void handleSingleCardSelection(ImageView imageView) {
+
+        ServerCard card = (ServerCard) imageView.getUserData();
+
+        if (selectedCards.size() == 1) {
+            // If one card is already selected, deselect it
+            ServerCard selectedCard = selectedCards.get(0);
+            selectedCards.clear(); // Clear the selected cards list
+            // Reset style for the previously selected card
+            ImageView selectedImageView = cardImageViewMap.get(selectedCard); // Implement this method
+            if (selectedImageView != null) {
+                selectedImageView.setStyle("");
+            }
+        }
+        // Now select the clicked card
+        selectedCards.add(card);
+        cardImageViewMap.put(card, imageView);
+        imageView.setStyle("-fx-effect: dropshadow(three-pass-box, rgba(30, 30, 133, 1), 10, 0, 0, 0)");
+    }
+
+
+    private CardGridPane cloneGridPaneWithImageViews(CardGridPane originalGridPane,Boolean onlySingleSelection) {
         CardGridPane clonedGridPane = new CardGridPane();
+        cardImageViewMap = new HashMap<>();
         for (Node node : originalGridPane.getChildren()) {
             if (node instanceof ImageView) {
                 ImageView originalImageView = (ImageView) node;
@@ -549,7 +655,12 @@ public class TableController implements Serializable {
                 ServerCard card = (ServerCard) originalImageView.getUserData();
                 clonedImageView.setUserData(card); // Preserve the card data
                 if (Objects.equals(card.getType(), "Koerner") || Objects.equals(card.getType(), "BioKoerner")) {
-                    clonedImageView.setOnMouseClicked(event -> handleCardClick(clonedImageView));
+                    if(onlySingleSelection){
+                        clonedImageView.setOnMouseClicked(event -> handleSingleCardSelection(clonedImageView));
+                    } else {
+                        clonedImageView.setOnMouseClicked(event -> handleCardClick(clonedImageView));
+                    }
+
                 }
                 // Add clonedImageView to the clonedGridPane at the same position as the original
                 clonedGridPane.add(clonedImageView, GridPane.getColumnIndex(originalImageView), GridPane.getRowIndex(originalImageView));
@@ -566,7 +677,7 @@ public class TableController implements Serializable {
 
         UUID clientId = client.getClientId();
         Spieler player = players.get(clientId);
-        CardGridPane sourceGridPane = cloneGridPaneWithImageViews(player.getCardGridPane());
+        CardGridPane sourceGridPane = cloneGridPaneWithImageViews(player.getCardGridPane(),false);
 
         // Create the dialog
         Dialog<Void> dialog = new Dialog<>();
@@ -787,43 +898,95 @@ public class TableController implements Serializable {
 
     public void drawnFoxCard(UUID playerID) {
         Platform.runLater(() -> {
+            selectedCards = new ArrayList<>();
             if (Objects.equals(playerID, client.getClientId())) {
-                // Create dialog for stealing a card.
-                Dialog<Void> steal = new Dialog<>();
-                steal.setTitle("Fox card drawn!");
-                steal.setHeaderText("You have drawn a fox card.");
-                steal.setContentText("Please select a player and choose whether you like to steal a specific card or all cards.");
+                // Create the dialog
+                Dialog<Void> dialog = new Dialog<>();
+                dialog.setTitle("Fox Card Drawn!");
+                dialog.setHeaderText("You have drawn a fox card.");
 
-                // TODO Choicebox with a selectable list of all opponents (perhaps keep the current player out of this list
-                ChoiceBox<String> opponent = new ChoiceBox<>();
+                // TabPane for selecting an opponent player and viewing their cards
+                TabPane tabPane = new TabPane();
 
-                // TODO Vbox to display all cards of the selected opponent. Note that this box gets updated when the player is chosen
-                VBox dialogContent = new VBox(10);
-                dialogContent.getChildren().add(opponent);
+                // Iterate over players to create a tab for each opponent
+                for (Spieler spieler : players.values()) {
+                    if (!spieler.getServerPlayerId().equals(playerID)) {
+                        Tab tab = new Tab(spieler.getServerPlayerName());
 
+                        // Use the cloneGridPaneWithImageViews method to clone the player's card grid
+                        CardGridPane clonedGridPane = cloneGridPaneWithImageViews(spieler.getCardGridPane(), true);
+                        tab.setContent(clonedGridPane);
 
-                // TODO Buttons for choice to steal one card or all cards.
-                ButtonType stealOne = new ButtonType("Steal one card", ButtonBar.ButtonData.OK_DONE);
-                ButtonType stealAll = new ButtonType("Steal all cards", ButtonBar.ButtonData.OK_DONE);
+                        tabPane.getTabs().add(tab);
+                    }
+                }
+
+                // Buttons for the actions
+                ButtonType stealOneButtonType = new ButtonType("Steal one card", ButtonBar.ButtonData.OK_DONE);
+                ButtonType stealAllButtonType = new ButtonType("Steal all cards", ButtonBar.ButtonData.OK_DONE);
+
+                // Add action buttons to the dialog
+                dialog.getDialogPane().getButtonTypes().addAll(stealOneButtonType, stealAllButtonType, ButtonType.CANCEL);
+
+                // Set the TabPane as the content of the dialog
+                dialog.getDialogPane().setContent(tabPane);
+
+                // Handle the result from the dialog
+                dialog.setResultConverter(dialogButton -> {
+                    // Handle the action to steal one card
+                    Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+                    UUID target = null;
+                    for (Spieler spieler : players.values()) {
+                        if(selectedTab.getText().equals(spieler.getServerPlayerName())){
+                            target = spieler.getServerPlayerId();
+                        }
+                    }
+                    if (dialogButton == stealOneButtonType) {
+                        // Logic to steal one card from the selected player
+                        try {
+                            client.stealOneCard(target, selectedCards);
+                        } catch (RemoteException e){
+                            throw new RuntimeException(e);
+                        }
+
+                    } else if (dialogButton == stealAllButtonType) {
+                        // Logic to steal all cards from the selected player
+                        try {
+                            client.stealAllCards(target);
+                        } catch (RemoteException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    return null; // Dialog has no result
+                });
+
+                // Show the dialog and wait for the user's response
+                dialog.showAndWait();
             }
         });
     }
 
-    public void stolenOneCard(UUID playerId, ServerCard stolencard){
+    public void oneCardStolen(UUID targetId, ServerCard stolencard, UUID playerId){
+        // TODO FINISH THE CARD STOLEN METHOD (DELETE IT PROPERLY AND ADD IT ON FOX OWNER)
         Platform.runLater(() -> {
-            if (client.getClientId().equals(playerId)){
+            if (client.getClientId().equals(targetId)){
                 // TODO set an alert for the opponent who gets stolen. No action needed.
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("A fox appears!");
-                alert.setHeaderText();
+                alert.setHeaderText("The following card has been stolen:");
+                // TODO set an Image to view in the alert
+                alert.showAndWait();
+                removeMultipleCards(playerId,new ArrayList<>(Collections.singletonList(stolencard)));
             }
         });
     }
 
-    public void stolenAllCards(UUID playerId){
+    public void allCardsStolen(UUID targetId, UUID playerId){
+        // TODO FINISH THE METHOD (MAKE A SELECTION FOR THE target, then make a remote to delete and add)
         Platform.runLater(() -> {
            if (client.getClientId().equals(playerId)){
                // TODO Selection like getEgg, but only one card is selectable and this gets protected from stealing.
+
            }
         });
     }
@@ -915,15 +1078,17 @@ public class TableController implements Serializable {
                 SpielauswertungController spielauswertungController = loader.getController();
                 spielauswertungController.setClient(client);
                 // assign the ServerCard Grid Pane
-                spielauswertungController.getPlayers();
+               // spielauswertungController.getPlayers();
 
                 // set up the stage
                 Scene scene = new Scene(root);
                 stage.setScene(scene);
                 stage.show();
                 stage.setTitle(gameName + "@gameId:  " + client.getGameId());
-
-
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
 

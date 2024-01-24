@@ -1,7 +1,11 @@
 package eoz.client.lobbyToTable;
 
+import rmi.BroadcastType;
 import sharedClasses.*;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -19,7 +23,6 @@ public class Client implements ClientInter {
 
 
     // Attributes
-    private ChatController controller;
     private UUID clientId = UUID.randomUUID();
 
     private ServerInter serverStub;
@@ -51,8 +54,9 @@ public class Client implements ClientInter {
 
     }
 
-    public ChatController getController(){
-        return controller;
+    @Override
+    public void sendChatMessage(String content) throws RemoteException {
+        //TODO
     }
 
     // Getter for clientId
@@ -248,5 +252,15 @@ public class Client implements ClientInter {
     @Override
     public ServerPlayer getRoosterPlayer() throws RemoteException {
         return serverStub.getRoosterPlayer(gameId);
+    }
+
+    @Override
+    public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards) throws RemoteException {
+        serverStub.stealOneCard(target, selectedCards, clientId, gameId);
+    }
+
+    @Override
+    public void stealAllCards(UUID target) throws RemoteException {
+        serverStub.stealAllCards(target, clientId, gameId);
     }
 }

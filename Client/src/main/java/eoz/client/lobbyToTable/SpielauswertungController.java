@@ -92,22 +92,29 @@ public class SpielauswertungController implements Initializable {
             spie.add(entry.getValue());
         }
     }
-    ObservableList<ServerPlayer> data = observableArrayList(spie);
+    ObservableList<ServerPlayer> data = FXCollections.observableArrayList(spie);
     */
-    UUID id1 = UUID.randomUUID();
-    UUID id2 = UUID.randomUUID();
-    UUID id3 = UUID.randomUUID();
+    UUID id1 = UUID.randomUUID();       //test
+    UUID id2 = UUID.randomUUID();       //test
+    UUID id3 = UUID.randomUUID();       //test
+    ServerPlayer test1 = new ServerPlayer(id1, "test1", false);  //test
+    ServerPlayer test2 = new ServerPlayer(id2, "test2", false);  //test
+    ServerPlayer test3 = new ServerPlayer(id3, "test3", false);  //test
+
 
     ObservableList<ServerPlayer> data = FXCollections.observableArrayList(
-            new ServerPlayer(id1, "test1", false),
-            new ServerPlayer(id2, "test2", false),
-            new ServerPlayer(id3, "test3", false)
-        );
+        test1,test2,test3
+    );
+
     public void initialize(URL url, ResourceBundle rb) {
         int i = 1;
+        int j = 50;  //test
         for(ServerPlayer sp: data){
+            sp.setServerPlayerName("a");
+            sp.setPunkte(j); //test
             sp.setRank(i);
             i += 1;
+            j -= 1; //test
         }
 // Associate TableColumn with Spieler class properties
         platz.setCellValueFactory(new PropertyValueFactory<>("rank"));

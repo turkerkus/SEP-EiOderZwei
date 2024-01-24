@@ -1,9 +1,7 @@
 package rmi;
 
-import sharedClasses.ClientUIUpdateListener;
-import sharedClasses.ServerCard;
-import sharedClasses.ServerInter;
-import sharedClasses.ServerPlayer;
+import eoz.client.lobbyToTable.TableController;
+import sharedClasses.*;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -29,6 +27,7 @@ public class Server implements Remote, ServerInter {
     // Die Registry wird erstellt
     public static Registry registry = null;
 
+
     // Constructor
     // Der Server muss konstruiert werden
     public Server() throws RemoteException {
@@ -43,6 +42,7 @@ public class Server implements Remote, ServerInter {
         // verbindet
         return "Connection to Server successful. Hello Client!";
     }
+
 
 
     // get the player list
@@ -138,6 +138,16 @@ public class Server implements Remote, ServerInter {
     @Override
     public ServerPlayer getRoosterPlayer(UUID gameId) throws RemoteException {
         return gameSessionManager.getGameSession(gameId).getRoosterPlayer();
+    }
+
+    @Override
+    public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId, UUID gameId){
+        gameSessionManager.getGameSession(gameId).stealOneCard(target,selectedCards,clientId);
+    }
+
+    @Override
+    public void stealAllCards(UUID target, UUID clientId, UUID gameId) throws RemoteException{
+        gameSessionManager.getGameSession(gameId).stealAllCards(target,clientId);
     }
 
     @Override

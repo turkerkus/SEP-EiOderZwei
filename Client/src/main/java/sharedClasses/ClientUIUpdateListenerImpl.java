@@ -133,5 +133,15 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     public void cardDiscarded(UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException {
         tableController.cardDiscarded(playerID, discardedCard,eggPoints,selectedCards);
     }
+
+    @Override
+    public void oneCardStolen(UUID target, ServerCard stolenCard, UUID playerId) throws RemoteException {
+        tableController.oneCardStolen(target, stolenCard, playerId);
+    }
+
+    @Override
+    public void allCardsStolen(UUID target, UUID playerId) throws RemoteException {
+        tableController.allCardsStolen(target, playerId);
+    }
 }
 

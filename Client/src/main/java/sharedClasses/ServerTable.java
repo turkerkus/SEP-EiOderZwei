@@ -29,6 +29,10 @@ public class ServerTable implements Serializable {
 
     ServerCard drawnCard ;
 
+    private ServerCard stolenCard;
+
+    private UUID target;
+
     public UUID getAlteSpielerMitHahnKarte() {
         return alteSpielerMitHahnKarte;
     }
@@ -127,6 +131,22 @@ public class ServerTable implements Serializable {
     }
     public int getActive() {
         return active;
+    }
+
+    public void setStolenCard(ServerCard stolenCard) {
+        this.stolenCard = stolenCard;
+    }
+
+    public ServerCard getStolenCard() {
+        return stolenCard;
+    }
+
+    public UUID getTarget() {
+        return target;
+    }
+
+    public void setTarget(UUID target) {
+        this.target = target;
     }
 
     public void intiNachZiehDeck() {

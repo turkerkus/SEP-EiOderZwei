@@ -41,4 +41,8 @@ public interface ClientUIUpdateListener extends Remote {
     void drawnFoxCard (UUID playerID) throws RemoteException;
 
     void cardDiscarded (UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException;
+
+    void oneCardStolen(UUID target, ServerCard stolenCard, UUID activeSpielerID) throws RemoteException;
+
+    void allCardsStolen(UUID target, ServerPlayer activeSpieler) throws RemoteException;
 }
