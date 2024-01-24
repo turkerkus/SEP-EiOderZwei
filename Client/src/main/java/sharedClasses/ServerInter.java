@@ -147,7 +147,7 @@ public interface ServerInter extends Remote {
 
     void unregisterClient(UUID clientId, UUID gameID) throws RemoteException;
 
-    void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId, UUID gameId);
+    void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId, UUID gameId) throws RemoteException;
 
     void stealAllCards(UUID target, UUID clientId, UUID gameId) throws RemoteException;
 }
