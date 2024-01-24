@@ -544,7 +544,7 @@ public class GameSession {
                                     listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), serverTable.getActiveSpielerID());
                                     break;
                                 case ALL_CARDS_STOLEN:
-                                    listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpieler());
+                                    listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpielerID());
                                     break;
                                 // Add cases for other BroadcastTypes if needed
                             }

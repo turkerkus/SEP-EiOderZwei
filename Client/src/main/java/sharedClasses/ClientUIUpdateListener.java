@@ -44,5 +44,5 @@ public interface ClientUIUpdateListener extends Remote {
 
     void oneCardStolen(UUID target, ServerCard stolenCard, UUID activeSpielerID) throws RemoteException;
 
-    void allCardsStolen(UUID target, ServerPlayer activeSpieler) throws RemoteException;
+    void allCardsStolen(UUID target, UUID playerId) throws RemoteException;
 }
