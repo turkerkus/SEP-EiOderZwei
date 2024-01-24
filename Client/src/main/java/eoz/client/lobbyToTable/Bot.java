@@ -14,7 +14,39 @@ public class Bot extends Spieler implements Serializable {
     }
 
     public boolean play(){
-        //TODO
-        return false;
+        setZug(true);
+        switch (schwierigkeit) {
+            case 1:
+                playSchwierigkeitLeicht();
+                break;
+            case 2:
+                playSchwierigkeitMittel();
+                break;
+            case 3:
+                playSchwierigkeitSchwer();
+                break;
+        }
+        return true;
+    }
+
+
+    public void setZug(boolean entryZug){
+        zug = entryZug;
+    }
+
+    public void playSchwierigkeitLeicht(){
+
+    }
+    public void playSchwierigkeitMittel(){
+
+    }
+    public void playSchwierigkeitSchwer(){
+
+    }
+    public int getSchwierigkeit() {
+        return schwierigkeit;
+    }
+
+    public void setUID(UUID ID){
     }
 }
