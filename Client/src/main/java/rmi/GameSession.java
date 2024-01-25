@@ -50,7 +50,7 @@ public class GameSession {
     private Map<BroadcastType, Boolean> broadcastStatus = new ConcurrentHashMap<>();
     private Timer timer;
     private volatile Integer timeLeft; // Time left in seconds
-    private volatile boolean isStealingInProgress = true; // Flag to indicate if stealing is done
+
 
 
     public String getGameName() {
@@ -227,6 +227,7 @@ public class GameSession {
      * Checks for end-game conditions and handles game over if necessary.
      */
     private void startPlayerTurn() {
+        System.out.println("Player turn started");
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         // Check for end-game condition
         ServerPlayer GameWinner = gameLogic.findWinningPlayer(players, this.serverTable);
@@ -256,89 +257,53 @@ public class GameSession {
             throw new RuntimeException(e);
         }
     }
+    private volatile boolean isTimerPaused = false;
 
     /**
      * Starts the turn timer with the specified duration in seconds.
      * @param durationInSeconds The duration of the turn timer in seconds.
      */
+
     public void startTurnTimer(int durationInSeconds) {
+
         timeLeft = durationInSeconds;
 
-        // Stop any existing timer
         if (timer != null) {
             timer.cancel();
         }
 
-        // Create a new Timer
         timer = new Timer();
-
-        // Schedule a TimerTask
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // Decrement timeLeft
+
                 timeLeft--;
+
                 try {
                     broadcastSafeCommunication(BroadcastType.UPDATE_TIMER_LABEL);
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
                 }
-
                 if (timeLeft <= 0) {
                     timer.cancel();
-                    // Call method to handle end of timer
-                    // This should also communicate with the client as needed
-                    endPlayerTurn();
+                    endPlayerTurn();  // Implement this method as needed
                 }
-            }
 
-        }, 0, 1000); // Schedule the task to run every second
+                // Optionally, broadcast the updated timeLeft to clients
+
+            }
+        }, 0, 1000);
     }
+
 
     /**
      * This method resets the stealing flag and, if needed, continues the timer.
      * If the timer has already reached zero, it ends the player's turn.
      */
     public synchronized void stealingProcessCompleted() {
-        isStealingInProgress = false;
+        //isStealingInProgress = false;
         this.notifyAll(); // Notify all waiting threads
     }
-
-    /**
-     * Waits for the stealing process to complete before proceeding with drawing a card.
-     * This method creates a background task that blocks until the `isStealingInProgress`
-     * flag becomes true. Once the stealing process is marked as in progress, it proceeds
-     * to draw a card and end the player's turn if applicable.
-     *
-     * @param player The ServerPlayer for whom the card is being drawn.
-     */
-    private void waitForStealingToComplete(ServerPlayer player) {
-        Task<Void> waitTask = new Task<>() {
-            @Override
-            protected Void call() throws Exception {
-                synchronized (this) {
-                    while (isStealingInProgress) {
-                        this.wait(); // Use wait instead of sleep
-                    }
-                }
-                return null;
-            }
-        };
-
-        waitTask.setOnSucceeded(e -> {
-            try {
-                drawAndCheckCard(player);
-                if (!serverTable.getDrawnCard().getType().equals("Fuchs")) {
-                    endPlayerTurn();
-                }
-            } catch (RemoteException remoteException) {
-                remoteException.printStackTrace();
-            }
-        });
-
-        new Thread(waitTask).start();
-    }
-
 
 
 
@@ -348,6 +313,7 @@ public class GameSession {
      *
      */
     public void endPlayerTurn() {
+        System.out.println("player turn ended");
         // Perform end-of-turn actions for the player
 
         // Move to the next player's turn
@@ -427,7 +393,7 @@ public class GameSession {
         callback.endGameSession(this.gameId);
     }
 
-    private Integer numOfDrawnCards = 0;
+
 
     /**
      * Lets a player draw a card as a round action.
@@ -437,39 +403,24 @@ public class GameSession {
      */
     public void drawCard(UUID clientId) throws RemoteException {
         ServerPlayer player = serverTable.getPlayer(clientId);
-        // set the number of drawn cards to 0 before drawing a card
-        numOfDrawnCards = 0;
+        boolean hasRoosterCard = player.hatHahnKarte();
 
+        // Draw the first card
         drawAndCheckCard(player);
 
-        if (player.hatHahnKarte()) {
-
-
-            // if the first card drawn is a fox card we have to wait for the broadcast of the first fox card to be sent
-            // before drawing another card. Here you only immediate draw another card if the card is not a fox card
-            // and
-            if (serverTable.getDrawnCard().getType().equals("Fuchs")) {
-                // Wait for 5 seconds before drawing another card
-                isStealingInProgress = true;
-                waitForStealingToComplete(player);
-                drawAndCheckCard(player);
-            } else {
-                drawAndCheckCard(player);
-            }
-
+        // If the player has a rooster card, draw a second card
+        if (hasRoosterCard) {
+            drawAndCheckCard(player);
         }
-        if (!serverTable.getDrawnCard().getType().equals("Fuchs")) {
-            endPlayerTurn();
-        }
-
+        endPlayerTurn();
     }
 
+
     private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
+        System.out.println(player.getServerPlayerName() + "id drawing a card");
         serverTable.karteZiehen(player.getServerPlayerId());
         checkDrawnCard(player.getServerPlayerId());
-        // increase the number of drawn cards
-        numOfDrawnCards++;
-        System.out.println("the number of cards drawn is: " + numOfDrawnCards);
+
     }
 
 
@@ -541,7 +492,10 @@ public class GameSession {
         return serverTable.getPlayer(roosterPlayerId);
     }
 
+    private UUID thief ;
+
     public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId) {
+        thief = clientId;
         serverTable.setStolenCard(selectedCards.get(0));
         serverTable.setTarget(target);
         serverTable.getPlayer(target).remove(serverTable.getStolenCard().getServeCardID(), serverTable.getStolenCard().getType());
@@ -553,7 +507,7 @@ public class GameSession {
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-
+        endPlayerTurn();
 
     }
 
@@ -565,7 +519,6 @@ public class GameSession {
         hand.add(targetedPlayer.getCardHand().getBioCornCards());
         hand.add(targetedPlayer.getCardHand().getCornCards());
 
-        endPlayerTurn();
 
     }
 
@@ -629,7 +582,7 @@ public class GameSession {
                                 listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(), serverTable.getEggPoints(), serverTable.getDiscardedSelectedCards());
                                 break;
                             case ONE_CARD_STOLEN:
-                                listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), serverTable.getActiveSpielerID());
+                                listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), thief);
                                 break;
                             case ALL_CARDS_STOLEN:
                                 listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpielerID());

@@ -62,22 +62,6 @@ public class Server implements Remote, ServerInter {
         return gameSessionManager.getGameSession(gameId).isGameSessionReady();
     }
 
-    /*
-     * @Override
-     * public long getRemainingGameSessionTimeMillis(UUID gameId) throws
-     * RemoteException {
-     * GameSession session = gameSessionManager.getGameSession(gameId);
-     * if (session != null) {
-     * System.out.println("Game session with ID " + gameId + "with gameName" +
-     * session.getGameName());
-     * return session.getRemainingTimeMillis(); // Ensure this method is thread-safe
-     * } else {
-     * // Here, you can either return a default value or throw an exception
-     * throw new RemoteException("Game session with ID " + gameId + " not found.");
-     * }
-     * }
-     *
-     */
 
     @Override
     public void startGameTable(UUID gameId) throws RemoteException {
