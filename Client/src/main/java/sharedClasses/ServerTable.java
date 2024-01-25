@@ -27,6 +27,7 @@ public class ServerTable implements Serializable {
         return drawnCard;
     }
 
+
     ServerCard drawnCard ;
 
     private ServerCard stolenCard;

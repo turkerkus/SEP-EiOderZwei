@@ -137,14 +137,21 @@ public class Server implements Remote, ServerInter {
     public void sendChatMessage(String content, UUID gameId, UUID clientId) throws RemoteException {
         gameSessionManager.getGameSession(gameId).sendChatMessage(clientId, content);
     }
-    @Override
-    public void stealingProcessComplete(UUID gameId) throws RemoteException {
-        gameSessionManager.getGameSession(gameId).stealingProcessCompleted();
-    }
+
 
     @Override
     public void endPlayerTurn(UUID gameId) throws RemoteException {
         gameSessionManager.getGameSession(gameId).endPlayerTurn();
+    }
+
+    @Override
+    public void stealingInProgress(UUID gameId, UUID playerId, UUID targetId, ServerCard selectedCard) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).stealingInProgress(playerId, targetId,selectedCard);
+    }
+
+    @Override
+    public void removeFoxCard(UUID gameId, ServerCard foxCard) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).removeFoxCard(foxCard);
     }
 
     @Override

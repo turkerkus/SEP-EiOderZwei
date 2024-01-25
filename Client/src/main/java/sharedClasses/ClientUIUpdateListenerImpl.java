@@ -138,5 +138,15 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     public void switchToResultTable(ServerPlayer winner) throws RemoteException {
         tableController.switchToResults(winner);
     }
+
+    @Override
+    public void stealingCardCompleted(UUID target, UUID thief, ArrayList<ServerCard> stollenCards) throws RemoteException {
+        tableController.stealingCardCompleted(target,thief,stollenCards);
+    }
+
+    @Override
+    public void removeFoxCard(ServerCard foxCard) throws RemoteException {
+        tableController.removeFoxCard(foxCard);
+    }
 }
 

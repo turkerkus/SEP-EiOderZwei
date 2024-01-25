@@ -48,4 +48,8 @@ public interface ClientUIUpdateListener extends Remote {
     void updateChat(String message, UUID playerId) throws RemoteException;
 
     void switchToResultTable(ServerPlayer winner) throws RemoteException;
+
+    void stealingCardCompleted(UUID target, UUID thief, ArrayList<ServerCard> stollenCards) throws RemoteException;
+
+    void removeFoxCard(ServerCard drawnCard) throws RemoteException;
 }

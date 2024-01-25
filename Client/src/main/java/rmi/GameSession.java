@@ -1,14 +1,14 @@
 package rmi;
 
-import javafx.concurrent.Task;
-import sharedClasses.ClientUIUpdateListener;
-import sharedClasses.ServerCard;
-import sharedClasses.ServerPlayer;
-import sharedClasses.ServerTable;
+import javafx.application.Platform;
+import sharedClasses.*;
 
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class GameSession {
@@ -295,15 +295,8 @@ public class GameSession {
         }, 0, 1000);
     }
 
+    ArrayList<ServerCard> stollenCards;
 
-    /**
-     * This method resets the stealing flag and, if needed, continues the timer.
-     * If the timer has already reached zero, it ends the player's turn.
-     */
-    public synchronized void stealingProcessCompleted() {
-        //isStealingInProgress = false;
-        this.notifyAll(); // Notify all waiting threads
-    }
 
 
 
@@ -492,16 +485,15 @@ public class GameSession {
         return serverTable.getPlayer(roosterPlayerId);
     }
 
-    private UUID thief ;
+    private UUID thiefID;
 
     public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId) {
-        thief = clientId;
+        thiefID = clientId;
         serverTable.setStolenCard(selectedCards.get(0));
         serverTable.setTarget(target);
         serverTable.getPlayer(target).remove(serverTable.getStolenCard().getServeCardID(), serverTable.getStolenCard().getType());
         serverTable.getPlayer(clientId).addCard(selectedCards.get(0));
         setBroadcastSent(BroadcastType.ONE_CARD_STOLEN, true);
-        //TODO FINISH THIS
         try {
             broadcastSafeCommunication(BroadcastType.ONE_CARD_STOLEN);
         } catch (RemoteException e) {
@@ -511,14 +503,97 @@ public class GameSession {
 
     }
 
+    private ServerCard foxCard ;
+
+    // remove the fox card if the one stealing the card was not able to a card because the
+    // opponent has no cards
+    public void removeFoxCard(ServerCard foxCard) {
+        this.foxCard = foxCard;
+        setBroadcastSent(BroadcastType.REMOVE_FOX_CARD, true);
+        try {
+            broadcastSafeCommunication(BroadcastType.REMOVE_FOX_CARD);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void stealAllCards(UUID target, UUID clientId) {
         //TODO FINISH THIS
         serverTable.setTarget(target);
-        ServerPlayer targetedPlayer = serverTable.getPlayer(target);
-        ArrayList<Map<UUID, ServerCard>> hand = new ArrayList<>();
-        hand.add(targetedPlayer.getCardHand().getBioCornCards());
-        hand.add(targetedPlayer.getCardHand().getCornCards());
+        thiefID = clientId;
+        setBroadcastSent(BroadcastType.ALL_CARDS_STOLEN,true);
+        try {
+            broadcastSafeCommunication(BroadcastType.ALL_CARDS_STOLEN);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
 
+
+    }
+    public void stealingInProgress(UUID playerId, UUID targetId, ServerCard selectedCard) {
+        System.out.println("request to steal all cards accepted");
+        serverTable.setTarget(targetId);
+        thiefID = playerId;
+        ServerPlayer targetedPlayer = serverTable.getPlayer(targetId);
+        ServerPlayer thief = serverTable.getPlayer(thiefID);
+        stollenCards = new ArrayList<>();
+
+        // get targeted player hand
+        Hand hand = targetedPlayer.getCardHand();
+
+        // add the stollen cards to the thief's hand and list
+        Map<UUID, ServerCard> bioCornCards = hand.getBioCornCards();
+        for (Map.Entry<UUID,ServerCard> entry : bioCornCards.entrySet()){
+            ServerCard card = entry.getValue();
+            if (!card.getServeCardID().equals(selectedCard.getServeCardID())){
+                stollenCards.add(card);
+                thief.addCard(card);
+            }
+
+
+        }
+        // remove the cards from the targets hand
+        removeMultipleCards(targetId,stollenCards);
+
+        Map<UUID, ServerCard> cornCards = hand.getCornCards();
+        for (Map.Entry<UUID,ServerCard> entry : cornCards.entrySet()){
+            ServerCard card = entry.getValue();
+            if (!card.getServeCardID().equals(selectedCard.getServeCardID())){
+                stollenCards.add(card);
+                thief.addCard(card);
+            }
+        }
+        // remove the cards from the targets hand
+        removeMultipleCards(targetId,stollenCards);
+        setBroadcastSent(BroadcastType.STEALING_CARD_COMPLETED,true);
+        try {
+            broadcastSafeCommunication(BroadcastType.STEALING_CARD_COMPLETED);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        endPlayerTurn();
+
+    }
+
+
+    public void removeMultipleCards(UUID playerID, ArrayList<ServerCard> discardedCards) {
+        // Executor to schedule card removal with delays
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+
+        // Schedule the card removal with a delay
+        int delay = 0; // Initial delay
+        for (ServerCard card : discardedCards) { // No need to create a new ArrayList here
+            executorService.schedule(() -> Platform.runLater(() ->
+                    serverTable.getPlayer(playerID).remove(card.getServeCardID(),card.getType())), delay, TimeUnit.SECONDS);
+            delay += 1; // Increment delay for the next card
+        }
+
+        // Ensure the executor service is properly shutdown after all tasks
+        executorService.schedule(() -> {
+            // Reorganize the GridPane after all removals are complete
+            Platform.runLater(() -> serverTable.getPlayer(playerID));
+            executorService.shutdown();
+        }, delay + 1, TimeUnit.SECONDS); // Schedule this after the last removal
 
     }
 
@@ -582,10 +657,16 @@ public class GameSession {
                                 listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(), serverTable.getEggPoints(), serverTable.getDiscardedSelectedCards());
                                 break;
                             case ONE_CARD_STOLEN:
-                                listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), thief);
+                                listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), thiefID);
+                                break;
+                            case REMOVE_FOX_CARD:
+                                listener.removeFoxCard( foxCard);
                                 break;
                             case ALL_CARDS_STOLEN:
-                                listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpielerID());
+                                listener.allCardsStolen(serverTable.getTarget(), thiefID);
+                                break;
+                            case STEALING_CARD_COMPLETED:
+                                listener.stealingCardCompleted(serverTable.getTarget(), thiefID, stollenCards);
                                 break;
                             case CHAT:
                                 if(currentChatMessage != null){
@@ -619,6 +700,7 @@ public class GameSession {
         // Update the broadcast status after all players have been handled
         setBroadcastSent(broadcastType, false);
     }
+
 
 
 }

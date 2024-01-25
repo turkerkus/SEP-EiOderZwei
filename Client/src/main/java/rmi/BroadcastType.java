@@ -28,4 +28,8 @@ public enum BroadcastType {
 
     ALL_CARDS_STOLEN,
 
+    STEALING_CARD_COMPLETED,
+
+    REMOVE_FOX_CARD,
+
 }

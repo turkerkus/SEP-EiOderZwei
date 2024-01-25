@@ -260,13 +260,19 @@ public class Client implements ClientInter {
         serverStub.stealAllCards(target, clientId, gameId);
     }
 
-    @Override
-    public void stealingProcessComplete() throws RemoteException{
-        serverStub.stealingProcessComplete(gameId);
-    }
 
     @Override
     public void endPlayerTurn() throws RemoteException {
         serverStub.endPlayerTurn(gameId);
+    }
+
+    @Override
+    public void stealingInProgress(UUID playerId, UUID targetId, ServerCard selectedCard) throws RemoteException {
+        serverStub.stealingInProgress(gameId,playerId,targetId,selectedCard);
+    }
+
+    @Override
+    public void removeFoxCard(ServerCard foxCard) throws RemoteException {
+        serverStub.removeFoxCard(gameId,foxCard);
     }
 }
