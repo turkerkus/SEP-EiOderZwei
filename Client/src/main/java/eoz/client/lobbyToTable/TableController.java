@@ -21,6 +21,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import rmi.GameSession;
+import sharedClasses.ClientUIUpdateListenerImpl;
 import sharedClasses.Message;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
@@ -41,10 +43,11 @@ import java.util.concurrent.TimeUnit;
 
 public class TableController implements Serializable, Initializable {
     //chat Vars start
+    GameSession gameSession;
     @FXML
     public AnchorPane chatPane;
     @FXML
-    public TextArea txtMsg;
+    public TextArea input;
     @FXML
     public ScrollPane scrollPane;
     @FXML
@@ -144,19 +147,30 @@ public class TableController implements Serializable, Initializable {
 
     private Boolean isGameStarted = false;
 
+    public void updateChat(String message, UUID playerId) {
+        Platform.runLater(() -> {
+            String playerName = players.get(playerId).getServerPlayerName();
+            Text chatText = new Text("   " + playerName+ ": " + message);
+            chatText.wrappingWidthProperty().bind(chatBox.widthProperty());
+            chatBox.getChildren().add(chatText);
+        });
+
+    }
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for(Node text : emojiList.getChildren()){
             text.setOnMouseClicked(event -> {
-                txtMsg.setText(txtMsg.getText()+ " " +((Text)text).getText());
+                input.setText(input.getText()+ " " +((Text)text).getText());
                 emojiList.setVisible(false);
             });
         }
         scrollPane.vvalueProperty().bind(chatBox.heightProperty());
-        this.txtMsg.textProperty().addListener(new ChangeListener<Object>() {
+        this.input.textProperty().addListener(new ChangeListener<Object>() {
             @Override
             public void changed(ObservableValue<?> observable, Object oldValue, Object newValue){
-                txtMsg.setScrollTop(Double.MAX_VALUE);
+                input.setScrollTop(Double.MAX_VALUE);
             }
         });
 
@@ -164,19 +178,22 @@ public class TableController implements Serializable, Initializable {
     }
 
     @FXML
-    public void sendAction(ActionEvent actionEvent) throws RemoteException{
-        String msg = this.txtMsg.getText();
-        if(!msg.isEmpty() && !msg.isBlank())
-            this.client.sendChatMessage(msg);
-        this.txtMsg.setText("");
+    public void sendAction() throws RemoteException{
+        String msg = input.getText().trim();
+        if(!msg.isEmpty() && !msg.isBlank()){
+            client.sendChatMessage(msg);
+            input.setText("");
+        }
+
     }
     @FXML
     public void enterChatHandle(KeyEvent event) throws RemoteException{
         if(event.getCode().equals(KeyCode.ENTER)){
-            String msg = this.txtMsg.getText();
-            if(!msg.isEmpty() && !msg.isBlank())
-                this.client.sendChatMessage(msg);
-            this.txtMsg.setText("");
+            String msg = this.input.getText();
+            if(!msg.isEmpty() && !msg.isBlank()){
+                client.sendChatMessage(msg);
+                input.setText("");
+            }
         }
     }
 
@@ -185,7 +202,7 @@ public class TableController implements Serializable, Initializable {
         emojiList.setVisible(!emojiList.isVisible());
     }
 
-    public String getCurrentTimestamp(){
+    /*public String getCurrentTimestamp(){
         Date date = new Date(System.currentTimeMillis());
         String timestamp = this.tformatter.format(date);
 
@@ -193,14 +210,10 @@ public class TableController implements Serializable, Initializable {
     }
 
     public void addToTextArea(String text){
-        if(this.txtMsg.getText().isEmpty())
-            this.txtMsg.setText(text);
-        else this.txtMsg.appendText("\n" + text);
-    }
-
-    public void addToTextArea(Message message){
-        this.addToTextArea(message.getTimestamp() + " " + message.getPlayerName() + ": " + message.getContent());
-    }
+        if(this.input.getText().isEmpty())
+            this.input.setText(text);
+        else this.input.appendText("\n" + text);
+    }*/
 
 
     public Client getClient() {

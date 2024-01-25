@@ -151,6 +151,11 @@ public class Server implements Remote, ServerInter {
     }
 
     @Override
+    public void sendChatMessage(String content, UUID gameId, UUID clientId) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).sendChatMessage(clientId, content);
+    }
+
+    @Override
     public void unregisterClient(UUID clientId, UUID gameID) throws RemoteException {
 
         if (gameID != null){

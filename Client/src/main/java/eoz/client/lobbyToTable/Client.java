@@ -56,7 +56,7 @@ public class Client implements ClientInter {
 
     @Override
     public void sendChatMessage(String content) throws RemoteException {
-        //TODO
+        serverStub.sendChatMessage(content, gameId, clientId);
     }
 
     // Getter for clientId

@@ -16,6 +16,7 @@ public class GameSession {
     private boolean gameStarted = false;
 
     private String gameName;
+    private String currentChatMessage;
 
     private boolean isGameSessionReady = false;
     private Integer numberOfHumanPlayersPresent = 0;
@@ -72,6 +73,19 @@ public class GameSession {
         setBroadcastSent(BroadcastType.SWITCH_TO_TABLE, true);
 
     }
+    public void setCurrentChatMessage(String message) {
+        this.currentChatMessage = message;
+    }
+
+    private UUID chatSenderId;
+    public void sendChatMessage(UUID senderId, String message) throws RemoteException {
+        this.chatSenderId = senderId;
+        setCurrentChatMessage(message);
+        setBroadcastSent(BroadcastType.CHAT, true);
+        broadcastSafeCommunication(BroadcastType.CHAT);
+        setCurrentChatMessage(null);
+    }
+
     public void setBroadcastSent(BroadcastType type, boolean notSent) {
         broadcastStatus.put(type, notSent);
     }
@@ -492,8 +506,7 @@ public class GameSession {
         UUID activePlayerId = serverTable.getActiveSpielerID();
             for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
                 UUID playerID = entry.getKey();
-                ServerPlayer player = entry.getValue();
-                // Now use safeClientCommunication for each player
+                ServerPlayer player = entry.getValue(); // Now use safeClientCommunication for each player
                 safeClientCommunication(player, listener -> {
                     // Implementing a retry mechanism before deciding to remove a client due to the client
                     // disconnected from the server or leaves game  session
@@ -546,8 +559,14 @@ public class GameSession {
                                 case ALL_CARDS_STOLEN:
                                     listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpielerID());
                                     break;
+                                case CHAT:
+                                    if(currentChatMessage != null){
+                                        listener.updateChat(currentChatMessage, chatSenderId);
+                                    }
+                                    break;
                                 // Add cases for other BroadcastTypes if needed
                             }
+
                             success = true;
                         } catch (RemoteException e) {
                             if (attempt == maxRetries - 1) {
@@ -573,6 +592,7 @@ public class GameSession {
         // Update the broadcast status after all players have been handled
         setBroadcastSent(broadcastType, false);
     }
+
 
 
 

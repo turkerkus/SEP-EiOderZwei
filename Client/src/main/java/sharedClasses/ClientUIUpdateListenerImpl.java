@@ -12,7 +12,6 @@ import javafx.application.Platform;
 
 public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements ClientUIUpdateListener, Serializable {
 
-
     public void setLobbyRoomController(LobbyRoomController lobbyRoomController) {
         this.lobbyRoomController = lobbyRoomController;
     }
@@ -142,6 +141,11 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     @Override
     public void allCardsStolen(UUID target, UUID playerId) throws RemoteException {
         tableController.allCardsStolen(target, playerId);
+    }
+
+    @Override
+    public void updateChat(String message, UUID playerId) throws RemoteException {
+            tableController.updateChat(message, playerId);
     }
 }
 

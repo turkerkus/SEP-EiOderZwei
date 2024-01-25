@@ -150,4 +150,6 @@ public interface ServerInter extends Remote {
     void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId, UUID gameId) throws RemoteException;
 
     void stealAllCards(UUID target, UUID clientId, UUID gameId) throws RemoteException;
+
+    void sendChatMessage(String content, UUID gameId, UUID clientId) throws RemoteException;
 }

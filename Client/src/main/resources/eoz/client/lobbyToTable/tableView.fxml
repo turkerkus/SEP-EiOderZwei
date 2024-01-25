@@ -21,7 +21,7 @@
 <SplitPane fx:id="splitPane" dividerPositions="0.173" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.TableController">
     <AnchorPane fx:id="chatPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="980.0" prefWidth="255.0" stylesheets="@chat.css" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0" SplitPane.resizableWithParent="true">
         <children>
-            <TextArea fx:id="txtMsg" accessibleRole="PARENT" layoutY="929.0" prefHeight="51.0" prefWidth="219.0" onKeyPressed="#enterChatHandle" promptText="Type text here" wrapText="true" />
+            <TextArea fx:id="input" accessibleRole="PARENT" layoutY="929.0" prefHeight="51.0" prefWidth="219.0" onKeyPressed="#enterChatHandle" promptText="Type text here" wrapText="true" />
             <ScrollPane fx:id="scrollPane" accessibleRole="PARENT" layoutX="-6.0" prefHeight="931.0" prefWidth="260.0" vvalue="1.0">
                 <content>
                     <VBox fx:id="chatBox" alignment="TOP_RIGHT" prefHeight="451.0" prefWidth="257.0" />
