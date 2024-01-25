@@ -12,7 +12,7 @@ public interface ClientUIUpdateListener extends Remote {
     void updateUI(String command) throws RemoteException;
     String getClientName() throws RemoteException;
     void setClientName(String clientName) throws RemoteException;
-    LobbyRoomController getLobbyRoomController() throws RemoteException;
+
 
     void setNumOfPlayers(int numOfPlayers)throws RemoteException;
 
@@ -36,9 +36,9 @@ public interface ClientUIUpdateListener extends Remote {
 
     void changeRoosterPlayer(UUID oldRoosterPlayerID, UUID newRoosterPlayerID) throws RemoteException;
 
-    void drawnKuckuckCard(UUID playerID) throws RemoteException;
+    void drawnKuckuckCard(UUID playerID, ServerCard kuckuckCard) throws RemoteException;
 
-    void drawnFoxCard (UUID playerID) throws RemoteException;
+    void drawnFoxCard (UUID playerID, ServerCard foxCard) throws RemoteException;
 
     void cardDiscarded (UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException;
 
@@ -47,4 +47,5 @@ public interface ClientUIUpdateListener extends Remote {
     void allCardsStolen(UUID target, UUID playerId) throws RemoteException;
     void updateChat(String message, UUID playerId) throws RemoteException;
 
+    void switchToResultTable(ServerPlayer winner) throws RemoteException;
 }

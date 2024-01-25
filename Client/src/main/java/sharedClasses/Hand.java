@@ -12,28 +12,19 @@ public class Hand implements Serializable {
     private Map<UUID, ServerCard> bioCornCards = new ConcurrentHashMap<>();
     private Map<UUID, ServerCard> foxCards = new ConcurrentHashMap<>();
     private Map<UUID, ServerCard> cornCards = new ConcurrentHashMap<>();
+    private Map<UUID, ServerCard> kuckuckCards = new ConcurrentHashMap<>();
 
-    public void setKuckuck(ServerCard kuckuck) {
-        this.kuckuck = kuckuck;
+    public void setKuckuck(Map<UUID, ServerCard> kuckuckCards ) {
+        this.kuckuckCards = kuckuckCards;
     }
 
-    public ServerCard getKuckuck() {
-        return kuckuck;
+    public Map<UUID, ServerCard> getKuckuckCards() {
+        return kuckuckCards;
     }
 
-    private ServerCard kuckuck;
 
-    public int getNumOfBioCornCard() {
-        return numOfBioCornCard;
-    }
 
-    public int getNumOfCornCard() {
-        return numOfCornCard;
-    }
 
-    private int numOfBioCornCard = 0;
-
-    private int numOfCornCard = 0;
 
 
     public int size(){
@@ -70,25 +61,28 @@ public class Hand implements Serializable {
             case "Koerner" -> cornCards.get(cardID);
             case "BioKoerner" -> bioCornCards.get(cardID);
             case "Fuchs" -> foxCards.get(cardID);
+            case "Kuckuck" -> kuckuckCards.get(cardID);
             default -> null;
         };
     }
 
+
+
     public void addCardToHand(ServerCard serverCard){
         switch (serverCard.getType()){
             case "Koerner":
-                this.numOfCornCard += serverCard.getValue();
+                //this.numOfCornCard += serverCard.getValue();
                  cornCards.put(serverCard.getServeCardID(),serverCard);
                  break;
             case "BioKoerner":
-                this.numOfBioCornCard += serverCard.getValue();
+                //this.numOfBioCornCard += serverCard.getValue();
                  bioCornCards.put(serverCard.getServeCardID(),serverCard);
                  break;
             case "Fuchs":
                  foxCards.put(serverCard.getServeCardID(),serverCard);
                  break;
             default:
-                kuckuck = serverCard;
+                kuckuckCards.put(serverCard.getServeCardID(),serverCard);
                 break;
         }
     }
@@ -97,18 +91,20 @@ public class Hand implements Serializable {
         switch (cardType){
             case "Koerner":
                 ServerCard corn = cornCards.get(cardID);
-                this.numOfCornCard -= corn.getValue();
+                //this.numOfCornCard -= corn.getValue();
                 cornCards.remove(cardID);
                 break;
             case "BioKoerner":
                 ServerCard bio = bioCornCards.get(cardID);
-                this.numOfBioCornCard -= bio.getValue();
+               // this.numOfBioCornCard -= bio.getValue();
                 bioCornCards.remove(cardID);
                 break;
             case "Fuchs":
                 foxCards.remove(cardID);
                 break;
-
+            default:
+                kuckuckCards.remove(cardID);
+                break;
         }
     }
 

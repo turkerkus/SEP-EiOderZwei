@@ -1,34 +1,49 @@
 package rmi;
 
-import sharedClasses.Hand;
-import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 import sharedClasses.ServerTable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class GameLogic {
+
+
+    private ServerPlayer winner = null; // Initialize the winner variable
+    public ServerPlayer getWinner() {
+        return winner;
+    }
+
     public ServerPlayer findWinningPlayer(Map<UUID, ServerPlayer> spielerArray, ServerTable serverTable) {
-        if (serverTable.getMoveCount() < 1000) {              //Spätestens nach 1000 Durchläufen terminiert das Spiel (sollte eigentlich nie dadurch passieren)
-            for (Map.Entry<UUID, ServerPlayer> entry  : spielerArray.entrySet()) {              // Überprüft ob einer der Spieler gewonnen hat
+        System.out.println();
+        System.out.println("From Game Logic Checking the winner");
+
+
+
+        if (serverTable.getMoveCount() < 1000) {
+            int requiredPoints = switch (spielerArray.size()) {
+                case 2 -> 9;
+                case 3 -> 8;
+                case 4 -> 7;
+                case 5 -> 6;
+                case 6 -> 5;
+                default -> 0;
+            };
+
+            for (Map.Entry<UUID, ServerPlayer> entry : spielerArray.entrySet()) {
                 ServerPlayer spieler = entry.getValue();
-                if (spieler.getPunkte() >= 9 && spielerArray.size() == 2) {                 // 2 Spieler: 9 Eier
-                    return spieler;
-                } else if (spieler.getPunkte() >= 8 && spielerArray.size() == 3) {          // 3 Spieler: 8 Eier
-                    return spieler;
-                }else if (spieler.getPunkte() >= 7 && spielerArray.size() == 4) {           // 4 Spieler: 7 Eier
-                    return spieler;
-                }else if (spieler.getPunkte() >= 6 && spielerArray.size() == 5) {           // 6 Spieler: 5 Eier
-                    return spieler;
-                }else if (spieler.getPunkte() >= 5 && spielerArray.size() == 6) {           // 6 Spieler: 5 Eier
-                    return spieler;
+                System.out.println(spieler.getServerPlayerName() + " has " + spieler.getPunkte() + " points");
+
+                if (spieler.getPunkte() >= requiredPoints) {
+                    winner = spieler; // Set the winner
+                    break; // No need to continue checking if we found a winner
                 }
             }
         }
-        return null;
+
+        System.out.println();
+        return winner; // Return the winner or null if there's no winner yet
     }
+
 
 }

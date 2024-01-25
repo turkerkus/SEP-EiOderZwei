@@ -19,15 +19,12 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import rmi.GameSession;
-import sharedClasses.ClientUIUpdateListenerImpl;
-import sharedClasses.Message;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
-import javafx.scene.text.TextFlow;
-import javafx.scene.text.Text;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -43,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TableController implements Serializable, Initializable {
     //chat Vars start
-    GameSession gameSession;
+
     @FXML
     public AnchorPane chatPane;
     @FXML
@@ -59,7 +56,7 @@ public class TableController implements Serializable, Initializable {
     @FXML
     public Button btnEmoji;
 
-    private SimpleDateFormat tformatter;
+    private SimpleDateFormat tFormatter;
     //Chat Vars end
     @FXML
     public Label p1;
@@ -174,7 +171,7 @@ public class TableController implements Serializable, Initializable {
             }
         });
 
-        this.tformatter = new SimpleDateFormat("[HH:mm:ss]");
+        this.tFormatter = new SimpleDateFormat("[HH:mm:ss]");
     }
 
     @FXML
@@ -204,7 +201,7 @@ public class TableController implements Serializable, Initializable {
 
     /*public String getCurrentTimestamp(){
         Date date = new Date(System.currentTimeMillis());
-        String timestamp = this.tformatter.format(date);
+        String timestamp = this.tFormatter.format(date);
 
         return  timestamp;
     }
@@ -407,10 +404,8 @@ public class TableController implements Serializable, Initializable {
     public void startGameUiUpdate() {
         Spieler currentPlayer = players.get(this.currentPlayerID);
         Label currentPlayerLabel = currentPlayer.getPlayerLabel();
-        System.out.println("this is the current player" + currentPlayer);
         if (currentPlayerLabel != null) {
             // Create a glow effect
-            System.out.println("this is the current player is not null");
             DropShadow dropShadow = new DropShadow();
             dropShadow.setColor(Color.GOLD);
             dropShadow.setRadius(20);
@@ -566,7 +561,7 @@ public class TableController implements Serializable, Initializable {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Player Left");
             alert.setHeaderText("Player has left the game session");
-            alert.setContentText("Player with ID " + disconnectedPlayerID + " has left the game session.");
+            alert.setContentText(players.get(disconnectedPlayerID)+ " has left the game session.");
 
             // Add a button to acknowledge the message
             alert.getButtonTypes().setAll(ButtonType.OK);
@@ -594,8 +589,6 @@ public class TableController implements Serializable, Initializable {
 
         try {
 
-            System.out.println("Draw card : the id of the client drawing the card " + client.getClientId());
-            System.out.println("Draw card : the id of the currentPlayerId  " + this.currentPlayerID);
 
             if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
                 client.drawCard();
@@ -654,12 +647,11 @@ public class TableController implements Serializable, Initializable {
     }
 
 
-    private CardGridPane cloneGridPaneWithImageViews(CardGridPane originalGridPane,Boolean onlySingleSelection) {
+    private CardGridPane cloneGridPaneWithImageViews(CardGridPane originalGridPane, Boolean onlySingleSelection) {
         CardGridPane clonedGridPane = new CardGridPane();
         cardImageViewMap = new HashMap<>();
         for (Node node : originalGridPane.getChildren()) {
-            if (node instanceof ImageView) {
-                ImageView originalImageView = (ImageView) node;
+            if (node instanceof ImageView originalImageView) {
                 ImageView clonedImageView = new ImageView(originalImageView.getImage());
 
                 // Set a maximum width and height for the clonedImageView
@@ -668,7 +660,7 @@ public class TableController implements Serializable, Initializable {
                 ServerCard card = (ServerCard) originalImageView.getUserData();
                 clonedImageView.setUserData(card); // Preserve the card data
                 if (Objects.equals(card.getType(), "Koerner") || Objects.equals(card.getType(), "BioKoerner")) {
-                    if(onlySingleSelection){
+                    if (onlySingleSelection) {
                         clonedImageView.setOnMouseClicked(event -> handleSingleCardSelection(clonedImageView));
                     } else {
                         clonedImageView.setOnMouseClicked(event -> handleCardClick(clonedImageView));
@@ -690,7 +682,7 @@ public class TableController implements Serializable, Initializable {
 
         UUID clientId = client.getClientId();
         Spieler player = players.get(clientId);
-        CardGridPane sourceGridPane = cloneGridPaneWithImageViews(player.getCardGridPane(),false);
+        CardGridPane sourceGridPane = cloneGridPaneWithImageViews(player.getCardGridPane(), false);
 
         // Create the dialog
         Dialog<Void> dialog = new Dialog<>();
@@ -724,7 +716,7 @@ public class TableController implements Serializable, Initializable {
 
     public ArrayList<Integer> calculateEggPoints(ArrayList<ServerCard> selectedCards) {
         int kornzahl = 0;
-        int bkornzahl = 0;
+        int bKornzahl = 0;
         int kornzahlwert = 0;
         int bKornzahlwert = 0;
         int eggPoints = 0;
@@ -733,12 +725,12 @@ public class TableController implements Serializable, Initializable {
             if (c.getType().equals("Koerner")) {
                 kornzahl += 1;
             } else {
-                bkornzahl += 1;
+                bKornzahl += 1;
             }
         }
 
         for (ServerCard c : selectedCards) {
-            if (kornzahl == 0 && bkornzahl >= 1) {      //nur Biokörner
+            if (kornzahl == 0 && bKornzahl >= 1) {      //nur Biokörner
                 bKornzahlwert += c.getValue();
             } else {                              //normale oder gemischte Körner
                 kornzahlwert += c.getValue();
@@ -756,8 +748,6 @@ public class TableController implements Serializable, Initializable {
         eggPoints += (int) Math.floor(bKornzahlwert / 5) * 2;
 
 
-
-
         return new ArrayList<>(Arrays.asList(eggPoints, kornzahlwert, bKornzahlwert));
     }
 
@@ -773,9 +763,13 @@ public class TableController implements Serializable, Initializable {
                     Integer kornzahlwert = points.get(1);
                     Integer bKornzahlwert = points.get(2);
 
-                    //TODO: ask if we will get any card from the ablageDeck
+
 
                     if (kornzahlwert >= 5 || bKornzahlwert >= 5) {
+                        System.out.println(players.get(client.getClientId()).getServerPlayerName() + " has is changing the following cards for egg Points!");
+                        for (ServerCard card : selectedCards){
+                            System.out.println(card.toString());
+                        }
                         client.karteUmtauschen(eggPoints, selectedCards);
 
                     } else {
@@ -809,8 +803,8 @@ public class TableController implements Serializable, Initializable {
         Spieler player = players.get(clientId);
         try {
             if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-                Spieler roosterPlayer = players.get(client.getRoosterPlayer().getServerPlayerId()) ;
-                Integer roosterPlayerPoint = roosterPlayer.getPunkte();
+                Spieler roosterPlayer = players.get(client.getRoosterPlayer().getServerPlayerId());
+                int roosterPlayerPoint = roosterPlayer.getPunkte();
                 if (player.getPunkte() < roosterPlayerPoint && !player.hatHahnKarte()) {
                     client.hahnKlauen();
                 } else {
@@ -879,7 +873,7 @@ public class TableController implements Serializable, Initializable {
     }
 
 
-    public void drawnKuckuckCard(UUID playerId) {
+    public void drawnKuckuckCard(UUID playerId, ServerCard kuckuckCard) {
         Platform.runLater(() -> {
             Spieler player = players.get(playerId);
             if (Objects.equals(playerId, client.getClientId())) {
@@ -890,7 +884,7 @@ public class TableController implements Serializable, Initializable {
                 alert.showAndWait();
 
                 player.raisePunkte();
-                ServerCard kuckuckCard = player.getKuckuckCard();
+
                 removeMultipleCards(playerId, new ArrayList<>(Collections.singletonList(kuckuckCard)));
 
 
@@ -901,7 +895,6 @@ public class TableController implements Serializable, Initializable {
                 alert.setContentText("His/her egg-Score has been increased by 1!");
                 alert.showAndWait();
                 player.raisePunkte();
-                ServerCard kuckuckCard = player.getKuckuckCard();
                 removeMultipleCards(playerId, new ArrayList<>(Collections.singletonList(kuckuckCard)));
             }
 
@@ -909,7 +902,7 @@ public class TableController implements Serializable, Initializable {
 
     }
 
-    public void drawnFoxCard(UUID playerID) {
+    public void drawnFoxCard(UUID playerID, ServerCard foxCard) {
         Platform.runLater(() -> {
             selectedCards = new ArrayList<>();
             if (Objects.equals(playerID, client.getClientId())) {
@@ -937,9 +930,10 @@ public class TableController implements Serializable, Initializable {
                 // Buttons for the actions
                 ButtonType stealOneButtonType = new ButtonType("Steal one card", ButtonBar.ButtonData.OK_DONE);
                 ButtonType stealAllButtonType = new ButtonType("Steal all cards", ButtonBar.ButtonData.OK_DONE);
+                ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE); // Set as default
 
                 // Add action buttons to the dialog
-                dialog.getDialogPane().getButtonTypes().addAll(stealOneButtonType, stealAllButtonType, ButtonType.CANCEL);
+                dialog.getDialogPane().getButtonTypes().addAll(stealOneButtonType, stealAllButtonType, cancelButtonType);
 
                 // Set the TabPane as the content of the dialog
                 dialog.getDialogPane().setContent(tabPane);
@@ -950,57 +944,120 @@ public class TableController implements Serializable, Initializable {
                     Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
                     UUID target = null;
                     for (Spieler spieler : players.values()) {
-                        if(selectedTab.getText().equals(spieler.getServerPlayerName())){
+                        if (selectedTab.getText().equals(spieler.getServerPlayerName())) {
                             target = spieler.getServerPlayerId();
                         }
                     }
-                    if (dialogButton == stealOneButtonType) {
-                        // Logic to steal one card from the selected player
-                        try {
-                            client.stealOneCard(target, selectedCards);
-                        } catch (RemoteException e){
-                            throw new RuntimeException(e);
-                        }
+                    try {
+                        if (dialogButton == stealOneButtonType) {
+                            // Logic to steal one card from the selected player
 
-                    } else if (dialogButton == stealAllButtonType) {
-                        // Logic to steal all cards from the selected player
-                        try {
+                            if (selectedCards.isEmpty()) {
+                                client.endPlayerTurn();
+                                dialog.close();
+                            } else {
+                                client.stealOneCard(target, selectedCards);
+                            }
+
+                        } else if (dialogButton == stealAllButtonType) {
+                            // Logic to steal all cards from the selected player
                             client.stealAllCards(target);
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
+                        } else{
+                            client.endPlayerTurn();
                         }
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
                     }
                     return null; // Dialog has no result
                 });
 
+                // if the window of the dialog is close without stealing any card endPlayer turn
+                dialog.getDialogPane().getScene().getWindow().setOnCloseRequest(event -> {
+                    try {
+                        client.endPlayerTurn();
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+
+
                 // Show the dialog and wait for the user's response
                 dialog.showAndWait();
+
+            } else {
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("A Fox card!");
+                alert.setHeaderText(players.get(playerID).getServerPlayerName() + " has drawn a Fox card!");
+                alert.setContentText("He/She has the chance to steal a card/s");
+                alert.showAndWait();
             }
+            // remove card from the target
+            removeMultipleCards(playerID, new ArrayList<>(Collections.singletonList(foxCard)));
+
         });
     }
 
-    public void oneCardStolen(UUID targetId, ServerCard stolencard, UUID playerId){
+    public void oneCardStolen(UUID targetId, ServerCard stolenCard, UUID playerId) {
         // TODO FINISH THE CARD STOLEN METHOD (DELETE IT PROPERLY AND ADD IT ON FOX OWNER)
         Platform.runLater(() -> {
-            if (client.getClientId().equals(targetId)){
-                // TODO set an alert for the opponent who gets stolen. No action needed.
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            Card card = convertCard(stolenCard);
+            Spieler player = players.get(playerId);
+            Spieler targetedPlayer = players.get(targetId);
+            if (client.getClientId().equals(targetId)) {
                 alert.setTitle("A fox appears!");
-                alert.setHeaderText("The following card has been stolen:");
-                // TODO set an Image to view in the alert
-                alert.showAndWait();
-                removeMultipleCards(playerId,new ArrayList<>(Collections.singletonList(stolencard)));
+                alert.setHeaderText(player.getServerPlayerName() + " is stealing the card below from You!");
+            } else if (client.getClientId().equals(playerId)) {
+                alert.setTitle("A fox appears!");
+                alert.setHeaderText("You have successfully stolen the card below: ");
+                try {
+                    client.stealingProcessComplete();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                alert.setTitle("A fox appears!");
+                alert.setHeaderText(player.getServerPlayerName() + " is stealing the card below from " + targetedPlayer.getServerPlayerName() + "!");
             }
+
+            ImageView imageView = new ImageView(card.getImage());
+            imageView.setFitWidth(100); // Set the width as needed
+            imageView.setFitHeight(100); // Set the height as needed
+
+            // Create a custom DialogPane
+            VBox customPane = new VBox(imageView);
+
+            // Set the custom DialogPane with the image as content
+            alert.getDialogPane().setContent(customPane);
+            alert.showAndWait();
+
+            //Add card to the player how is stealing the card
+            players.get(playerId).addCard(card, stolenCard);
+
+            // remove card from the target
+            removeMultipleCards(targetId, new ArrayList<>(Collections.singletonList(stolenCard)));
+
+            // the player stealing the card should notify the server that the stealing process is completed
+            if (client.getClientId().equals(playerId)) {
+                try {
+                    client.stealingProcessComplete();
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
         });
     }
 
-    public void allCardsStolen(UUID targetId, UUID playerId){
+    public void allCardsStolen(UUID targetId, UUID playerId) {
         // TODO FINISH THE METHOD (MAKE A SELECTION FOR THE target, then make a remote to delete and add)
         Platform.runLater(() -> {
-           if (client.getClientId().equals(playerId)){
-               // TODO Selection like getEgg, but only one card is selectable and this gets protected from stealing.
+            if (client.getClientId().equals(playerId)) {
+                // TODO Selection like getEgg, but only one card is selectable and this gets protected from stealing.
 
-           }
+            }
         });
     }
 
@@ -1026,7 +1083,7 @@ public class TableController implements Serializable, Initializable {
             player.increasePointsBy(eggPoints);
 
             // remove the cards
-            removeMultipleCards(playerID,discardedCards);
+            removeMultipleCards(playerID, discardedCards);
 
 
             //display the discarded card on the AblageDeck
@@ -1038,11 +1095,10 @@ public class TableController implements Serializable, Initializable {
             mainCardsGridPane.add(cardView, 0, 0);
 
 
-
         });
     }
 
-    public void removeMultipleCards(UUID playerID, ArrayList<ServerCard> discardedCards){
+    public void removeMultipleCards(UUID playerID, ArrayList<ServerCard> discardedCards) {
         // Executor to schedule card removal with delays
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
@@ -1079,19 +1135,36 @@ public class TableController implements Serializable, Initializable {
     }
 
     private String gameName;
-    public void switchToResults() {
 
-        Platform.runLater(() ->{
+    public void switchToResults(ServerPlayer winner) {
+
+        Platform.runLater(() -> {
             // If gameName is not empty, proceed to switch scenes
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("Spielauswertung.fxml"));
+            Alert winnerAlert = new Alert(Alert.AlertType.INFORMATION);
+            Label winnerLabel = new Label("Winner: " + winner.getServerPlayerName());
+
+            // Create a VBox to hold the winner label
+            VBox vbox = new VBox(winnerLabel);
+
+            // Create an alert dialog and set its content to the VBox
+
+            winnerAlert.setTitle("Game Over");
+            winnerAlert.setHeaderText("Game Over");
+            winnerAlert.getDialogPane().setContent(vbox);
+
+            // Show the alert
+            winnerAlert.showAndWait();
+
+
             try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("Spielauswertung.fxml"));
                 root = loader.load();
                 //create the ServerTable Application and TableController
                 //SpielauswertungApplication spielauswertungApplication = new SpielauswertungApplication();
                 SpielauswertungController spielauswertungController = loader.getController();
                 spielauswertungController.setClient(client);
                 // assign the ServerCard Grid Pane
-               // spielauswertungController.getPlayers();
+                // spielauswertungController.getPlayers();
 
                 // set up the stage
                 Scene scene = new Scene(root);

@@ -1,6 +1,5 @@
 package rmi;
 
-import eoz.client.lobbyToTable.TableController;
 import sharedClasses.*;
 
 import java.rmi.Remote;
@@ -153,6 +152,15 @@ public class Server implements Remote, ServerInter {
     @Override
     public void sendChatMessage(String content, UUID gameId, UUID clientId) throws RemoteException {
         gameSessionManager.getGameSession(gameId).sendChatMessage(clientId, content);
+    }
+    @Override
+    public void stealingProcessComplete(UUID gameId) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).stealingProcessCompleted();
+    }
+
+    @Override
+    public void endPlayerTurn(UUID gameId) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).endPlayerTurn();
     }
 
     @Override

@@ -18,13 +18,9 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
     private LobbyRoomController lobbyRoomController;
 
-    public TableController getTableController() {
-        return tableController;
-    }
 
     public void setTableController(TableController tableController) {
         this.tableController = tableController;
-        System.out.println("the table controller is set");
     }
 
 
@@ -64,13 +60,6 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
     }
 
-    public ClientUIUpdateListenerImpl(int numOfPlayers) throws RemoteException {
-        this.numOfPlayers = numOfPlayers;
-    }
-    @Override
-    public LobbyRoomController getLobbyRoomController()throws RemoteException{
-        return lobbyRoomController;
-    }
 
     @Override
     public void setNumOfPlayers(int numOfPlayers) throws RemoteException {
@@ -111,21 +100,19 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
                 lobbyRoomController.switchSceneToTable();
             } else if ("startPlayerTurn".equals(command)) {
                 tableController.startGameUiUpdate();
-            } else if ("switchResults".equals(command)) {
-                tableController.switchToResults();
             }
 
         });
     }
 
     @Override
-    public void drawnKuckuckCard(UUID playerID) throws RemoteException {
-        tableController.drawnKuckuckCard(playerID);
+    public void drawnKuckuckCard(UUID playerID, ServerCard kuckuckCard) throws RemoteException {
+        tableController.drawnKuckuckCard(playerID, kuckuckCard);
     }
 
     @Override
-    public void drawnFoxCard (UUID playerID) throws RemoteException {
-        tableController.drawnFoxCard(playerID);
+    public void drawnFoxCard (UUID playerID, ServerCard foxCard) throws RemoteException {
+        tableController.drawnFoxCard(playerID, foxCard);
     }
 
     @Override
@@ -146,6 +133,10 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     @Override
     public void updateChat(String message, UUID playerId) throws RemoteException {
             tableController.updateChat(message, playerId);
+    }
+    @Override
+    public void switchToResultTable(ServerPlayer winner) throws RemoteException {
+        tableController.switchToResults(winner);
     }
 }
 

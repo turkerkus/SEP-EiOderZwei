@@ -169,4 +169,8 @@ public interface ClientInter extends Remote, Serializable {
     void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards) throws RemoteException;
     
     void stealAllCards(UUID target) throws RemoteException;
+
+    void stealingProcessComplete() throws RemoteException;
+
+    void endPlayerTurn() throws RemoteException;
 }

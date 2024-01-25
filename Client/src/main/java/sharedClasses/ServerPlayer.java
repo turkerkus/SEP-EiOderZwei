@@ -2,6 +2,7 @@ package sharedClasses;
 
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -74,13 +75,12 @@ public class ServerPlayer implements Serializable {
         punkte += 1;
     }
 
-    public int getBioKornzahl() {return cardHand.getNumOfBioCornCard();}
 
-    public int getKornzahl(){return cardHand.getNumOfCornCard();}
-
-    public ServerCard getKuckuckCard(){
-        return cardHand.getKuckuck();
+    public Map<UUID, ServerCard> getKuckuckCards(){
+        return cardHand.getKuckuckCards();
     }
+
+
 
 
     public Hand getCardHand() {

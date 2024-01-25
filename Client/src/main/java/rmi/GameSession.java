@@ -1,5 +1,6 @@
 package rmi;
 
+import javafx.concurrent.Task;
 import sharedClasses.ClientUIUpdateListener;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
@@ -48,7 +49,8 @@ public class GameSession {
     private Map<UUID, ClientUIUpdateListener> clientListeners = new ConcurrentHashMap<>();
     private Map<BroadcastType, Boolean> broadcastStatus = new ConcurrentHashMap<>();
     private Timer timer;
-    private volatile  Integer timeLeft; // Time left in seconds
+    private volatile Integer timeLeft; // Time left in seconds
+    private volatile boolean isStealingInProgress = true; // Flag to indicate if stealing is done
 
 
     public String getGameName() {
@@ -69,7 +71,7 @@ public class GameSession {
         this.hostPlayerName = hostPlayerName;
         setGameName(gameName);
 
-        addPlayer(clientID,listener,hostPlayerName);
+        addPlayer(clientID, listener, hostPlayerName);
         setBroadcastSent(BroadcastType.SWITCH_TO_TABLE, true);
 
     }
@@ -107,8 +109,6 @@ public class GameSession {
 
     public Map<UUID, ServerPlayer> getServerPlayers() {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
-        players.forEach((key, player) -> System.out.println(player.toString()));
-
         return players;
     }
 
@@ -116,12 +116,12 @@ public class GameSession {
         return gameStarted;
     }
 
-    public void addPlayer(UUID clientID,ClientUIUpdateListener listener,String playerName) {
+    public void addPlayer(UUID clientID, ClientUIUpdateListener listener, String playerName) {
         // Check if the game is already started or the maximum number of players is
         // reached
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         if (!gameStarted && players.size() < getMaxNumOfPlayers()) {
-            serverTable.addplayer(clientID,new ServerPlayer(clientID, playerName, false ));
+            serverTable.addplayer(clientID, new ServerPlayer(clientID, playerName, false));
             clientListeners.put(clientID, listener);
             this.numberOfHumanPlayersPresent++;
         }
@@ -141,7 +141,7 @@ public class GameSession {
             player.setBot(true);
             if (!isGameSessionReady && players.size() < getMaxNumOfPlayers()) {
 
-                serverTable.addplayer(botId,player);
+                serverTable.addplayer(botId, player);
             }
         }
 
@@ -217,6 +217,7 @@ public class GameSession {
 
         }
     }
+
     public void hahnKarteGeben() throws RemoteException {
         broadcastSafeCommunication(BroadcastType.Hahn_karte_Geben);
     }
@@ -228,16 +229,18 @@ public class GameSession {
     private void startPlayerTurn() {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         // Check for end-game condition
-        if (gameLogic.findWinningPlayer(players, this.serverTable) != null) {
-            ServerPlayer GameWinner = gameLogic.findWinningPlayer(players, this.serverTable);
+        ServerPlayer GameWinner = gameLogic.findWinningPlayer(players, this.serverTable);
+        if (GameWinner != null) {
+
 
             //TODO implement what will happen if the player wins
             System.out.print(GameWinner.getServerPlayerName() + "hat gewonnen");
-            timeLeft = 0;
+            timer.cancel();
 
-            setBroadcastSent(BroadcastType.SWITCH_TO_RESULTS,true);
+            setBroadcastSent(BroadcastType.SWITCH_TO_RESULTS, true);
             try {
                 broadcastSafeCommunication(BroadcastType.SWITCH_TO_RESULTS);
+                endGameSession();
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -246,7 +249,7 @@ public class GameSession {
         }
         // broadCast StartGame
         try {
-            setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL,true);
+            setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
             broadcastSafeCommunication(BroadcastType.START_GAME);
             startTurnTimer(45);
         } catch (RemoteException e) {
@@ -288,19 +291,67 @@ public class GameSession {
                     endPlayerTurn();
                 }
             }
+
         }, 0, 1000); // Schedule the task to run every second
     }
+
+    /**
+     * This method resets the stealing flag and, if needed, continues the timer.
+     * If the timer has already reached zero, it ends the player's turn.
+     */
+    public synchronized void stealingProcessCompleted() {
+        isStealingInProgress = false;
+        this.notifyAll(); // Notify all waiting threads
+    }
+
+    /**
+     * Waits for the stealing process to complete before proceeding with drawing a card.
+     * This method creates a background task that blocks until the `isStealingInProgress`
+     * flag becomes true. Once the stealing process is marked as in progress, it proceeds
+     * to draw a card and end the player's turn if applicable.
+     *
+     * @param player The ServerPlayer for whom the card is being drawn.
+     */
+    private void waitForStealingToComplete(ServerPlayer player) {
+        Task<Void> waitTask = new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                synchronized (this) {
+                    while (isStealingInProgress) {
+                        this.wait(); // Use wait instead of sleep
+                    }
+                }
+                return null;
+            }
+        };
+
+        waitTask.setOnSucceeded(e -> {
+            try {
+                drawAndCheckCard(player);
+                if (!serverTable.getDrawnCard().getType().equals("Fuchs")) {
+                    endPlayerTurn();
+                }
+            } catch (RemoteException remoteException) {
+                remoteException.printStackTrace();
+            }
+        });
+
+        new Thread(waitTask).start();
+    }
+
+
+
+
     /**
      * Ends the turn for the specified player and performs end-of-turn actions.
      * Moves to the next player's turn.
      *
      */
-    private void endPlayerTurn() {
+    public void endPlayerTurn() {
         // Perform end-of-turn actions for the player
 
         // Move to the next player's turn
         serverTable.nextSpieler();
-        System.out.println("active = " + serverTable.getActive());
         //setBroadcastSent(BroadcastType.START_GAME, true);
         startPlayerTurn(); // Start the next player's turn
     }
@@ -332,18 +383,18 @@ public class GameSession {
     public void handleDisconnectedClient(UUID disconnectedPlayerId) throws RemoteException {
         ServerPlayer player = serverTable.getPlayer(disconnectedPlayerId);
         System.out.println("Player " + player.getServerPlayerName() + " has left the game and has been replaced by a bot.");
-        numOfBotPlayers ++;
-        if(clientListeners.isEmpty()){  // meaning there is no human player left, so you end the game
+        numOfBotPlayers++;
+        if (clientListeners.isEmpty()) {  // meaning there is no human player left, so you end the game
             timer.cancel();
             endGameSession();
-        } else if(!player.isBot()){
+        } else if (!player.isBot()) {
             String botName = generateFunnyBotName() + "_@Bot" + numOfBotPlayers;
             // remove the player listener
             clientListeners.remove(disconnectedPlayerId);
 
             //swap the player with bot
 
-            serverTable.swapPlayerWithBot(disconnectedPlayerId,botName);
+            serverTable.swapPlayerWithBot(disconnectedPlayerId, botName);
 
             //Broadcast to the other players that the player has left the gameSession
             Map<UUID, ServerPlayer> players = serverTable.getPlayers();
@@ -353,14 +404,14 @@ public class GameSession {
                 // Now use safeClientCommunication for each player
                 safeClientCommunication(serverPlayer, listener -> {
                     try {
-                        listener.playerLeftGameSession(disconnectedPlayerId,botName);
-                    }catch (RemoteException e){
-                        throw  new RuntimeException(e);
+                        listener.playerLeftGameSession(disconnectedPlayerId, botName);
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
                     }
                 });
             }
         }
-        if(clientListeners.isEmpty()){  // meaning there is no human player left, so you end the game
+        if (clientListeners.isEmpty()) {  // meaning there is no human player left, so you end the game
             timer.cancel();
             endGameSession();
         }
@@ -371,10 +422,12 @@ public class GameSession {
     /**
      * this method end the game session by removing it form the Game Map
      */
-    public void endGameSession(){
-        System.out.println("Game session with the id : "+ this.gameId+" has been ended");
+    public void endGameSession() {
+        System.out.println("Game session with the id : " + this.gameId + " has been ended");
         callback.endGameSession(this.gameId);
     }
+
+    private Integer numOfDrawnCards = 0;
 
     /**
      * Lets a player draw a card as a round action.
@@ -384,20 +437,39 @@ public class GameSession {
      */
     public void drawCard(UUID clientId) throws RemoteException {
         ServerPlayer player = serverTable.getPlayer(clientId);
+        // set the number of drawn cards to 0 before drawing a card
+        numOfDrawnCards = 0;
 
         drawAndCheckCard(player);
 
         if (player.hatHahnKarte()) {
-            drawAndCheckCard(player);
+
+
+            // if the first card drawn is a fox card we have to wait for the broadcast of the first fox card to be sent
+            // before drawing another card. Here you only immediate draw another card if the card is not a fox card
+            // and
+            if (serverTable.getDrawnCard().getType().equals("Fuchs")) {
+                // Wait for 5 seconds before drawing another card
+                isStealingInProgress = true;
+                waitForStealingToComplete(player);
+                drawAndCheckCard(player);
+            } else {
+                drawAndCheckCard(player);
+            }
+
+        }
+        if (!serverTable.getDrawnCard().getType().equals("Fuchs")) {
+            endPlayerTurn();
         }
 
-        endPlayerTurn();
     }
 
     private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
         serverTable.karteZiehen(player.getServerPlayerId());
         checkDrawnCard(player.getServerPlayerId());
-
+        // increase the number of drawn cards
+        numOfDrawnCards++;
+        System.out.println("the number of cards drawn is: " + numOfDrawnCards);
     }
 
 
@@ -409,14 +481,12 @@ public class GameSession {
             serverTable.getPlayer(clientId).raisePunkte();
             setBroadcastSent(BroadcastType.DRAWN_KUCKUCK_CARD, true);
             broadcastSafeCommunication(BroadcastType.DRAWN_KUCKUCK_CARD);
-        }
-        else if (Objects.equals(serverTable.getDrawnCard().getType(), "Fuchs")) {
+        } else if (Objects.equals(serverTable.getDrawnCard().getType(), "Fuchs")) {
             System.out.println("Fox drawn. Sending info to player.");
             serverTable.karteAblegen(clientId, card);
             setBroadcastSent(BroadcastType.DRAWN_FOX_CARD, true);
             broadcastSafeCommunication(BroadcastType.DRAWN_FOX_CARD);
-        }
-        else {
+        } else {
             System.out.println("Corn drawn, client can save that.");
 
         }
@@ -424,10 +494,6 @@ public class GameSession {
         broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
     }
 
-    public void discardCard(ServerCard card, UUID clientId) throws RemoteException {
-        serverTable.karteAblegen(clientId, card);
-
-    }
 
     /**
      * Lets a player steal a rooster card as a round action.
@@ -435,7 +501,7 @@ public class GameSession {
      * @param clientId The UUID of the current Client drawing the card.
      * @throws RemoteException if a remote communication error occurs.
      */
-    public void hahnKlauen(UUID clientId) throws RemoteException{
+    public void hahnKlauen(UUID clientId) throws RemoteException {
         setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
         serverTable.setSpielerMitHahnKarte(clientId);
         setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
@@ -449,20 +515,20 @@ public class GameSession {
      * @param clientId The UUID of the current Client drawing the card.
      * @throws RemoteException if a remote communication error occurs.
      */
-    void karteUmtauschen(UUID clientId, Integer eggPoints, ArrayList<ServerCard> selectedCards ) throws RemoteException{
+    void karteUmtauschen(UUID clientId, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException {
         // discard all the cards on the serverTable
-        for (ServerCard serverCard : selectedCards){
-            serverTable.karteAblegen(clientId,serverCard);
+        for (ServerCard serverCard : selectedCards) {
+            serverTable.karteAblegen(clientId, serverCard);
         }
-        serverTable.getPlayer(clientId).setPunkte(eggPoints);
-        serverTable.setEggPoints(eggPoints)  ;
+        serverTable.getPlayer(clientId).increasePointsBy(eggPoints);
+        serverTable.setEggPoints(eggPoints);
         serverTable.setDiscardedSelectedCards(selectedCards);
-        System.out.println("egg points: "+serverTable.getEggPoints());
+        System.out.println(serverTable.getPlayer(clientId).getServerPlayerName() + " has is changing the following cards for egg Points!");
         //TODO REMOVE THIS
         for (ServerCard element : selectedCards) {
             System.out.println(element.toString());
         }
-
+        System.out.println("egg points: "+serverTable.getEggPoints());
         setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
         broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
         endPlayerTurn();
@@ -470,131 +536,136 @@ public class GameSession {
     }
 
 
-    public ServerPlayer getRoosterPlayer(){
+    public ServerPlayer getRoosterPlayer() {
         UUID roosterPlayerId = serverTable.getSpielerMitHahnKarte();
         return serverTable.getPlayer(roosterPlayerId);
     }
 
-    public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId){
+    public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId) {
         serverTable.setStolenCard(selectedCards.get(0));
         serverTable.setTarget(target);
         serverTable.getPlayer(target).remove(serverTable.getStolenCard().getServeCardID(), serverTable.getStolenCard().getType());
         serverTable.getPlayer(clientId).addCard(selectedCards.get(0));
         setBroadcastSent(BroadcastType.ONE_CARD_STOLEN, true);
         //TODO FINISH THIS
-        //broadcastSafeCommunication(BroadcastType.ONE_CARD_STOLEN);
+        try {
+            broadcastSafeCommunication(BroadcastType.ONE_CARD_STOLEN);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+
     }
 
-    public void stealAllCards(UUID target, UUID clientId){
+    public void stealAllCards(UUID target, UUID clientId) {
         //TODO FINISH THIS
         serverTable.setTarget(target);
         ServerPlayer targetedPlayer = serverTable.getPlayer(target);
         ArrayList<Map<UUID, ServerCard>> hand = new ArrayList<>();
         hand.add(targetedPlayer.getCardHand().getBioCornCards());
         hand.add(targetedPlayer.getCardHand().getCornCards());
+
+        endPlayerTurn();
+
     }
 
 
     /**
      * Broadcasts a safe communication to all players with a specified UI update message.
      *
-     * @param broadcastType   The type of broadcast action to perform.
+     * @param broadcastType The type of broadcast action to perform.
      * @throws RemoteException If a remote communication error occurs.
      */
     private void broadcastSafeCommunication(BroadcastType broadcastType) throws RemoteException {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
         UUID activePlayerId = serverTable.getActiveSpielerID();
-            for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
-                UUID playerID = entry.getKey();
-                ServerPlayer player = entry.getValue(); // Now use safeClientCommunication for each player
-                safeClientCommunication(player, listener -> {
-                    // Implementing a retry mechanism before deciding to remove a client due to the client
-                    // disconnected from the server or leaves game  session
-                    boolean success = false;
-                    final int maxRetries = 3;
-                    for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
-                        try {
-                            // Perform the actions based on the BroadcastType
-                            switch (broadcastType) {
-                                case SWITCH_TO_TABLE:
-                                    // Perform specific action for this broadcast type
-                                    player.einsteigen();
-                                    listener.setNumOfPlayers(getMaxNumOfPlayers());
-                                    listener.updateUI("switchToTable");
-                                    break;
-                                case Hahn_karte_Geben:
-                                    System.out.println("hahn");
-                                    UUID roosterCardHolder = serverTable.getSpielerMitHahnKarte();
-                                    listener.hahnKarteGeben(roosterCardHolder);
-                                    break;
-                                case START_GAME:
-                                    // set the current turn to true
-                                    listener.setCurrentPlayerID(activePlayerId);
-                                    listener.updateUI("startPlayerTurn");
-                                    break;
-                                case UPDATE_TIMER_LABEL:
-                                    listener.setTimeLeft(timeLeft);
-                                    break;
-                                case HAS_DRAWN_A_CARD:
-                                    listener.hasDrawnACard(activePlayerId, serverTable.getDrawnCard());
-                                    break;
-                                case CHANGE_ROOSTER_PLAYER:
-                                    listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(),serverTable.getSpielerMitHahnKarte());
-                                    break;
-                                case DRAWN_KUCKUCK_CARD:
-                                    listener.drawnKuckuckCard(serverTable.getActiveSpielerID());
-                                    break;
-                                case DRAWN_FOX_CARD:
-                                    listener.drawnFoxCard(serverTable.getActiveSpielerID());
-                                    break;
-                                case SWITCH_TO_RESULTS:
-                                    listener.updateUI("switchToTable");
-                                    break;
-                                case CARD_DISCARDED:
-                                    listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(),serverTable.getEggPoints(),serverTable.getDiscardedSelectedCards());
-                                    break;
-                                case ONE_CARD_STOLEN:
-                                    listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), serverTable.getActiveSpielerID());
-                                    break;
-                                case ALL_CARDS_STOLEN:
-                                    listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpielerID());
-                                    break;
-                                case CHAT:
-                                    if(currentChatMessage != null){
-                                        listener.updateChat(currentChatMessage, chatSenderId);
-                                    }
-                                    break;
-                                // Add cases for other BroadcastTypes if needed
+        for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
+            UUID playerID = entry.getKey();
+            ServerPlayer player = entry.getValue();
+            // Now use safeClientCommunication for each player
+            safeClientCommunication(player, listener -> {
+                // Implementing a retry mechanism before deciding to remove a client due to the client
+                // disconnected from the server or leaves game  session
+                boolean success = false;
+                final int maxRetries = 3;
+                for (int attempt = 0; attempt < maxRetries && !success; attempt++) {
+                    try {
+                        // Perform the actions based on the BroadcastType
+                        switch (broadcastType) {
+                            case SWITCH_TO_TABLE:
+                                // Perform specific action for this broadcast type
+                                player.einsteigen();
+                                listener.setNumOfPlayers(getMaxNumOfPlayers());
+                                listener.updateUI("switchToTable");
+                                break;
+                            case Hahn_karte_Geben:
+                                UUID roosterCardHolder = serverTable.getSpielerMitHahnKarte();
+                                listener.hahnKarteGeben(roosterCardHolder);
+                                break;
+                            case START_GAME:
+                                // set the current turn to true
+                                listener.setCurrentPlayerID(activePlayerId);
+                                listener.updateUI("startPlayerTurn");
+                                break;
+                            case UPDATE_TIMER_LABEL:
+                                listener.setTimeLeft(timeLeft);
+                                break;
+                            case HAS_DRAWN_A_CARD:
+                                listener.hasDrawnACard(activePlayerId, serverTable.getDrawnCard());
+                                break;
+                            case CHANGE_ROOSTER_PLAYER:
+                                listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(), serverTable.getSpielerMitHahnKarte());
+                                break;
+                            case DRAWN_KUCKUCK_CARD:
+                                listener.drawnKuckuckCard(activePlayerId, serverTable.getDrawnCard());
+                                break;
+                            case DRAWN_FOX_CARD:
+                                listener.drawnFoxCard(serverTable.getActiveSpielerID(), serverTable.getDrawnCard());
+                                break;
+                            case SWITCH_TO_RESULTS:
+                                listener.switchToResultTable(gameLogic.getWinner());
+                                break;
+                            case CARD_DISCARDED:
+                                listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(), serverTable.getEggPoints(), serverTable.getDiscardedSelectedCards());
+                                break;
+                            case ONE_CARD_STOLEN:
+                                listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), serverTable.getActiveSpielerID());
+                                break;
+                            case ALL_CARDS_STOLEN:
+                                listener.allCardsStolen(serverTable.getTarget(), serverTable.getActiveSpielerID());
+                                break;
+                            case CHAT:
+                                if(currentChatMessage != null){
+                                    listener.updateChat(currentChatMessage, chatSenderId);
+                                }
+                                break;
+                            // Add cases for other BroadcastTypes if needed
+                        }
+                        success = true;
+                    } catch (RemoteException e) {
+                        if (attempt == maxRetries - 1) {
+                            // Log retry attempt here
+                            try {
+                                Thread.sleep(1000);  // Wait for a second before retrying
+                            } catch (InterruptedException ie) {
+                                Thread.currentThread().interrupt();  // Restore the interrupted status
                             }
-
-                            success = true;
-                        } catch (RemoteException e) {
-                            if (attempt == maxRetries - 1) {
-                                // Log retry attempt here
-                                try {
-                                    Thread.sleep(1000);  // Wait for a second before retrying
-                                } catch (InterruptedException ie) {
-                                    Thread.currentThread().interrupt();  // Restore the interrupted status
-                                }
-                            } else {
-                                // If all retries fail, handle as a disconnected client
-                                try {
-                                    handleDisconnectedClient(playerID);
-                                } catch (RemoteException ex) {
-                                    throw new RuntimeException(ex);
-                                }
+                        } else {
+                            // If all retries fail, handle as a disconnected client
+                            try {
+                                handleDisconnectedClient(playerID);
+                            } catch (RemoteException ex) {
+                                throw new RuntimeException(ex);
                             }
                         }
                     }
-                });
+                }
+            });
 
         }
         // Update the broadcast status after all players have been handled
         setBroadcastSent(broadcastType, false);
     }
-
-
-
 
 
 }

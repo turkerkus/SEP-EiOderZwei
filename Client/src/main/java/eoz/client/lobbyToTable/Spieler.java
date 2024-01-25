@@ -138,13 +138,8 @@ public class Spieler extends ServerPlayer {
 
     public void removeCard (ServerCard card){
 
+        remove(card.getServeCardID(), card.getType());
 
-        if (Objects.equals(card.getType(), "Kuckuck")) {
-            //set the kuckuck card to null
-            getCardHand().setKuckuck(null);
-        } else {
-            remove(card.getServeCardID(), card.getType());
-        }
         // Copy the list of children to avoid ConcurrentModificationException
         List<Node> childrenCopy = new ArrayList<>(cardGridPane.getChildren());
 

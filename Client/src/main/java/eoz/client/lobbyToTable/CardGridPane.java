@@ -66,8 +66,6 @@ for (int row = startRow; row <= endRow; row++) {
 
         Integer key = getCellKey(row, col);
         if (cellOccupancy.get(key) == null || !cellOccupancy.get(key)) {
-            //TODO REMOVE
-            System.out.println(row +" ," + col);
             this.add(card, col, row);
             cellOccupancy.put(key, true);
             updateNextAvailableCell();
