@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,8 +55,6 @@ public class TableController implements Serializable, Initializable {
     public TextFlow emojiList;
     @FXML
     public Button btnEmoji;
-
-    private SimpleDateFormat tFormatter;
     //Chat Vars end
     @FXML
     public Label p1;
@@ -171,8 +168,6 @@ public class TableController implements Serializable, Initializable {
                 input.setScrollTop(Double.MAX_VALUE);
             }
         });
-
-        this.tFormatter = new SimpleDateFormat("[HH:mm:ss]");
     }
 
     @FXML
@@ -200,18 +195,6 @@ public class TableController implements Serializable, Initializable {
         emojiList.setVisible(!emojiList.isVisible());
     }
 
-    /*public String getCurrentTimestamp(){
-        Date date = new Date(System.currentTimeMillis());
-        String timestamp = this.tFormatter.format(date);
-
-        return  timestamp;
-    }
-
-    public void addToTextArea(String text){
-        if(this.input.getText().isEmpty())
-            this.input.setText(text);
-        else this.input.appendText("\n" + text);
-    }*/
 
 
     public Client getClient() {

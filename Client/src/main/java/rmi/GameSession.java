@@ -536,7 +536,6 @@ public class GameSession {
     }
 
     public void stealAllCards(UUID target, UUID clientId) {
-        //TODO FINISH THIS
         serverTable.setTarget(target);
         thiefID = clientId;
         setBroadcastSent(BroadcastType.ALL_CARDS_STOLEN,true);
