@@ -267,8 +267,8 @@ public class Client implements ClientInter {
     }
 
     @Override
-    public void stealingInProgress(UUID playerId, UUID targetId, ServerCard selectedCard) throws RemoteException {
-        serverStub.stealingInProgress(gameId,playerId,targetId,selectedCard);
+    public void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) throws RemoteException {
+        serverStub.stealingInProgress(gameId,playerId,targetId,selectedCards);
     }
 
     @Override

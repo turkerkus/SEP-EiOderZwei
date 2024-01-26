@@ -83,10 +83,33 @@ public class ServerTable implements Serializable {
         moveCount += 1;
     }
 
+    private boolean foxCardDrawn = false;
+
+
     public void karteZiehen(UUID clientId) {
-        drawnCard =  nachzieheDeck.ziehen();
-        players.get(clientId).addCard(drawnCard);
+        drawnCard = nachzieheDeck.ziehen();
+
+        if (drawnCard.getType().equals("Fuchs") && foxCardDrawn) {
+            nachzieheDeck.addCard(drawnCard);
+            nachzieheDeck.mischen(); // Shuffle the deck if necessary
+            karteZiehen(clientId); // Recursive call
+        } else {
+            players.get(clientId).addCard(drawnCard);
+            if (drawnCard.getType().equals("Fuchs")) {
+                foxCardDrawn = true; // Set the flag if a Fuchs card is drawn
+            } else {
+                foxCardDrawn = false; // Reset the flag for non-Fuchs cards
+            }
+        }
     }
+
+
+
+    public void hasDrawFoxCard(boolean foxCardDrawn) {
+        this.foxCardDrawn = foxCardDrawn;
+    }
+
+
     public ServerPlayer getActiveSpieler(){
         UUID playerId = playerIdList.get(active);
         return players.get(playerId);
@@ -249,5 +272,6 @@ public class ServerTable implements Serializable {
     public ServerCard getDiscarded() {
         return ablageDeck.getTopCard();
     }
+
 
 }

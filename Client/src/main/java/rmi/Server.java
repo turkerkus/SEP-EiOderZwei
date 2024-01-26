@@ -145,8 +145,8 @@ public class Server implements Remote, ServerInter {
     }
 
     @Override
-    public void stealingInProgress(UUID gameId, UUID playerId, UUID targetId, ServerCard selectedCard) throws RemoteException {
-        gameSessionManager.getGameSession(gameId).stealingInProgress(playerId, targetId,selectedCard);
+    public void stealingInProgress(UUID gameId, UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) throws RemoteException {
+        gameSessionManager.getGameSession(gameId).stealingInProgress(playerId, targetId,selectedCards);
     }
 
     @Override
@@ -157,7 +157,8 @@ public class Server implements Remote, ServerInter {
     @Override
     public void unregisterClient(UUID clientId, UUID gameID) throws RemoteException {
 
-        if (gameID != null){
+        if (gameID != null && gameSessionManager.doesGameExit(gameID)){
+
             gameSessionManager.getGameSession(gameID).handleDisconnectedClient(clientId);
         }
 

@@ -172,7 +172,7 @@ public interface ClientInter extends Remote, Serializable {
 
     void endPlayerTurn() throws RemoteException;
 
-    void stealingInProgress(UUID playerId, UUID targetId, ServerCard card) throws RemoteException;
+    void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) throws RemoteException;
 
     void removeFoxCard(ServerCard foxCard) throws  RemoteException;
 }

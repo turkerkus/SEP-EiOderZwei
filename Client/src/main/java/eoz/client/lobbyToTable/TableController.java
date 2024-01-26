@@ -23,6 +23,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import sharedClasses.Hand;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
@@ -407,7 +408,7 @@ public class TableController implements Serializable, Initializable {
         if (currentPlayerLabel != null) {
             // Create a glow effect
             DropShadow dropShadow = new DropShadow();
-            dropShadow.setColor(Color.GOLD);
+            dropShadow.setColor(Color.CYAN);
             dropShadow.setRadius(20);
             dropShadow.setSpread(0.5);
 
@@ -561,7 +562,7 @@ public class TableController implements Serializable, Initializable {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Player Left");
             alert.setHeaderText("Player has left the game session");
-            alert.setContentText(players.get(disconnectedPlayerID)+ " has left the game session.");
+            alert.setContentText(players.get(disconnectedPlayerID).getServerPlayerName()+ " has left the game session.");
 
             // Add a button to acknowledge the message
             alert.getButtonTypes().setAll(ButtonType.OK);
@@ -589,9 +590,9 @@ public class TableController implements Serializable, Initializable {
 
         try {
 
-
+            // check for client id and available cells
             if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-                client.drawCard();
+                if(checkForAvailableCell(null)) client.drawCard();
             } else {
                 // Create an alert to inform the player that it's not their turn
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -610,6 +611,51 @@ public class TableController implements Serializable, Initializable {
 
 
     }
+
+    /**
+     * this method helps you check if the client has enough space before allowing it to draw or steal a card
+     * if there is no enough space it make the client to exchange the card in his hand for eggs
+     * @param targetedPlayer
+     * @return boolean
+     */
+    private boolean checkForAvailableCell(Spieler targetedPlayer) {
+        Spieler player = players.get(client.getClientId());
+
+        // the total number of cards that can be displayed id 24
+        int playersAvailableCells = 24 - player.getCardHand().size();
+
+        System.out.println(player.getServerPlayerName() + " has "+ playersAvailableCells +" cells available");
+
+        // Check available cells before drawing a card
+        if (targetedPlayer == null) {
+            int requiredCells = player.hatHahnKarte() ? 2 : 1;
+            if ( playersAvailableCells< requiredCells) {
+                showSpaceAlert();
+                getEggs();
+                drawCard();
+                return false; // Indicates not enough space to draw a card
+            }
+        }
+        // Check available cells before stealing cards
+        else {
+            int cellsNeeded = selectedCards.size() == 1 ? 1 : targetedPlayer.getCardHand().size() - 1;
+            if (playersAvailableCells < cellsNeeded) {
+                showSpaceAlert();
+                getEggs();
+                drawnFoxCard(client.getClientId(), null);
+                return false; // Indicates not enough space to steal cards
+            }
+        }
+        return true; // Indicates enough space available
+    }
+
+    private void showSpaceAlert() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Less space to store card");
+        alert.setHeaderText("You don't have enough space! \n Exchange some of your cards for egg.");
+        alert.showAndWait();
+    }
+
 
     private void handleCardClick(ImageView imageView) {
         ServerCard card = (ServerCard) imageView.getUserData();
@@ -848,8 +894,7 @@ public class TableController implements Serializable, Initializable {
     public void hasDrawnACard(UUID playerId, ServerCard serverCard) {
         Platform.runLater(() -> {
             // Convert server Card to card
-            Card drawnCard = convertCard(serverCard);
-            players.get(playerId).addCard(drawnCard, serverCard);
+            addMultipleCards(playerId,new ArrayList<>(Collections.singletonList(serverCard)));
         });
 
     }
@@ -908,6 +953,7 @@ public class TableController implements Serializable, Initializable {
     public void drawnFoxCard(UUID playerID, ServerCard foxCard) {
         Platform.runLater(() -> {
             selectedCards = new ArrayList<>();
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
             Spieler player = players.get(playerID);
             if (Objects.equals(playerID, client.getClientId())) {
                 // Create the dialog
@@ -953,19 +999,47 @@ public class TableController implements Serializable, Initializable {
                         }
                     }
                     try {
-                        if (dialogButton == stealOneButtonType) {
+                        Spieler targetedPlayer = players.get(target);
+                        Hand targetedPlayerHand = targetedPlayer.getCardHand();
+                        // you can only steal if the targetedPlayer has some cards in hand
+
+                        if (dialogButton == stealOneButtonType && targetedPlayerHand.size() != 0) {
                             // Logic to steal one card from the selected player
 
-                            if (!selectedCards.isEmpty()) {
+                            if (!selectedCards.isEmpty() && checkForAvailableCell(targetedPlayer)) {
                                 client.stealOneCard(target, selectedCards);
                             } else {
-                                client.removeFoxCard(foxCard);
-                                dialog.close();
+                                if(foxCard != null){
+                                    client.removeFoxCard(foxCard);
+                                }
+
+                                alert.setTitle("Illegal Move");
+                                alert.setHeaderText("You have to select one cared");
+                                alert.showAndWait();
+                                drawnFoxCard(playerID,null);
                             }
 
-                        } else if (dialogButton == stealAllButtonType) {
+                        } else if (dialogButton == stealAllButtonType ) {
                             // Logic to steal all cards from the selected player
-                            client.stealAllCards(target);
+
+                            // if the targets only has one card you can only steal that card
+                            if (targetedPlayerHand.size() == 1 && checkForAvailableCell(targetedPlayer)){
+
+                                Map<UUID,ServerCard> bioCornCards = targetedPlayerHand.getBioCornCards();
+                                Map<UUID,ServerCard> cornCards = targetedPlayerHand.getCornCards();
+                                ServerCard card;
+                                if (bioCornCards.isEmpty()){
+                                    card = cornCards.values().iterator().next();
+                                } else {
+                                    card = bioCornCards.values().iterator().next();
+                                }
+                                selectedCards.add(card);
+                                if(checkForAvailableCell(targetedPlayer)) client.stealOneCard(target, selectedCards);
+
+                            } else {
+                                if(checkForAvailableCell(targetedPlayer)) client.stealAllCards(target);
+                            }
+
                         }
                     } catch (RemoteException e) {
                         throw new RuntimeException(e);
@@ -991,16 +1065,23 @@ public class TableController implements Serializable, Initializable {
                 dialog.showAndWait();
 
                 // remove card from the target
-                removeMultipleCards(playerID, new ArrayList<>(Collections.singletonList(foxCard)));
+                if(foxCard != null){
+                    removeMultipleCards(playerID, new ArrayList<>(Collections.singletonList(foxCard)));
+                }
+
             } else {
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("A Fox card!");
-                alert.setHeaderText(player.getServerPlayerName() + " has drawn a Fox card!");
-                alert.setContentText("His/her has the chance to steal someone's cards");
-                alert.showAndWait();
+
+
                 // remove card from the target
-                removeMultipleCards(playerID, new ArrayList<>(Collections.singletonList(foxCard)));
+                if(foxCard != null){
+                    alert.setTitle("A Fox card!");
+                    alert.setHeaderText(player.getServerPlayerName() + " has drawn a Fox card!");
+                    alert.setContentText("His/her has the chance to steal someone's cards");
+                    alert.showAndWait();
+                    removeMultipleCards(playerID, new ArrayList<>(Collections.singletonList(foxCard)));
+                }
+
             }
 
 
@@ -1045,7 +1126,8 @@ public class TableController implements Serializable, Initializable {
             alert.showAndWait();
 
             //Add card to the player how is stealing the card
-            players.get(playerId).addCard(card, stolenCard);
+            addMultipleCards(playerId,new ArrayList<>(Collections.singletonList(stolenCard)));
+
 
             // remove card from the target
             removeMultipleCards(targetId, new ArrayList<>(Collections.singletonList(stolenCard)));
@@ -1055,7 +1137,7 @@ public class TableController implements Serializable, Initializable {
         });
     }
 
-    public void allCardsStolen(UUID targetId, UUID playerId) {
+    public void allCardsStolen(UUID targetId, UUID thiefID) {
         // TODO FINISH THE METHOD (MAKE A SELECTION FOR THE target, then make a remote to delete and add)
         Platform.runLater(() -> {
             //rest the selectedCards
@@ -1063,7 +1145,8 @@ public class TableController implements Serializable, Initializable {
             //create an alert to let all other players
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
 
-            Spieler player = players.get(playerId);
+            Spieler player = players.get(thiefID);
+
             if (client.getClientId().equals(targetId)) {
                 // TODO Selection like getEgg, but only one card is selectable and this gets protected from stealing.
                 String dialogTitle = "Fox Card Drawn!";
@@ -1074,12 +1157,45 @@ public class TableController implements Serializable, Initializable {
                     alert.setTitle("Illegal Move");
                     alert.setHeaderText("You have to select one cared");
                     alert.showAndWait();
-                    allCardsStolen(targetId,playerId);
+                    allCardsStolen(targetId,thiefID);
                 } else{
+                    //store th selected card
                     ServerCard card = selectedCards.get(0);
+
+                    // empty the array list
+                    selectedCards = new ArrayList<>();
+
+                    // remove all the Unselect card from targets hand
+                    Spieler targetedPlayer = players.get(targetId);
+                    Hand targetedPlayerHand = targetedPlayer.getCardHand();
+                    Iterator<Map.Entry<UUID, ServerCard>> cornCards = targetedPlayerHand.getCornCards().entrySet().iterator();
+                    Iterator<Map.Entry<UUID, ServerCard>> bioCornCards = targetedPlayerHand.getBioCornCards().entrySet().iterator();
+
+                    // Loop through both maps simultaneously and add the cards to the arraylist
+                    while (cornCards.hasNext() || bioCornCards.hasNext()) {
+                        if (cornCards.hasNext()) {
+                            Map.Entry<UUID, ServerCard> entry1 = cornCards.next();
+                            if (!Objects.equals(card.getServeCardID(),entry1.getKey())){
+                                selectedCards.add(entry1.getValue());
+                            }
+
+                        }
+
+                        if (bioCornCards.hasNext()) {
+                            Map.Entry<UUID, ServerCard> entry2 = bioCornCards.next();
+                            if (!Objects.equals(card.getServeCardID(),entry2.getKey())){
+                                selectedCards.add(entry2.getValue());
+                            }
+                        }
+                    }
+
+                    // remove the cards from the hand
+                    addMultipleCards(thiefID,selectedCards);
+                    removeMultipleCards(targetId,selectedCards);
+
                     try {
                         System.out.println("sending request to steal all cards");
-                        client.stealingInProgress(playerId, targetId,card);
+                        client.stealingInProgress(thiefID, targetId,selectedCards);
                     } catch (RemoteException e) {
                         throw new RuntimeException(e);
                     }
@@ -1099,18 +1215,17 @@ public class TableController implements Serializable, Initializable {
             if (client.getClientId().equals(thiefID)) {
                 // This client is the thief
                 alert.setHeaderText("You have successfully stolen all the cards of " + targetedPlayerName + " except for one card");
-            } else if (client.getClientId().equals(targetId)) {
-                // This client is neither the thief nor the targeted player
-                return;
-            } else {
+                alert.showAndWait();
+                addMultipleCards(thiefID,stollenCards);
+                removeMultipleCards(targetId,stollenCards);
+            } else if (!client.getClientId().equals(targetId)) {
                 // This client is the targeted player, maybe no alert is needed or a different message
                 alert.setHeaderText(thiefName +" is stealing all the cards of " + targetedPlayerName + " except for one card");
-
+                alert.showAndWait();
+                addMultipleCards(thiefID,stollenCards);
+                removeMultipleCards(targetId,stollenCards);
             }
-
-            alert.showAndWait();
-            addMultipleCards(thiefID,stollenCards);
-            removeMultipleCards(targetId,stollenCards);
+            System.out.println("Stealing Process Successfully complete");
         });
     }
 
@@ -1152,11 +1267,23 @@ public class TableController implements Serializable, Initializable {
     }
 
     public void addMultipleCards(UUID playerID, ArrayList<ServerCard> serverCards){
+        // Executor to schedule card removal with delays
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        // Schedule the card removal with a delay
+        int delay = 0; // Initial delay
         Spieler player = players.get(playerID);
         for(ServerCard serverCard : serverCards){
             Card card = convertCard(serverCard);
-            player.addCard(card,serverCard);
+            executorService.schedule(() -> Platform.runLater(() -> player.addCard(card,serverCard)), delay, TimeUnit.SECONDS);
+            delay += 1; // Increment delay for the next card
+
         }
+        // Ensure the executor service is properly shutdown after all tasks
+        executorService.schedule(() -> {
+            // Reorganize the GridPane after all removals are complete
+            Platform.runLater(() -> players.get(playerID).reorganizeGridPane());
+            executorService.shutdown();
+        }, delay + 1, TimeUnit.SECONDS); // Schedule this after the last removal
     }
 
     public void removeMultipleCards(UUID playerID, ArrayList<ServerCard> discardedCards) {

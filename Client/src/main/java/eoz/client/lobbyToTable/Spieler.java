@@ -112,6 +112,7 @@ public class Spieler extends ServerPlayer {
 
 
     public void addCard(Card card, ServerCard servercard){
+        System.out.println(getServerPlayerName()+ " has "+ getCardHand().size() + "cards in hand");
         //set the cell of the card
         int[] nextCell = this.cardGridPane.getNextAvailableCell();
 
@@ -180,4 +181,5 @@ public class Spieler extends ServerPlayer {
         }
         cardGridPane.updateNextAvailableCell();
     }
+
 }

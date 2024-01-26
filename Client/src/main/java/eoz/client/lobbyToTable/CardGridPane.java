@@ -8,10 +8,11 @@ import javafx.scene.layout.GridPane;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CardGridPane extends GridPane {
     // This map will hold the occupancy status for each cell
-    private final Map<Integer, Boolean> cellOccupancy = new HashMap<>();
+    private final Map<Integer, Boolean> cellOccupancy = new ConcurrentHashMap<>();
     private int nextAvailableRow = 1;
     private int nextAvailableCol = 0;
 
@@ -35,17 +36,17 @@ public class CardGridPane extends GridPane {
     public void setRow(){
         if (startFromZero){
             this.startRow = 1;
-            this.endRow = 5;
+            this.endRow = 6;
         } else {
             this.startRow = 0;
-            this.endRow = 4;
+            this.endRow = 5;
         }
     }
 
     public CardGridPane() {
         // Assuming the grid has rows 0-5 and columns 0-5
         // We only allow card placement in rows 1-4 and columns 0-4
-for (int row = startRow; row <= endRow; row++) {
+        for (int row = startRow; row <= endRow; row++) {
             for (int col = 0; col <= 5; col++) {
                 cellOccupancy.put(getCellKey(row, col), false);
             }
@@ -53,9 +54,13 @@ for (int row = startRow; row <= endRow; row++) {
     }
 
     // Utility method to create a unique key for each cell based on its row and column
+    // Assuming a fixed column count of 6
+    private static final int COLUMN_COUNT = 6;
+
     public Integer getCellKey(int row, int col) {
-        return row * this.getColumnCount() + col;
+        return row * COLUMN_COUNT + col;
     }
+
 
     // Method to add a card to a cell
     public void addCard(Node card, int row, int col) {
@@ -72,19 +77,62 @@ for (int row = startRow; row <= endRow; row++) {
         }
     }
     public void updateNextAvailableCell() {
+        System.out.println();
+        boolean found = false;
         for (int row = startRow; row <= endRow; row++) {
             for (int col = 0; col <= 5; col++) {
                 Integer key = getCellKey(row, col);
-                if (cellOccupancy.get(key) == null || !cellOccupancy.get(key)) {
+                Boolean isOccupied = cellOccupancy.get(key);
+                System.out.println("Checking Cell [" + row + ", " + col + "]: Key = " + key + ", Occupied = " + isOccupied);  // Detailed debugging line
+
+                if (isOccupied == null || !isOccupied) {
                     nextAvailableRow = row;
                     nextAvailableCol = col;
-                    return;
+                    found = true;
+                    System.out.println("Next available cell found at [" + row + ", " + col + "]");
+                    break;
+                }
+            }
+            if (found) break;
+        }
+
+        if (!found) {
+            nextAvailableRow = -1; // Indicates no available cell
+            nextAvailableCol = -1; // Indicates no available cell
+            System.out.println("No available cell found.");
+        }
+        System.out.println();
+    }
+
+
+    // Method to find a node by its row and column in a GridPane
+    private Node getNodeByRowColumnIndex(final int row, final int column) {
+        Node result = null;
+        for (Node node : this.getChildren()) {
+            if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == row &&
+                    GridPane.getColumnIndex(node) != null && GridPane.getColumnIndex(node) == column) {
+                result = node;
+                break;
+            }
+        }
+        return result;
+    }
+
+    // Method to get the number of available (empty) cells
+    public int getNumberOfAvailableCells() {
+        int availableCells = 0;
+        for (int row = startRow; row <= endRow; row++) {
+            for (int col = 0; col <= 5; col++) {
+                Node node = getNodeByRowColumnIndex(row, col);
+                if (node == null) {
+                    availableCells++;
                 }
             }
         }
-        nextAvailableRow = -1; // Indicates no available cell
-        nextAvailableCol = -1; // Indicates no available cell
+        return availableCells;
     }
+
+
 
     public int[] getNextAvailableCell() {
         if (nextAvailableRow == -1 || nextAvailableCol == -1) {

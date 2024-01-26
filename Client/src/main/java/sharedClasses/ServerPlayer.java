@@ -9,7 +9,16 @@ import java.util.UUID;
 public class ServerPlayer implements Serializable {
     private boolean aussteigen = false;
     private boolean leftServer = false;
-    private boolean cardDrawn = false;
+
+    public boolean hasDrawnACArd() {
+        return hasDrawnACArd;
+    }
+
+    public void setHasDrawnACArd(boolean hasDrawnACArd) {
+        this.hasDrawnACArd = hasDrawnACArd;
+    }
+
+    private boolean hasDrawnACArd = false;
     private int newCard;
     private final UUID serverPlayerId;
     private int rank = 0;

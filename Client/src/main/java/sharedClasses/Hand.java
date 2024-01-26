@@ -28,7 +28,7 @@ public class Hand implements Serializable {
 
 
     public int size(){
-        return bioCornCards.size() + foxCards.size() + cornCards.size();
+        return bioCornCards.size()  + cornCards.size();
     }
 
     public Map<UUID, ServerCard> getBioCornCards() {

@@ -308,7 +308,7 @@ public class GameSession {
     public void endPlayerTurn() {
         System.out.println("player turn ended");
         // Perform end-of-turn actions for the player
-
+        serverTable.getActiveSpieler().setHasDrawnACArd(false);
         // Move to the next player's turn
         serverTable.nextSpieler();
         //setBroadcastSent(BroadcastType.START_GAME, true);
@@ -398,20 +398,27 @@ public class GameSession {
         ServerPlayer player = serverTable.getPlayer(clientId);
         boolean hasRoosterCard = player.hatHahnKarte();
 
-        // Draw the first card
-        drawAndCheckCard(player);
-
-        // If the player has a rooster card, draw a second card
-        if (hasRoosterCard) {
+        if(player.hasDrawnACArd()){
+            endPlayerTurn();
+        } else {
+            // Draw the first card
             drawAndCheckCard(player);
+
+            // If the player has a rooster card, draw a second card
+            if (hasRoosterCard) {
+                System.out.println(player.getServerPlayerName() + " has the rooster card");
+                if(serverTable.getDrawnCard().getType().equals("Fuchs")) serverTable.hasDrawFoxCard(true);
+                drawAndCheckCard(player);
+            }
+            if (!serverTable.getDrawnCard().getType().equals("Fuchs")) endPlayerTurn();
         }
-        endPlayerTurn();
     }
 
 
     private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
-        System.out.println(player.getServerPlayerName() + "id drawing a card");
+        System.out.println(player.getServerPlayerName() + " is drawing a card");
         serverTable.karteZiehen(player.getServerPlayerId());
+        player.setHasDrawnACArd(true);
         checkDrawnCard(player.getServerPlayerId());
 
     }
@@ -446,11 +453,18 @@ public class GameSession {
      * @throws RemoteException if a remote communication error occurs.
      */
     public void hahnKlauen(UUID clientId) throws RemoteException {
-        setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
-        serverTable.setSpielerMitHahnKarte(clientId);
-        setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
-        broadcastSafeCommunication(BroadcastType.CHANGE_ROOSTER_PLAYER);
-        endPlayerTurn();
+        ServerPlayer player = serverTable.getPlayer(clientId);
+
+        if(player.hasDrawnACArd()){
+            endPlayerTurn();
+        } else {
+            setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
+            serverTable.setSpielerMitHahnKarte(clientId);
+            setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
+            broadcastSafeCommunication(BroadcastType.CHANGE_ROOSTER_PLAYER);
+            endPlayerTurn();
+        }
+
     }
 
     /**
@@ -487,19 +501,23 @@ public class GameSession {
 
     private UUID thiefID;
 
-    public void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards, UUID clientId) {
+    public void stealOneCard(UUID targetId, ArrayList<ServerCard> selectedCards, UUID clientId) {
+        ServerPlayer player = serverTable.getPlayer(clientId);
+        ServerPlayer targetedPlayer = serverTable.getPlayer(targetId);
+
+        System.out.println(player.getServerPlayerName() + " is stealing a card below from " + targetedPlayer.getServerPlayerName() + "!");
+
         thiefID = clientId;
         serverTable.setStolenCard(selectedCards.get(0));
-        serverTable.setTarget(target);
-        serverTable.getPlayer(target).remove(serverTable.getStolenCard().getServeCardID(), serverTable.getStolenCard().getType());
-        serverTable.getPlayer(clientId).addCard(selectedCards.get(0));
+        serverTable.setTarget(targetId);
+        targetedPlayer.remove(serverTable.getStolenCard().getServeCardID(), serverTable.getStolenCard().getType());
+        player.addCard(selectedCards.get(0));
         setBroadcastSent(BroadcastType.ONE_CARD_STOLEN, true);
         try {
             broadcastSafeCommunication(BroadcastType.ONE_CARD_STOLEN);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-        endPlayerTurn();
 
     }
 
@@ -530,39 +548,12 @@ public class GameSession {
 
 
     }
-    public void stealingInProgress(UUID playerId, UUID targetId, ServerCard selectedCard) {
+    public void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) {
         System.out.println("request to steal all cards accepted");
         serverTable.setTarget(targetId);
         thiefID = playerId;
-        ServerPlayer targetedPlayer = serverTable.getPlayer(targetId);
-        ServerPlayer thief = serverTable.getPlayer(thiefID);
-        stollenCards = new ArrayList<>();
+        stollenCards = selectedCards;
 
-        // get targeted player hand
-        Hand hand = targetedPlayer.getCardHand();
-
-        // add the stollen cards to the thief's hand and list
-        Map<UUID, ServerCard> bioCornCards = hand.getBioCornCards();
-        for (Map.Entry<UUID,ServerCard> entry : bioCornCards.entrySet()){
-            ServerCard card = entry.getValue();
-            if (!card.getServeCardID().equals(selectedCard.getServeCardID())){
-                stollenCards.add(card);
-                thief.addCard(card);
-            }
-
-
-        }
-        // remove the cards from the targets hand
-        removeMultipleCards(targetId,stollenCards);
-
-        Map<UUID, ServerCard> cornCards = hand.getCornCards();
-        for (Map.Entry<UUID,ServerCard> entry : cornCards.entrySet()){
-            ServerCard card = entry.getValue();
-            if (!card.getServeCardID().equals(selectedCard.getServeCardID())){
-                stollenCards.add(card);
-                thief.addCard(card);
-            }
-        }
         // remove the cards from the targets hand
         removeMultipleCards(targetId,stollenCards);
         setBroadcastSent(BroadcastType.STEALING_CARD_COMPLETED,true);
@@ -571,7 +562,7 @@ public class GameSession {
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-        endPlayerTurn();
+
 
     }
 
