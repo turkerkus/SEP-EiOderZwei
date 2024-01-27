@@ -3,11 +3,15 @@ package rmi;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
+import java.io.Serial;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BasicBot extends ServerPlayer {
+    @Serial
+    private static final long serialVersionUID = 4650222820820902056L;
+
 
     private Random random;
     private final UUID gameId;
