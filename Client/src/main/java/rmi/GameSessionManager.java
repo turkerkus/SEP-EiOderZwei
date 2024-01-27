@@ -1,12 +1,17 @@
 package rmi;
 
 import sharedClasses.ClientUIUpdateListener;
+import sharedClasses.ServerCard;
+import sharedClasses.ServerPlayer;
 
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GameSessionManager {
+public class GameSessionManager implements Serializable {
     private Map<UUID, GameSession> gameSessions = new ConcurrentHashMap<>();
     private GameSessionCallback callback;
 
@@ -16,8 +21,52 @@ public class GameSessionManager {
             public void endGameSession(UUID gameId) {
                 gameSessions.remove(gameId);
             }
+
+            @Override
+            public Map<UUID, ServerPlayer> getPlayers(UUID gameId) {
+                return getGameSession(gameId).getServerPlayers();
+            }
+
+            @Override
+            public ServerPlayer getRoosterCardHolder(UUID gameId) {
+                return getGameSession(gameId).getRoosterPlayer();
+            }
+
+            @Override
+            public void drawCard(UUID clientId, UUID gameId) {
+                try {
+                    getGameSession(gameId).drawCard(clientId);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void karteUmtauschen(UUID gameId,UUID clientId, Integer eggPoints, ArrayList<ServerCard> selectedCards) {
+                try {
+                    getGameSession(gameId).karteUmtauschen(clientId,eggPoints,selectedCards);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void endPlayerTurn(UUID gameId) {
+                getGameSession(gameId).endPlayerTurn();
+            }
+
+            @Override
+            public void stealOneCard(UUID gameId, UUID targetId, ArrayList<ServerCard> selectedCards, UUID clientId) {
+                getGameSession(gameId).stealOneCard(targetId,selectedCards,clientId);
+            }
+
+            @Override
+            public void stealAllCards(UUID gameID, UUID target, UUID clientId) {
+                getGameSession(gameID).stealAllCards(target,clientId);
+            }
         };
     }
+
 
     public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfHumanPlayersRequired) {
         UUID gameId = UUID.randomUUID();

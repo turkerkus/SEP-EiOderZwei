@@ -3,6 +3,7 @@ package rmi;
 import javafx.application.Platform;
 import sharedClasses.*;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,7 +12,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-public class GameSession {
+public class GameSession implements Serializable {
     private final UUID gameId;
 
     private boolean gameStarted = false;
@@ -50,6 +51,8 @@ public class GameSession {
     private Map<BroadcastType, Boolean> broadcastStatus = new ConcurrentHashMap<>();
     private Timer timer;
     private volatile Integer timeLeft; // Time left in seconds
+
+    String BotDifficultly = "Easy";
 
 
 
@@ -128,23 +131,35 @@ public class GameSession {
 
     }
 
-    public void addBots(Integer bot) {
+    public void addBots(Integer numOfBots) {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
-        numOfBotPlayers++;
-        for (int i = 1; i < bot + 1; i++) {
-            String botName = generateFunnyBotName() + "_@Bot" + numOfBotPlayers;
+        for (int i = 0; i < numOfBots; i++) {
+            String botName = generateFunnyBotName() + "_@Bot" + (i + 1);
             UUID botId = UUID.randomUUID();
 
-            // Check if the game is already started or the maximum number of players is
-            // reached
-            ServerPlayer player = new ServerPlayer(botId, botName, false);
-            player.setBot(true);
+            // Check if the game is already started or the maximum number of players is reached
             if (!isGameSessionReady && players.size() < getMaxNumOfPlayers()) {
+                // Create a new BasicBot
+                switch (BotDifficultly){
+                    case "Easy":
+                        BasicBot bot = new BasicBot(gameId, botId, botName, false, callback);
+                        // Set the bot flag to true
+                        bot.setBot(true);
 
-                serverTable.addplayer(botId, player);
+                        // Add the bot to the server table
+                        serverTable.addplayer(botId, bot);
+                        break;
+                    case "Medium":
+                        //TODO COMPLETE MEDIUM BOT
+                        break;
+                    case "Hard":
+                        //TODO COMPLETE HARD BOT
+                        break;
+                }
+
+
             }
         }
-
     }
 
     public int getMaxNumOfPlayers() {
@@ -248,6 +263,8 @@ public class GameSession {
 
             return;
         }
+
+
         // broadCast StartGame
         try {
             setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
@@ -255,6 +272,24 @@ public class GameSession {
             startTurnTimer(45);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
+        }
+        if(serverTable.getActiveSpieler().isBot()){
+            switch (BotDifficultly){
+                case "Easy":
+                    BasicBot bot = (BasicBot) serverTable.getPlayer(serverTable.getActiveSpielerID());
+                    try {
+                        bot.takeTurn();
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                case "Medium":
+                    //TODO COMPLETE MEDIUM BOT
+                    break;
+                case "Hard":
+                    //TODO COMPLETE HARD BOT
+                    break;
+            }
         }
     }
     private volatile boolean isTimerPaused = false;
@@ -410,7 +445,7 @@ public class GameSession {
                 if(serverTable.getDrawnCard().getType().equals("Fuchs")) serverTable.hasDrawFoxCard(true);
                 drawAndCheckCard(player);
             }
-            if (!serverTable.getDrawnCard().getType().equals("Fuchs")) endPlayerTurn();
+            if (!serverTable.getDrawnCard().getType().equals("Fuchs") || !player.isBot()) endPlayerTurn();
         }
     }
 
@@ -426,12 +461,30 @@ public class GameSession {
 
     public void checkDrawnCard(UUID clientId) throws RemoteException {
         ServerCard card = serverTable.getDrawnCard();
+        ServerPlayer player = serverTable.getPlayer(clientId);
+        // if player is a bot send this too
+        if(player.isBot()){
+            switch (BotDifficultly){
+                case "Easy":
+                    BasicBot bot = (BasicBot) serverTable.getPlayer(clientId);
+                    bot.drawCard(card);
+                    break;
+                case "Medium":
+                    //TODO COMPLETE MEDIUM BOT
+                    break;
+                case "Hard":
+                    //TODO COMPLETE HARD BOT
+                    break;
+            }
+        }
+        // if player is not a bot
         if (Objects.equals(serverTable.getDrawnCard().getType(), "Kuckuck")) {
             System.out.println("Kuckuck drawn. Sending info to player.");
             serverTable.karteAblegen(clientId, card);
             serverTable.getPlayer(clientId).raisePunkte();
             setBroadcastSent(BroadcastType.DRAWN_KUCKUCK_CARD, true);
             broadcastSafeCommunication(BroadcastType.DRAWN_KUCKUCK_CARD);
+
         } else if (Objects.equals(serverTable.getDrawnCard().getType(), "Fuchs")) {
             System.out.println("Fox drawn. Sending info to player.");
             serverTable.karteAblegen(clientId, card);
@@ -546,6 +599,8 @@ public class GameSession {
         }
 
 
+
+
     }
     public void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) {
         System.out.println("request to steal all cards accepted");
@@ -560,6 +615,22 @@ public class GameSession {
             broadcastSafeCommunication(BroadcastType.STEALING_CARD_COMPLETED);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
+        }
+        ServerPlayer player = serverTable.getPlayer(playerId);
+        // if player is a bot send this too
+        if(player.isBot()){
+            switch (BotDifficultly){
+                case "Easy":
+                    BasicBot bot = (BasicBot) serverTable.getPlayer(playerId);
+                        bot.stealingCardComplete(selectedCards);
+                    break;
+                case "Medium":
+                    //TODO COMPLETE MEDIUM BOT
+                    break;
+                case "Hard":
+                    //TODO COMPLETE HARD BOT
+                    break;
+            }
         }
 
 

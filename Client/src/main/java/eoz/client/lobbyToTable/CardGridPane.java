@@ -83,13 +83,11 @@ public class CardGridPane extends GridPane {
             for (int col = 0; col <= 5; col++) {
                 Integer key = getCellKey(row, col);
                 Boolean isOccupied = cellOccupancy.get(key);
-                System.out.println("Checking Cell [" + row + ", " + col + "]: Key = " + key + ", Occupied = " + isOccupied);  // Detailed debugging line
 
                 if (isOccupied == null || !isOccupied) {
                     nextAvailableRow = row;
                     nextAvailableCol = col;
                     found = true;
-                    System.out.println("Next available cell found at [" + row + ", " + col + "]");
                     break;
                 }
             }
@@ -99,7 +97,6 @@ public class CardGridPane extends GridPane {
         if (!found) {
             nextAvailableRow = -1; // Indicates no available cell
             nextAvailableCol = -1; // Indicates no available cell
-            System.out.println("No available cell found.");
         }
         System.out.println();
     }

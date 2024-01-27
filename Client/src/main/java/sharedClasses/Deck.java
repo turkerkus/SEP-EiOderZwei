@@ -1,10 +1,11 @@
 package sharedClasses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Stack;
 
-public class Deck {
+public class Deck implements Serializable {
     //deck steht für das Deck_old dargestellt als Stack
     private final Stack<ServerCard> deck = new Stack<>();
 

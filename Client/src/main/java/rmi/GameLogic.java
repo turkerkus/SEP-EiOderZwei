@@ -3,10 +3,11 @@ package rmi;
 import sharedClasses.ServerPlayer;
 import sharedClasses.ServerTable;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 
-public class GameLogic {
+public class GameLogic implements Serializable {
 
 
     private ServerPlayer winner = null; // Initialize the winner variable
