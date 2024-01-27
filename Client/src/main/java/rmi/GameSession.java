@@ -52,7 +52,7 @@ public class GameSession implements Serializable {
     private Timer timer;
     private volatile Integer timeLeft; // Time left in seconds
 
-    String BotDifficultly = "Easy";
+    String botDifficulty = "Easy";
 
 
 
@@ -140,7 +140,7 @@ public class GameSession implements Serializable {
             // Check if the game is already started or the maximum number of players is reached
             if (!isGameSessionReady && players.size() < getMaxNumOfPlayers()) {
                 // Create a new BasicBot
-                switch (BotDifficultly){
+                switch (botDifficulty){
                     case "Easy":
                         BasicBot bot = new BasicBot(gameId, botId, botName, false, callback);
                         // Set the bot flag to true
@@ -235,6 +235,10 @@ public class GameSession implements Serializable {
 
     public void hahnKarteGeben() throws RemoteException {
         broadcastSafeCommunication(BroadcastType.Hahn_karte_Geben);
+        UUID playerID = serverTable.getSpielerMitHahnKarte();
+        if(serverTable.getPlayer(playerID).isBot()){
+            handleBotAction(serverTable.getSpielerMitHahnKarte(), bot -> bot.setHahnKarte(true));
+        }
     }
 
     /**
@@ -274,22 +278,9 @@ public class GameSession implements Serializable {
             throw new RuntimeException(e);
         }
         if(serverTable.getActiveSpieler().isBot()){
-            switch (BotDifficultly){
-                case "Easy":
-                    BasicBot bot = (BasicBot) serverTable.getPlayer(serverTable.getActiveSpielerID());
-                    try {
-                        bot.takeTurn();
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                    break;
-                case "Medium":
-                    //TODO COMPLETE MEDIUM BOT
-                    break;
-                case "Hard":
-                    //TODO COMPLETE HARD BOT
-                    break;
-            }
+           handleBotAction(serverTable.getActiveSpielerID(),bot -> {
+               bot.takeTurn();
+           });
         }
     }
     private volatile boolean isTimerPaused = false;
@@ -313,6 +304,7 @@ public class GameSession implements Serializable {
             public void run() {
 
                 timeLeft--;
+
 
                 try {
                     broadcastSafeCommunication(BroadcastType.UPDATE_TIMER_LABEL);
@@ -462,21 +454,7 @@ public class GameSession implements Serializable {
     public void checkDrawnCard(UUID clientId) throws RemoteException {
         ServerCard card = serverTable.getDrawnCard();
         ServerPlayer player = serverTable.getPlayer(clientId);
-        // if player is a bot send this too
-        if(player.isBot()){
-            switch (BotDifficultly){
-                case "Easy":
-                    BasicBot bot = (BasicBot) serverTable.getPlayer(clientId);
-                    bot.drawCard(card);
-                    break;
-                case "Medium":
-                    //TODO COMPLETE MEDIUM BOT
-                    break;
-                case "Hard":
-                    //TODO COMPLETE HARD BOT
-                    break;
-            }
-        }
+
         // if player is not a bot
         if (Objects.equals(serverTable.getDrawnCard().getType(), "Kuckuck")) {
             System.out.println("Kuckuck drawn. Sending info to player.");
@@ -496,6 +474,16 @@ public class GameSession implements Serializable {
         }
         setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
         broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
+        // if player is a bot send this too
+        if(player.isBot()){
+            handleBotAction(clientId,bot -> {
+                try {
+                    bot.drawCard(card);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
     }
 
 
@@ -508,6 +496,7 @@ public class GameSession implements Serializable {
     public void hahnKlauen(UUID clientId) throws RemoteException {
         ServerPlayer player = serverTable.getPlayer(clientId);
 
+
         if(player.hasDrawnACArd()){
             endPlayerTurn();
         } else {
@@ -515,6 +504,17 @@ public class GameSession implements Serializable {
             serverTable.setSpielerMitHahnKarte(clientId);
             setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
             broadcastSafeCommunication(BroadcastType.CHANGE_ROOSTER_PLAYER);
+            ServerPlayer oldRoosterPlayer = serverTable.getPlayer(serverTable.getAlteSpielerMitHahnKarte());
+            if(player.isBot() || oldRoosterPlayer.isBot()){
+                if (player.isBot()) {
+                    handleBotAction(clientId, bot -> bot.setHahnKarte(true));
+
+                } else {
+                    // if bot is the old rooster Player
+                    handleBotAction(serverTable.getAlteSpielerMitHahnKarte(), bot -> bot.setHahnKarte(false));
+                }
+
+            }
             endPlayerTurn();
         }
 
@@ -618,19 +618,8 @@ public class GameSession implements Serializable {
         }
         ServerPlayer player = serverTable.getPlayer(playerId);
         // if player is a bot send this too
-        if(player.isBot()){
-            switch (BotDifficultly){
-                case "Easy":
-                    BasicBot bot = (BasicBot) serverTable.getPlayer(playerId);
-                        bot.stealingCardComplete(selectedCards);
-                    break;
-                case "Medium":
-                    //TODO COMPLETE MEDIUM BOT
-                    break;
-                case "Hard":
-                    //TODO COMPLETE HARD BOT
-                    break;
-            }
+        if (player.isBot()) {
+            handleBotAction(playerId, bot -> bot.stealingCardComplete(selectedCards));
         }
 
 
@@ -762,6 +751,36 @@ public class GameSession implements Serializable {
         setBroadcastSent(broadcastType, false);
     }
 
+    @FunctionalInterface
+    interface BotAction {
+        void performAction(BasicBot bot);
+    }
 
+    private void handleBotAction(UUID playerId, BotAction action) {
+        ServerPlayer player = serverTable.getPlayer(playerId);
+        if (player.isBot()) {
+
+            switch (botDifficulty) {
+                case "Easy":
+                    BasicBot bot = (BasicBot) player;
+                    action.performAction(bot);
+                    break;
+                case "Medium":
+                    // TODO: Implement MediumBot's action
+                    //MediumBot bot = (MediumBot) player;
+                    // action.performAction(bot);
+                    break;
+                case "Hard":
+                    // TODO: Implement HardBot's action
+                    //HardBot bot = (HardBot) player;
+                    // action.performAction(bot);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown bot difficulty");
+            }
+
+
+        }
+    }
 
 }

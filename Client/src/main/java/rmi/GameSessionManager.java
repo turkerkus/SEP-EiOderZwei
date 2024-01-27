@@ -64,6 +64,15 @@ public class GameSessionManager implements Serializable {
             public void stealAllCards(UUID gameID, UUID target, UUID clientId) {
                 getGameSession(gameID).stealAllCards(target,clientId);
             }
+
+            @Override
+            public void hahnKlauen(UUID gameId,UUID clientId) {
+                try {
+                    getGameSession(gameId).hahnKlauen(clientId);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         };
     }
 

@@ -24,4 +24,5 @@ public interface GameSessionCallback extends Serializable {
 
 
     void stealAllCards(UUID gameID, UUID target, UUID clientId);
+    void hahnKlauen(UUID gameId,UUID clientId);
 }
