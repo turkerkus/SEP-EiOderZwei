@@ -23,6 +23,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import sharedClasses.CustomTimer;
 import sharedClasses.Hand;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
@@ -781,7 +782,7 @@ public class TableController implements Serializable, Initializable {
     }
 
 
-    public void getEggs() {
+    public void  getEggs() {
         Platform.runLater(() -> {
             try {
                 if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
@@ -830,46 +831,48 @@ public class TableController implements Serializable, Initializable {
 
     public void stealRooster() {
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        UUID clientId = client.getClientId();
-        Spieler player = players.get(clientId);
-        try {
-            if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
-                Spieler roosterPlayer = players.get(client.getRoosterPlayer().getServerPlayerId());
-                int roosterPlayerPoint = roosterPlayer.getPunkte();
-                if (player.getPunkte() < roosterPlayerPoint && !player.hatHahnKarte()) {
-                    client.hahnKlauen();
-                } else {
-                    if (player.hatHahnKarte()) {
-                        alert.setTitle("Illegal Move");
-                        alert.setHeaderText("Steal Rooster Card");
-                        alert.setContentText("You already have the Rooster Card");
+      Platform.runLater(()->{
+          Alert alert = new Alert(Alert.AlertType.INFORMATION);
+          UUID clientId = client.getClientId();
+          Spieler player = players.get(clientId);
+          try {
+              if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
+                  Spieler roosterPlayer = players.get(client.getRoosterPlayer().getServerPlayerId());
+                  int roosterPlayerPoint = roosterPlayer.getPunkte();
+                  if (player.getPunkte() < roosterPlayerPoint && !player.hatHahnKarte()) {
+                      client.hahnKlauen();
+                  } else {
+                      if (player.hatHahnKarte()) {
+                          alert.setTitle("Illegal Move");
+                          alert.setHeaderText("Steal Rooster Card");
+                          alert.setContentText("You already have the Rooster Card");
 
-                        // Show the alert
-                        alert.showAndWait();
-                    } else {
-                        alert.setTitle("Illegal Move");
-                        alert.setHeaderText("Steal Rooster Card");
-                        alert.setContentText("you don't have less points than the rooster owner to steal the rooster card!");
+                          // Show the alert
+                          alert.showAndWait();
+                      } else {
+                          alert.setTitle("Illegal Move");
+                          alert.setHeaderText("Steal Rooster Card");
+                          alert.setContentText("you don't have less points than the rooster owner to steal the rooster card!");
 
-                        // Show the alert
-                        alert.showAndWait();
-                    }
-                }
+                          // Show the alert
+                          alert.showAndWait();
+                      }
+                  }
 
-            } else {
-                // Create an alert to inform the player that it's not their turn
+              } else {
+                  // Create an alert to inform the player that it's not their turn
 
-                alert.setTitle("Not Your Turn");
-                alert.setHeaderText(null);
-                alert.setContentText("It's not your turn to play so you cannot steal someones rooster card.");
+                  alert.setTitle("Not Your Turn");
+                  alert.setHeaderText(null);
+                  alert.setContentText("It's not your turn to play so you cannot steal someones rooster card.");
 
-                // Show the alert
-                alert.showAndWait();
-            }
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+                  // Show the alert
+                  alert.showAndWait();
+              }
+          } catch (RemoteException e) {
+              throw new RuntimeException(e);
+          }
+      });
 
 
     }
@@ -1201,6 +1204,19 @@ public class TableController implements Serializable, Initializable {
                 alert.showAndWait();
                 addMultipleCards(thiefID,stollenCards);
                 removeMultipleCards(targetId,stollenCards);
+
+                // endplayer turn
+                CustomTimer timer = new CustomTimer();
+                timer.schedule(() -> {
+
+                    try {
+                        client.endPlayerTurn();
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                }, 2);
+
             } else if (!client.getClientId().equals(targetId)) {
                 // This client is the targeted player, maybe no alert is needed or a different message
                 alert.setHeaderText(thiefName +" is stealing all the cards of " + targetedPlayerName + " except for one card");
@@ -1209,6 +1225,7 @@ public class TableController implements Serializable, Initializable {
                 removeMultipleCards(targetId,stollenCards);
             }
             System.out.println("Stealing Process Successfully complete");
+
         });
     }
 

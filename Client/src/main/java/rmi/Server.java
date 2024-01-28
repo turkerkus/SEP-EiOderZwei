@@ -141,6 +141,8 @@ public class Server implements Remote, ServerInter {
 
     @Override
     public void endPlayerTurn(UUID gameId) throws RemoteException {
+        //TODO REMOVE THIS PRINT LINE
+        System.out.println("end player turn from CLIENT");
         gameSessionManager.getGameSession(gameId).endPlayerTurn();
     }
 

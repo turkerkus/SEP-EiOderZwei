@@ -1,5 +1,8 @@
 package sharedClasses;
 
+import rmi.BasicBot;
+import rmi.GameSessionCallback;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +61,27 @@ public class ServerTable implements Serializable {
         players.get(neuSpielerMitHahnKarteID).setHahnKarte(true);
     }
 
-    public void swapPlayerWithBot(UUID playerId, String botName){
-        players.get(playerId).setBot(true);
-        players.get(playerId).setServerPlayerName(botName);
+    public void swapPlayerWithBot(UUID disconnectedPlayerId, UUID gameId, String botName,  GameSessionCallback callback, String botDifficulty){
+        ServerPlayer disconnectedPlayer = players.get(disconnectedPlayerId);
+
+        if (disconnectedPlayer != null && !disconnectedPlayer.isBot()) {
+            // Create a bot to replace the disconnected player
+            //BasicBot bot ;
+            switch (botDifficulty){
+                case "Easy":
+                    BasicBot bot = new BasicBot(gameId, disconnectedPlayerId, botName, disconnectedPlayer.hatHahnKarte(), callback);
+                    bot.setPunkte(disconnectedPlayer.getPunkte());
+                    bot.setCardHand(disconnectedPlayer.getCardHand());
+                    players.put(disconnectedPlayerId, bot);
+                    break;
+                case "Medium":
+                    //TODO COMPLETE MEDIUM BOT
+                    break;
+                case "Hard":
+                    //TODO COMPLETE HARD BOT
+                    break;
+            }
+        }
 
     }
 

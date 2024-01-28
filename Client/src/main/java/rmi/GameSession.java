@@ -49,7 +49,7 @@ public class GameSession implements Serializable {
 
     private Map<UUID, ClientUIUpdateListener> clientListeners = new ConcurrentHashMap<>();
     private Map<BroadcastType, Boolean> broadcastStatus = new ConcurrentHashMap<>();
-    private Timer timer;
+    private CustomTimer timer;
     private volatile Integer timeLeft; // Time left in seconds
 
     String botDifficulty = "Easy";
@@ -143,8 +143,6 @@ public class GameSession implements Serializable {
                 switch (botDifficulty){
                     case "Easy":
                         BasicBot bot = new BasicBot(gameId, botId, botName, false, callback);
-                        // Set the bot flag to true
-                        bot.setBot(true);
 
                         // Add the bot to the server table
                         serverTable.addplayer(botId, bot);
@@ -273,7 +271,8 @@ public class GameSession implements Serializable {
         try {
             setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
             broadcastSafeCommunication(BroadcastType.START_GAME);
-            startTurnTimer(45);
+            //TODO CHANGE THIS TO 45
+            startTurnTimer(10);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -298,7 +297,7 @@ public class GameSession implements Serializable {
             timer.cancel();
         }
 
-        timer = new Timer();
+        timer = new CustomTimer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -314,6 +313,8 @@ public class GameSession implements Serializable {
                 if (timeLeft <= 0) {
                     timer.cancel();
                     endPlayerTurn();  // Implement this method as needed
+                    //TODO REMOVE THIS PRINT LINE
+                    System.out.println("end player turn from gameSession timer");
                 }
 
                 // Optionally, broadcast the updated timeLeft to clients
@@ -380,7 +381,7 @@ public class GameSession implements Serializable {
 
             //swap the player with bot
 
-            serverTable.swapPlayerWithBot(disconnectedPlayerId, botName);
+            serverTable.swapPlayerWithBot(disconnectedPlayerId,gameId, botName,callback,botDifficulty);
 
             //Broadcast to the other players that the player has left the gameSession
             Map<UUID, ServerPlayer> players = serverTable.getPlayers();
@@ -424,22 +425,31 @@ public class GameSession implements Serializable {
     public void drawCard(UUID clientId) throws RemoteException {
         ServerPlayer player = serverTable.getPlayer(clientId);
         boolean hasRoosterCard = player.hatHahnKarte();
+        boolean hasDrawnFoxCard = false;
 
-        if(player.hasDrawnACArd()){
+        if (player.hasDrawnACArd()) {
             endPlayerTurn();
         } else {
             // Draw the first card
             drawAndCheckCard(player);
+            // Check if a fox card was drawn
+            hasDrawnFoxCard = serverTable.getDrawnCard().getType().equals("Fuchs");
 
             // If the player has a rooster card, draw a second card
             if (hasRoosterCard) {
                 System.out.println(player.getServerPlayerName() + " has the rooster card");
-                if(serverTable.getDrawnCard().getType().equals("Fuchs")) serverTable.hasDrawFoxCard(true);
                 drawAndCheckCard(player);
+                // Check again if a fox card was drawn as the second card
+                hasDrawnFoxCard |= serverTable.getDrawnCard().getType().equals("Fuchs");
             }
-            if (!serverTable.getDrawnCard().getType().equals("Fuchs") || !player.isBot()) endPlayerTurn();
+
+            // If no fox card was drawn or the player is not a bot, end the player's turn
+            if (!hasDrawnFoxCard ) {
+                endPlayerTurn();
+            }
         }
     }
+
 
 
     private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
@@ -520,6 +530,8 @@ public class GameSession implements Serializable {
 
     }
 
+    private UUID eggLayer ;
+
     /**
      * Lets a player change card .
      *
@@ -527,6 +539,7 @@ public class GameSession implements Serializable {
      * @throws RemoteException if a remote communication error occurs.
      */
     void karteUmtauschen(UUID clientId, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException {
+        eggLayer = clientId;
         // discard all the cards on the serverTable
         for (ServerCard serverCard : selectedCards) {
             serverTable.karteAblegen(clientId, serverCard);
@@ -571,6 +584,7 @@ public class GameSession implements Serializable {
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
+        endPlayerTurn();
 
     }
 
@@ -704,7 +718,7 @@ public class GameSession implements Serializable {
                                 listener.switchToResultTable(gameLogic.getWinner());
                                 break;
                             case CARD_DISCARDED:
-                                listener.cardDiscarded(serverTable.getActiveSpielerID(), serverTable.getDiscarded(), serverTable.getEggPoints(), serverTable.getDiscardedSelectedCards());
+                                listener.cardDiscarded(eggLayer, serverTable.getDiscarded(), serverTable.getEggPoints(), serverTable.getDiscardedSelectedCards());
                                 break;
                             case ONE_CARD_STOLEN:
                                 listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), thiefID);

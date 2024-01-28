@@ -34,6 +34,11 @@ public class ServerPlayer implements Serializable {
 
     private  String serverPlayerName;
     int punkte;
+
+    public void setCardHand(Hand cardHand) {
+        this.cardHand = cardHand;
+    }
+
     Hand cardHand;
 
     private  boolean  hahnKarte;

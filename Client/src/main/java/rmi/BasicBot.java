@@ -1,5 +1,6 @@
 package rmi;
 
+import sharedClasses.CustomTimer;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
@@ -41,42 +42,23 @@ public class BasicBot extends ServerPlayer {
         this.gameId = gameId;
         this.selectedCornCards = new ArrayList<>();
         this.selectedBioCornCards = new ArrayList<>();
+        players = new ConcurrentHashMap<>();
+        setBot(true);
     }
-    private Timer timer;
-    private volatile Integer timeLeft; // Time left in seconds
+    private CustomTimer timer;
 
     public void takeTurn() {
-        timeLeft = 8;
+        timer = new CustomTimer();
+        timer.schedule(() -> {
 
-        if (timer != null) {
-            timer.cancel();
-        }
-
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-
-                timeLeft--;
-
-                if (timeLeft <= 0) {
-                    timer.cancel();
-                    try {
-                        performActions();  // Implement this method as needed
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-
-                // Optionally, broadcast the updated timeLeft to clients
-
+            try {
+                performActions();  // Implement this method as needed
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
             }
-        }, 0, 1000);
+
+        }, 8);
     }
-
-    // Other methods and bot logic
-
-
 
 
     private void performActions() throws RemoteException {
@@ -85,7 +67,12 @@ public class BasicBot extends ServerPlayer {
         actionTypes = new ArrayList<>();
 
         // Get players
-        players = callback.getPlayers(gameId);
+        Map<UUID, ServerPlayer> playerMap = callback.getPlayers(gameId);
+       for(Map.Entry<UUID,ServerPlayer> entry :playerMap.entrySet()){
+           if(!entry.getKey().equals(getServerPlayerId())){
+               players.put(entry.getKey(),entry.getValue());
+           }
+       }
 
         // get rooster card holder
         roosterCardHolder = callback.getRoosterCardHolder(gameId);
@@ -238,45 +225,57 @@ public class BasicBot extends ServerPlayer {
     }
 
     private void drawnFoxCard(){
-        actionTypes = new ArrayList<>(Arrays.asList(ActionType.STEAL_ALL_CARDS,ActionType.STEAL_ONE_CARD));
-        // choose a random action
-        ActionType randomAction = getRandomAction();
+        if (players.isEmpty()) {
+            endTurn();
 
-        // choose a random player
-        ServerPlayer randomPlayer = chooseRandomPlayer();
+        } else {
 
-        // get bio and corn cards of targeted player
-        Map<UUID, ServerCard> bio = randomPlayer.getCardHand().getBioCornCards();
-        Map<UUID, ServerCard> corn = randomPlayer.getCardHand().getCornCards();
 
-        // get random player hand size
-        Integer randomPlayerHandSize = randomPlayer.getCardCount();
+            // choose a random player
+            ServerPlayer randomPlayer = chooseRandomPlayer();
 
-        // Merge the maps into a new map
-        Map<UUID, ServerCard> mergedMap = new ConcurrentHashMap<>(bio);
-        mergedMap.putAll(corn);
+            // get bio and corn cards of targeted player
+            Map<UUID, ServerCard> bio = randomPlayer.getCardHand().getBioCornCards();
+            Map<UUID, ServerCard> corn = randomPlayer.getCardHand().getCornCards();
 
-        switch (randomAction){
-            case STEAL_ONE_CARD :
-                //TODO IF THE PLAYER HAS NO CARD FIX IT
-                ArrayList<ServerCard> serverCards = chooseRandomCard(mergedMap);
-                callback.stealOneCard(gameId,randomPlayer.getServerPlayerId(),serverCards,getServerPlayerId());
-                addCard(serverCards.get(0));
-                try {
-                    endTurn();
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
+            // get random player hand size
+            Integer randomPlayerHandSize = randomPlayer.getCardCount();
+            System.out.println("randomPlayer hand size is " + randomPlayerHandSize);
+
+            actionTypes = new ArrayList<>(Arrays.asList(ActionType.STEAL_ONE_CARD));
+            if (randomPlayerHandSize > 2){
+                actionTypes.add(ActionType.STEAL_ALL_CARDS);
+            }
+            // choose a random action
+            ActionType randomAction = getRandomAction();
+
+            if (randomPlayerHandSize == 0){
+                players.remove(randomPlayer.getServerPlayerId());
+                drawnFoxCard();
+            } else {
+                // Merge the maps into a new map
+                Map<UUID, ServerCard> mergedMap = new ConcurrentHashMap<>(bio);
+                mergedMap.putAll(corn);
+
+                switch (randomAction){
+                    case STEAL_ONE_CARD :
+                        ArrayList<ServerCard> serverCards = chooseRandomCard(mergedMap);
+                        callback.stealOneCard(gameId,randomPlayer.getServerPlayerId(),serverCards,getServerPlayerId());
+                        addCard(serverCards.get(0));
+                        endTurn();
+                        break;
+                    case STEAL_ALL_CARDS:
+                        if ((24 - getCardCount()) >= randomPlayerHandSize - 1){
+                            callback.stealAllCards(gameId,randomPlayer.getServerPlayerId(),getServerPlayerId());
+                        } else {
+                            //TODO UNCOMMENT THIS
+                            //getEggs();
+                        }
+                        break;
                 }
-                break;
-            case STEAL_ALL_CARDS:
-                    if ((24 - getCardCount()) >= randomPlayerHandSize - 1){
-                        callback.stealAllCards(gameId,randomPlayer.getServerPlayerId(),getServerPlayerId());
-                    } else {
-                        //TODO UNCOMMENT THIS
-                        //getEggs();
-                    }
-                break;
+            }
         }
+
 
     }
 
@@ -285,11 +284,7 @@ public class BasicBot extends ServerPlayer {
             addCard(serverCard);
         }
 
-        try {
-            endTurn();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        endTurn();
     }
 
     private ArrayList<ServerCard> chooseRandomCard(Map<UUID, ServerCard> cards ){
@@ -317,14 +312,14 @@ public class BasicBot extends ServerPlayer {
         for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()){
             ServerPlayer player = entry.getValue();
             // check if the player is this bot
-            if(!player.getServerPlayerId().equals(getServerPlayerId())){
+            if(!Objects.equals(player.getServerPlayerId(), getServerPlayerId())){
                 playerList.add(player);
             }
         }
         random = new Random();
         int randomIndex = random.nextInt(playerList.size());
 
-        // Use the random index to get a random Action
+        /* Use the random index to get a random Action */
         return playerList.get(randomIndex);
     }
 
@@ -333,7 +328,7 @@ public class BasicBot extends ServerPlayer {
     }
 
     // Method to end the bot's turn
-    private void endTurn() throws RemoteException {
+    private void endTurn()  {
         // Interact with ServerTable to end the turn
         callback.endPlayerTurn(gameId);
     }

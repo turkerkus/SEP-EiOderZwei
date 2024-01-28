@@ -52,6 +52,8 @@ public class GameSessionManager implements Serializable {
 
             @Override
             public void endPlayerTurn(UUID gameId) {
+                //TODO REMOVE THIS PRINT LINE
+                System.out.println("end player turn from BOT");
                 getGameSession(gameId).endPlayerTurn();
             }
 
