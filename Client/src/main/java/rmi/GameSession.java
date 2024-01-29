@@ -271,8 +271,7 @@ public class GameSession implements Serializable {
         try {
             setBroadcastSent(BroadcastType.UPDATE_TIMER_LABEL, true);
             broadcastSafeCommunication(BroadcastType.START_GAME);
-            //TODO CHANGE THIS TO 45
-            startTurnTimer(10);
+            startTurnTimer(45);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -460,6 +459,7 @@ public class GameSession implements Serializable {
 
     }
 
+    UUID kuckuckPlayer ;
 
     public void checkDrawnCard(UUID clientId) throws RemoteException {
         ServerCard card = serverTable.getDrawnCard();
@@ -467,6 +467,7 @@ public class GameSession implements Serializable {
 
         // if player is not a bot
         if (Objects.equals(serverTable.getDrawnCard().getType(), "Kuckuck")) {
+            kuckuckPlayer = clientId;
             System.out.println("Kuckuck drawn. Sending info to player.");
             serverTable.karteAblegen(clientId, card);
             serverTable.getPlayer(clientId).raisePunkte();
@@ -474,6 +475,7 @@ public class GameSession implements Serializable {
             broadcastSafeCommunication(BroadcastType.DRAWN_KUCKUCK_CARD);
 
         } else if (Objects.equals(serverTable.getDrawnCard().getType(), "Fuchs")) {
+            thiefID = clientId;
             System.out.println("Fox drawn. Sending info to player.");
             serverTable.karteAblegen(clientId, card);
             setBroadcastSent(BroadcastType.DRAWN_FOX_CARD, true);
@@ -544,15 +546,18 @@ public class GameSession implements Serializable {
         for (ServerCard serverCard : selectedCards) {
             serverTable.karteAblegen(clientId, serverCard);
         }
-        serverTable.getPlayer(clientId).increasePointsBy(eggPoints);
+        ServerPlayer player = serverTable.getPlayer(clientId);
+        player.increasePointsBy(eggPoints);
         serverTable.setEggPoints(eggPoints);
         serverTable.setDiscardedSelectedCards(selectedCards);
-        System.out.println(serverTable.getPlayer(clientId).getServerPlayerName() + " has is changing the following cards for egg Points!");
+        System.out.println(serverTable.getPlayer(clientId).getServerPlayerName() + "  is changing the following cards for egg Points!");
+
         //TODO REMOVE THIS
         for (ServerCard element : selectedCards) {
             System.out.println(element.toString());
         }
         System.out.println("egg points: "+serverTable.getEggPoints());
+
         setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
         broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
         endPlayerTurn();
@@ -602,8 +607,8 @@ public class GameSession implements Serializable {
         }
     }
 
-    public void stealAllCards(UUID target, UUID clientId) {
-        serverTable.setTarget(target);
+    public void stealAllCards(UUID targetId, UUID clientId) {
+        serverTable.setTarget(targetId);
         thiefID = clientId;
         setBroadcastSent(BroadcastType.ALL_CARDS_STOLEN,true);
         try {
@@ -612,7 +617,13 @@ public class GameSession implements Serializable {
             throw new RuntimeException(e);
         }
 
-
+        ServerPlayer targetedPlayer = serverTable.getPlayer(targetId);
+        ServerPlayer player = serverTable.getPlayer(clientId);
+        // if player is a bot send this too
+        if (targetedPlayer.isBot()) {
+            System.out.println(player.getServerPlayerName() +" stealing all " + targetedPlayer.getServerPlayerName() + " cards except for one");
+            handleBotAction(targetId, bot -> bot.stealAllCards(clientId));
+        }
 
 
     }
@@ -624,6 +635,9 @@ public class GameSession implements Serializable {
 
         // remove the cards from the targets hand
         removeMultipleCards(targetId,stollenCards);
+        for (ServerCard serverCard : selectedCards) {
+            serverTable.getPlayer(thiefID).addCard(serverCard);
+        }
         setBroadcastSent(BroadcastType.STEALING_CARD_COMPLETED,true);
         try {
             broadcastSafeCommunication(BroadcastType.STEALING_CARD_COMPLETED);
@@ -633,9 +647,9 @@ public class GameSession implements Serializable {
         ServerPlayer player = serverTable.getPlayer(playerId);
         // if player is a bot send this too
         if (player.isBot()) {
+            System.out.println("adding stolen cards to bot");
             handleBotAction(playerId, bot -> bot.stealingCardComplete(selectedCards));
         }
-
 
     }
 
@@ -647,17 +661,10 @@ public class GameSession implements Serializable {
         // Schedule the card removal with a delay
         int delay = 0; // Initial delay
         for (ServerCard card : discardedCards) { // No need to create a new ArrayList here
-            executorService.schedule(() -> Platform.runLater(() ->
-                    serverTable.getPlayer(playerID).remove(card.getServeCardID(),card.getType())), delay, TimeUnit.SECONDS);
+            executorService.schedule(() ->
+                    serverTable.getPlayer(playerID).remove(card.getServeCardID(),card.getType()), delay, TimeUnit.SECONDS);
             delay += 1; // Increment delay for the next card
         }
-
-        // Ensure the executor service is properly shutdown after all tasks
-        executorService.schedule(() -> {
-            // Reorganize the GridPane after all removals are complete
-            Platform.runLater(() -> serverTable.getPlayer(playerID));
-            executorService.shutdown();
-        }, delay + 1, TimeUnit.SECONDS); // Schedule this after the last removal
 
     }
 
@@ -709,10 +716,10 @@ public class GameSession implements Serializable {
                                 listener.changeRoosterPlayer(serverTable.getAlteSpielerMitHahnKarte(), serverTable.getSpielerMitHahnKarte());
                                 break;
                             case DRAWN_KUCKUCK_CARD:
-                                listener.drawnKuckuckCard(activePlayerId, serverTable.getDrawnCard());
+                                listener.drawnKuckuckCard(kuckuckPlayer, serverTable.getDrawnCard());
                                 break;
                             case DRAWN_FOX_CARD:
-                                listener.drawnFoxCard(serverTable.getActiveSpielerID(), serverTable.getDrawnCard());
+                                listener.drawnFoxCard(thiefID, serverTable.getDrawnCard());
                                 break;
                             case SWITCH_TO_RESULTS:
                                 listener.switchToResultTable(gameLogic.getWinner());

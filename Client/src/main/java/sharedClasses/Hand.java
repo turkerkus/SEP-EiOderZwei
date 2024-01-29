@@ -90,13 +90,9 @@ public class Hand implements Serializable {
     public void removeCard (UUID cardID, String cardType ){
         switch (cardType){
             case "Koerner":
-                ServerCard corn = cornCards.get(cardID);
-                //this.numOfCornCard -= corn.getValue();
                 cornCards.remove(cardID);
                 break;
             case "BioKoerner":
-                ServerCard bio = bioCornCards.get(cardID);
-               // this.numOfBioCornCard -= bio.getValue();
                 bioCornCards.remove(cardID);
                 break;
             case "Fuchs":

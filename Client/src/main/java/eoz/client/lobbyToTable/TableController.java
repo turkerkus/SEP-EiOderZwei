@@ -781,11 +781,14 @@ public class TableController implements Serializable, Initializable {
         return new ArrayList<>(Arrays.asList(eggPoints, kornzahlwert, bKornzahlwert));
     }
 
+    // this is used to prevent the player from getting egg card if he has already drawn
+    // a fox card due to the delay in time to end player turn
+
 
     public void  getEggs() {
         Platform.runLater(() -> {
             try {
-                if (Objects.equals(client.getClientId(), this.currentPlayerID)) {
+                if (Objects.equals(client.getClientId(), this.currentPlayerID) ) {
                     String dialogTitle = "Card Selection";
                     String dialogHeader = "Select Cards";
                     selectedCards = new ArrayList<>();
@@ -937,7 +940,9 @@ public class TableController implements Serializable, Initializable {
     }
 
     public void drawnFoxCard(UUID playerID, ServerCard foxCard) {
+
         Platform.runLater(() -> {
+
             selectedCards = new ArrayList<>();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             Spieler player = players.get(playerID);
@@ -989,21 +994,29 @@ public class TableController implements Serializable, Initializable {
                         Hand targetedPlayerHand = targetedPlayer.getCardHand();
                         // you can only steal if the targetedPlayer has some cards in hand
 
-                        if (dialogButton == stealOneButtonType && targetedPlayerHand.size() != 0) {
+                        if (dialogButton == stealOneButtonType ) {
                             // Logic to steal one card from the selected player
+                            if(targetedPlayerHand.size() != 0){
+                                if (!selectedCards.isEmpty() && checkForAvailableCell(targetedPlayer)) {
+                                    client.stealOneCard(target, selectedCards);
+                                } else {
+                                    if(foxCard != null){
+                                        client.removeFoxCard(foxCard);
+                                    }
 
-                            if (!selectedCards.isEmpty() && checkForAvailableCell(targetedPlayer)) {
-                                client.stealOneCard(target, selectedCards);
-                            } else {
-                                if(foxCard != null){
-                                    client.removeFoxCard(foxCard);
+                                    alert.setTitle("Illegal Move");
+                                    alert.setHeaderText("You have to select one cared");
+                                    alert.showAndWait();
+                                    drawnFoxCard(playerID,null);
                                 }
+                            } else {
+                                if (Objects.equals(currentPlayerID, client.getClientId())){
+                                    client.endPlayerTurn();
 
-                                alert.setTitle("Illegal Move");
-                                alert.setHeaderText("You have to select one cared");
-                                alert.showAndWait();
-                                drawnFoxCard(playerID,null);
+                                }
                             }
+
+
 
                         } else if (dialogButton == stealAllButtonType ) {
                             // Logic to steal all cards from the selected player
@@ -1022,7 +1035,15 @@ public class TableController implements Serializable, Initializable {
                                 selectedCards.add(card);
                                 if(checkForAvailableCell(targetedPlayer)) client.stealOneCard(target, selectedCards);
 
-                            } else {
+                            } else if(targetedPlayerHand.size() == 0 && Objects.equals(currentPlayerID, client.getClientId())){
+
+
+                                if (Objects.equals(currentPlayerID, client.getClientId())){
+                                    client.endPlayerTurn();
+
+                                }
+
+                            }else {
                                 if(checkForAvailableCell(targetedPlayer)) client.stealAllCards(target);
                             }
 
@@ -1032,20 +1053,6 @@ public class TableController implements Serializable, Initializable {
                     }
                     return null; // Dialog has no result
                 });
-
-                /*
-                // if the window of the dialog is close without stealing any card endPlayer turn
-                dialog.getDialogPane().getScene().getWindow().setOnCloseRequest(event -> {
-                    try {
-                        client.endPlayerTurn();
-                    } catch (RemoteException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
-                 */
-
-
 
                 // Show the dialog and wait for the user's response
                 dialog.showAndWait();
@@ -1210,12 +1217,14 @@ public class TableController implements Serializable, Initializable {
                 timer.schedule(() -> {
 
                     try {
-                        client.endPlayerTurn();
+                        if (Objects.equals(currentPlayerID, client.getClientId())){
+                            client.endPlayerTurn();
+                        }
                     } catch (RemoteException e) {
                         throw new RuntimeException(e);
                     }
 
-                }, 2);
+                }, 5);
 
             } else if (!client.getClientId().equals(targetId)) {
                 // This client is the targeted player, maybe no alert is needed or a different message

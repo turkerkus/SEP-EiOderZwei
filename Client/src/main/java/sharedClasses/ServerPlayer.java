@@ -168,4 +168,6 @@ public class ServerPlayer implements Serializable {
     public int getRank() {
         return rank;
     }
+
+
 }

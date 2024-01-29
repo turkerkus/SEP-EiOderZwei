@@ -24,7 +24,9 @@ public class GameSessionManager implements Serializable {
 
             @Override
             public Map<UUID, ServerPlayer> getPlayers(UUID gameId) {
-                return getGameSession(gameId).getServerPlayers();
+                GameSession gameSession = getGameSession(gameId);
+                if(gameSession != null) return gameSession.getServerPlayers();
+                return null;
             }
 
             @Override
@@ -74,6 +76,11 @@ public class GameSessionManager implements Serializable {
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
                 }
+            }
+
+            @Override
+            public void stealingInProgress(UUID gameId, UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) {
+                getGameSession(gameId).stealingInProgress(playerId,targetId,selectedCards);
             }
         };
     }
