@@ -1,30 +1,33 @@
 package eoz.client.lobbyToTable;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class GameSetupController {
+public class GameSetupController implements Initializable {
 
     public ImageView backgroundView;
-
     @FXML
     public TextField gameName;
-
     @FXML
     private Slider numOfPlayers;
-
+    @FXML
+    private ChoiceBox<String> botDifficulty;
+    ObservableList<String> botOptions = FXCollections.observableArrayList("Easy", "Hard", "Random");
     public String username;
 
 
@@ -38,8 +41,8 @@ public class GameSetupController {
 
     private Client client;
 
-    @FXML
-    public void initialize() {
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
         final int maxLength = 32;
 
         gameName.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -48,10 +51,9 @@ public class GameSetupController {
                 gameName.setText(limitedText);
             }
         });
-
-
+        botDifficulty.setValue("Hard"); // it has to be an element in the ObservableList
+        botDifficulty.setItems(botOptions);
     }
-
 
 
     public void switchBackToScene2(ActionEvent event) {
@@ -105,7 +107,6 @@ public class GameSetupController {
     }
 
 
-
     public void switchToScene4(ActionEvent event) {
         // Show alert if the game name is empty
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -136,7 +137,7 @@ public class GameSetupController {
                     lobbyRoomController.setNumOfPlayers((int) numOfPlayers.getValue());
                     lobbyRoomController.setUsername(username);
                     lobbyRoomController.setPlayerLabel(username + "@Host");
-                    lobbyRoomController.roomName.setText("Room :"+ gameName.getText());
+                    lobbyRoomController.roomName.setText("Room :" + gameName.getText());
                     lobbyRoomController.gameID.setText("Game ID: " + client.getGameId());
 
 
@@ -147,7 +148,7 @@ public class GameSetupController {
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
                     stage.show();
-                    stage.setTitle("Lobby Room@_"+ gameName.getText());
+                    stage.setTitle("Lobby Room@_" + gameName.getText());
                 } else {
                     // Show an alert indicating connection failure
                     alert.setTitle("Connection Error");
@@ -160,7 +161,4 @@ public class GameSetupController {
             }
         }
     }
-
-
-
 }
