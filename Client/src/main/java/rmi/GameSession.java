@@ -321,7 +321,7 @@ public class GameSession implements Serializable {
     public void endPlayerTurn() {
         System.out.println("player turn ended");
         // Perform end-of-turn actions for the player
-        serverTable.getActiveSpieler().setHasDrawnACArd(false);
+        serverTable.getActiveSpieler().setHasTakenTurn(false);
         // Move to the next player's turn
         serverTable.nextSpieler();
         //setBroadcastSent(BroadcastType.START_GAME, true);
@@ -366,6 +366,7 @@ public class GameSession implements Serializable {
 
             serverTable.swapPlayerWithBot(disconnectedPlayerId, gameId, botName, callback, botDifficulty);
 
+
             //Broadcast to the other players that the player has left the gameSession
             Map<UUID, ServerPlayer> players = serverTable.getPlayers();
             for (Map.Entry<UUID, ServerPlayer> entry : players.entrySet()) {
@@ -379,6 +380,10 @@ public class GameSession implements Serializable {
                         throw new RuntimeException(e);
                     }
                 });
+            }
+            if(player.hasTakenTurn()) endPlayerTurn();
+            else {
+                handleBotAction(disconnectedPlayerId,bot -> bot.takeTurn());
             }
         }
         if (clientListeners.isEmpty()) {  // meaning there is no human player left, so you end the game
@@ -408,7 +413,7 @@ public class GameSession implements Serializable {
         boolean hasRoosterCard = player.hatHahnKarte();
         boolean hasDrawnFoxCard = false;
 
-        if (player.hasDrawnACArd()) {
+        if (player.hasTakenTurn()) {
             endPlayerTurn();
         } else {
             // Draw the first card
@@ -434,7 +439,7 @@ public class GameSession implements Serializable {
     private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
         System.out.println(player.getServerPlayerName() + " is drawing a card");
         serverTable.karteZiehen(player.getServerPlayerId());
-        player.setHasDrawnACArd(true);
+        player.setHasTakenTurn(true);
         checkDrawnCard(player.getServerPlayerId());
 
     }
@@ -486,7 +491,7 @@ public class GameSession implements Serializable {
         ServerPlayer player = serverTable.getPlayer(clientId);
 
 
-        if (player.hasDrawnACArd()) {
+        if (player.hasTakenTurn()) {
             endPlayerTurn();
         } else {
             setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
@@ -516,26 +521,32 @@ public class GameSession implements Serializable {
      * @throws RemoteException if a remote communication error occurs.
      */
     void karteUmtauschen(UUID clientId, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException {
-        eggLayer = clientId;
-        // discard all the cards on the serverTable
-        for (ServerCard serverCard : selectedCards) {
-            serverTable.karteAblegen(clientId, serverCard);
-        }
+
         ServerPlayer player = serverTable.getPlayer(clientId);
-        player.increasePointsBy(eggPoints);
-        serverTable.setEggPoints(eggPoints);
-        serverTable.setDiscardedSelectedCards(selectedCards);
-        System.out.println(serverTable.getPlayer(clientId).getServerPlayerName() + "  is changing the following cards for egg Points!");
+        if (player.hasTakenTurn()) endPlayerTurn();
+        else {
+            eggLayer = clientId;
+            // discard all the cards on the serverTable
+            for (ServerCard serverCard : selectedCards) {
+                serverTable.karteAblegen(clientId, serverCard);
+            }
 
-        //TODO REMOVE THIS
-        for (ServerCard element : selectedCards) {
-            System.out.println(element.toString());
+            player.increasePointsBy(eggPoints);
+            serverTable.setEggPoints(eggPoints);
+            serverTable.setDiscardedSelectedCards(selectedCards);
+            System.out.println(serverTable.getPlayer(clientId).getServerPlayerName() + "  is changing the following cards for egg Points!");
+
+            //TODO REMOVE THIS
+            for (ServerCard element : selectedCards) {
+                System.out.println(element.toString());
+            }
+            System.out.println("egg points: " + serverTable.getEggPoints());
+
+            setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
+            broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
+            endPlayerTurn();
         }
-        System.out.println("egg points: " + serverTable.getEggPoints());
 
-        setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
-        broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
-        endPlayerTurn();
 
     }
 
@@ -752,9 +763,7 @@ public class GameSession implements Serializable {
                     BasicBot bot = (BasicBot) player;
                     action.performAction(bot);
                     break;
-
                 case "Hard":
-                    // TODO: Implement HardBot's action
                     HardBot hardBot = (HardBot) player;
                     action.performAction(hardBot);
                     break;

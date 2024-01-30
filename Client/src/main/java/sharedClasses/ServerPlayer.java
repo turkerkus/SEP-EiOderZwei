@@ -10,15 +10,15 @@ public class ServerPlayer implements Serializable {
     private boolean aussteigen = false;
     private boolean leftServer = false;
 
-    public boolean hasDrawnACArd() {
-        return hasDrawnACArd;
+    public boolean hasTakenTurn() {
+        return hasTakenTurn;
     }
 
-    public void setHasDrawnACArd(boolean hasDrawnACArd) {
-        this.hasDrawnACArd = hasDrawnACArd;
+    public void setHasTakenTurn(boolean hasTakenTurn) {
+        this.hasTakenTurn = hasTakenTurn;
     }
 
-    private boolean hasDrawnACArd = false;
+    private boolean hasTakenTurn = false;
     private int newCard;
     private final UUID serverPlayerId;
     private int rank = 0;

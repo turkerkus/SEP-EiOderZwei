@@ -36,8 +36,9 @@ public class GameSessionManager implements Serializable {
 
             @Override
             public void drawCard(UUID clientId, UUID gameId) {
+                GameSession gameSession = getGameSession(gameId);
                 try {
-                    getGameSession(gameId).drawCard(clientId);
+                    if(doesGameExit(gameId)) gameSession.drawCard(clientId);
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
                 }

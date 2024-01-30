@@ -327,7 +327,7 @@ public class BasicBot extends ServerPlayer {
 
             // get random player hand size
             Integer randomPlayerHandSize = randomPlayer.getCardCount();
-            System.out.println("randomPlayer hand size is " + randomPlayerHandSize);
+            System.out.println(randomPlayer.getServerPlayerName() +" hand size is " + randomPlayerHandSize);
 
             actionTypes = new ArrayList<>(Arrays.asList(ActionType.STEAL_ONE_CARD));
             if (randomPlayerHandSize > 2) {

@@ -2,6 +2,7 @@ package sharedClasses;
 
 import rmi.BasicBot;
 import rmi.GameSessionCallback;
+import rmi.HardBot;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -74,11 +75,11 @@ public class ServerTable implements Serializable {
                     bot.setCardHand(disconnectedPlayer.getCardHand());
                     players.put(disconnectedPlayerId, bot);
                     break;
-                case "Medium":
-                    //TODO COMPLETE MEDIUM BOT
-                    break;
                 case "Hard":
-                    //TODO COMPLETE HARD BOT
+                    HardBot hardBot = new HardBot(gameId, disconnectedPlayerId, botName, disconnectedPlayer.hatHahnKarte(), callback);
+                    hardBot.setPunkte(disconnectedPlayer.getPunkte());
+                    hardBot.setCardHand(disconnectedPlayer.getCardHand());
+                    players.put(disconnectedPlayerId, hardBot);
                     break;
             }
         }

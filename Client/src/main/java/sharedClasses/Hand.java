@@ -105,6 +105,6 @@ public class Hand implements Serializable {
     }
 
     public boolean isEmpty() {
-        return foxCards.isEmpty() && bioCornCards.isEmpty() && cornCards.isEmpty();
+        return bioCornCards.isEmpty() && cornCards.isEmpty();
     }
 }
