@@ -1,6 +1,5 @@
 package rmi;
 
-import javafx.application.Platform;
 import sharedClasses.*;
 
 import java.io.Serializable;
@@ -14,25 +13,9 @@ import java.util.function.Consumer;
 
 public class GameSession implements Serializable {
     private final UUID gameId;
-
-    private boolean gameStarted = false;
-
-    private String gameName;
-    private String currentChatMessage;
-
-    private boolean isGameSessionReady = false;
-    private Integer numberOfHumanPlayersPresent = 0;
-
     private final Integer maxNumOfPlayers;
-
     private final String hostPlayerName;
-
-    private ServerTable serverTable;
     private final GameLogic gameLogic = new GameLogic();
-
-    private Integer numOfBotPlayers  = 0;
-    private GameSessionCallback callback;
-
     private final String[] FUNNY_BOT_NAMES = {
             "Bloop",
             "Zippy",
@@ -46,25 +29,28 @@ public class GameSession implements Serializable {
             "Zorro"
             // Add more funny names as needed
     };
-
+    String botDifficulty = "Hard";
+    ArrayList<ServerCard> stollenCards;
+    UUID kuckuckPlayer;
+    private boolean gameStarted = false;
+    private String gameName;
+    private String currentChatMessage;
+    private boolean isGameSessionReady = false;
+    private Integer numberOfHumanPlayersPresent = 0;
+    private ServerTable serverTable;
+    private Integer numOfBotPlayers = 0;
+    private GameSessionCallback callback;
     private Map<UUID, ClientUIUpdateListener> clientListeners = new ConcurrentHashMap<>();
     private Map<BroadcastType, Boolean> broadcastStatus = new ConcurrentHashMap<>();
     private CustomTimer timer;
     private volatile Integer timeLeft; // Time left in seconds
 
-    String botDifficulty = "Easy";
-
-
-
-    public String getGameName() {
-        return gameName;
-    }
-
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
     // Remaining time
+    private UUID chatSenderId;
+    private volatile boolean isTimerPaused = false;
+    private UUID eggLayer;
+    private UUID thiefID;
+    private ServerCard foxCard;
 
     public GameSession(GameSessionCallback callback, UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
         this.callback = callback;
@@ -78,11 +64,19 @@ public class GameSession implements Serializable {
         setBroadcastSent(BroadcastType.SWITCH_TO_TABLE, true);
 
     }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
     public void setCurrentChatMessage(String message) {
         this.currentChatMessage = message;
     }
 
-    private UUID chatSenderId;
     public void sendChatMessage(UUID senderId, String message) throws RemoteException {
         this.chatSenderId = senderId;
         setCurrentChatMessage(message);
@@ -98,7 +92,6 @@ public class GameSession implements Serializable {
     public boolean BroadcastIsNotSent(BroadcastType type) {
         return broadcastStatus.getOrDefault(type, false);
     }
-
 
     public String generateFunnyBotName() {
         Random random = new Random();
@@ -140,18 +133,17 @@ public class GameSession implements Serializable {
             // Check if the game is already started or the maximum number of players is reached
             if (!isGameSessionReady && players.size() < getMaxNumOfPlayers()) {
                 // Create a new BasicBot
-                switch (botDifficulty){
+                switch (botDifficulty) {
                     case "Easy":
                         BasicBot bot = new BasicBot(gameId, botId, botName, false, callback);
 
                         // Add the bot to the server table
                         serverTable.addplayer(botId, bot);
                         break;
-                    case "Medium":
-                        //TODO COMPLETE MEDIUM BOT
-                        break;
                     case "Hard":
-                        //TODO COMPLETE HARD BOT
+                        HardBot hardBot = new HardBot(gameId, botId, botName, false, callback);
+                        // Add the bot to the server table
+                        serverTable.addplayer(botId, hardBot);
                         break;
                 }
 
@@ -234,7 +226,7 @@ public class GameSession implements Serializable {
     public void hahnKarteGeben() throws RemoteException {
         broadcastSafeCommunication(BroadcastType.Hahn_karte_Geben);
         UUID playerID = serverTable.getSpielerMitHahnKarte();
-        if(serverTable.getPlayer(playerID).isBot()){
+        if (serverTable.getPlayer(playerID).isBot()) {
             handleBotAction(serverTable.getSpielerMitHahnKarte(), bot -> bot.setHahnKarte(true));
         }
     }
@@ -275,16 +267,16 @@ public class GameSession implements Serializable {
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-        if(serverTable.getActiveSpieler().isBot()){
-           handleBotAction(serverTable.getActiveSpielerID(),bot -> {
-               bot.takeTurn();
-           });
+        if (serverTable.getActiveSpieler().isBot()) {
+            handleBotAction(serverTable.getActiveSpielerID(), bot -> {
+                bot.takeTurn();
+            });
         }
     }
-    private volatile boolean isTimerPaused = false;
 
     /**
      * Starts the turn timer with the specified duration in seconds.
+     *
      * @param durationInSeconds The duration of the turn timer in seconds.
      */
 
@@ -322,15 +314,9 @@ public class GameSession implements Serializable {
         }, 0, 1000);
     }
 
-    ArrayList<ServerCard> stollenCards;
-
-
-
-
     /**
      * Ends the turn for the specified player and performs end-of-turn actions.
      * Moves to the next player's turn.
-     *
      */
     public void endPlayerTurn() {
         System.out.println("player turn ended");
@@ -341,7 +327,6 @@ public class GameSession implements Serializable {
         //setBroadcastSent(BroadcastType.START_GAME, true);
         startPlayerTurn(); // Start the next player's turn
     }
-
 
     /**
      * Safely performs RMI communication with a client if the player is not a bot.
@@ -358,7 +343,6 @@ public class GameSession implements Serializable {
             }
         }
     }
-
 
     /**
      * Handles a disconnected client by printing a message.
@@ -380,7 +364,7 @@ public class GameSession implements Serializable {
 
             //swap the player with bot
 
-            serverTable.swapPlayerWithBot(disconnectedPlayerId,gameId, botName,callback,botDifficulty);
+            serverTable.swapPlayerWithBot(disconnectedPlayerId, gameId, botName, callback, botDifficulty);
 
             //Broadcast to the other players that the player has left the gameSession
             Map<UUID, ServerPlayer> players = serverTable.getPlayers();
@@ -413,8 +397,6 @@ public class GameSession implements Serializable {
         callback.endGameSession(this.gameId);
     }
 
-
-
     /**
      * Lets a player draw a card as a round action.
      *
@@ -443,13 +425,11 @@ public class GameSession implements Serializable {
             }
 
             // If no fox card was drawn or the player is not a bot, end the player's turn
-            if (!hasDrawnFoxCard ) {
+            if (!hasDrawnFoxCard) {
                 endPlayerTurn();
             }
         }
     }
-
-
 
     private void drawAndCheckCard(ServerPlayer player) throws RemoteException {
         System.out.println(player.getServerPlayerName() + " is drawing a card");
@@ -458,8 +438,6 @@ public class GameSession implements Serializable {
         checkDrawnCard(player.getServerPlayerId());
 
     }
-
-    UUID kuckuckPlayer ;
 
     public void checkDrawnCard(UUID clientId) throws RemoteException {
         ServerCard card = serverTable.getDrawnCard();
@@ -487,8 +465,8 @@ public class GameSession implements Serializable {
         setBroadcastSent(BroadcastType.HAS_DRAWN_A_CARD, true);
         broadcastSafeCommunication(BroadcastType.HAS_DRAWN_A_CARD);
         // if player is a bot send this too
-        if(player.isBot()){
-            handleBotAction(clientId,bot -> {
+        if (player.isBot()) {
+            handleBotAction(clientId, bot -> {
                 try {
                     bot.drawCard(card);
                 } catch (RemoteException e) {
@@ -497,7 +475,6 @@ public class GameSession implements Serializable {
             });
         }
     }
-
 
     /**
      * Lets a player steal a rooster card as a round action.
@@ -509,7 +486,7 @@ public class GameSession implements Serializable {
         ServerPlayer player = serverTable.getPlayer(clientId);
 
 
-        if(player.hasDrawnACArd()){
+        if (player.hasDrawnACArd()) {
             endPlayerTurn();
         } else {
             setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
@@ -517,7 +494,7 @@ public class GameSession implements Serializable {
             setBroadcastSent(BroadcastType.CHANGE_ROOSTER_PLAYER, true);
             broadcastSafeCommunication(BroadcastType.CHANGE_ROOSTER_PLAYER);
             ServerPlayer oldRoosterPlayer = serverTable.getPlayer(serverTable.getAlteSpielerMitHahnKarte());
-            if(player.isBot() || oldRoosterPlayer.isBot()){
+            if (player.isBot() || oldRoosterPlayer.isBot()) {
                 if (player.isBot()) {
                     handleBotAction(clientId, bot -> bot.setHahnKarte(true));
 
@@ -531,8 +508,6 @@ public class GameSession implements Serializable {
         }
 
     }
-
-    private UUID eggLayer ;
 
     /**
      * Lets a player change card .
@@ -556,7 +531,7 @@ public class GameSession implements Serializable {
         for (ServerCard element : selectedCards) {
             System.out.println(element.toString());
         }
-        System.out.println("egg points: "+serverTable.getEggPoints());
+        System.out.println("egg points: " + serverTable.getEggPoints());
 
         setBroadcastSent(BroadcastType.CARD_DISCARDED, true);
         broadcastSafeCommunication(BroadcastType.CARD_DISCARDED);
@@ -564,13 +539,10 @@ public class GameSession implements Serializable {
 
     }
 
-
     public ServerPlayer getRoosterPlayer() {
         UUID roosterPlayerId = serverTable.getSpielerMitHahnKarte();
         return serverTable.getPlayer(roosterPlayerId);
     }
-
-    private UUID thiefID;
 
     public void stealOneCard(UUID targetId, ArrayList<ServerCard> selectedCards, UUID clientId) {
         ServerPlayer player = serverTable.getPlayer(clientId);
@@ -593,8 +565,6 @@ public class GameSession implements Serializable {
 
     }
 
-    private ServerCard foxCard ;
-
     // remove the fox card if the one stealing the card was not able to a card because the
     // opponent has no cards
     public void removeFoxCard(ServerCard foxCard) {
@@ -610,7 +580,7 @@ public class GameSession implements Serializable {
     public void stealAllCards(UUID targetId, UUID clientId) {
         serverTable.setTarget(targetId);
         thiefID = clientId;
-        setBroadcastSent(BroadcastType.ALL_CARDS_STOLEN,true);
+        setBroadcastSent(BroadcastType.ALL_CARDS_STOLEN, true);
         try {
             broadcastSafeCommunication(BroadcastType.ALL_CARDS_STOLEN);
         } catch (RemoteException e) {
@@ -621,12 +591,13 @@ public class GameSession implements Serializable {
         ServerPlayer player = serverTable.getPlayer(clientId);
         // if player is a bot send this too
         if (targetedPlayer.isBot()) {
-            System.out.println(player.getServerPlayerName() +" stealing all " + targetedPlayer.getServerPlayerName() + " cards except for one");
+            System.out.println(player.getServerPlayerName() + " stealing all " + targetedPlayer.getServerPlayerName() + " cards except for one");
             handleBotAction(targetId, bot -> bot.stealAllCards(clientId));
         }
 
 
     }
+
     public void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) {
         System.out.println("request to steal all cards accepted");
         serverTable.setTarget(targetId);
@@ -634,11 +605,11 @@ public class GameSession implements Serializable {
         stollenCards = selectedCards;
 
         // remove the cards from the targets hand
-        removeMultipleCards(targetId,stollenCards);
+        removeMultipleCards(targetId, stollenCards);
         for (ServerCard serverCard : selectedCards) {
             serverTable.getPlayer(thiefID).addCard(serverCard);
         }
-        setBroadcastSent(BroadcastType.STEALING_CARD_COMPLETED,true);
+        setBroadcastSent(BroadcastType.STEALING_CARD_COMPLETED, true);
         try {
             broadcastSafeCommunication(BroadcastType.STEALING_CARD_COMPLETED);
         } catch (RemoteException e) {
@@ -662,7 +633,7 @@ public class GameSession implements Serializable {
         int delay = 0; // Initial delay
         for (ServerCard card : discardedCards) { // No need to create a new ArrayList here
             executorService.schedule(() ->
-                    serverTable.getPlayer(playerID).remove(card.getServeCardID(),card.getType()), delay, TimeUnit.SECONDS);
+                    serverTable.getPlayer(playerID).remove(card.getServeCardID(), card.getType()), delay, TimeUnit.SECONDS);
             delay += 1; // Increment delay for the next card
         }
 
@@ -731,7 +702,7 @@ public class GameSession implements Serializable {
                                 listener.oneCardStolen(serverTable.getTarget(), serverTable.getStolenCard(), thiefID);
                                 break;
                             case REMOVE_FOX_CARD:
-                                listener.removeFoxCard( foxCard);
+                                listener.removeFoxCard(foxCard);
                                 break;
                             case ALL_CARDS_STOLEN:
                                 listener.allCardsStolen(serverTable.getTarget(), thiefID);
@@ -740,7 +711,7 @@ public class GameSession implements Serializable {
                                 listener.stealingCardCompleted(serverTable.getTarget(), thiefID, stollenCards);
                                 break;
                             case CHAT:
-                                if(currentChatMessage != null){
+                                if (currentChatMessage != null) {
                                     listener.updateChat(currentChatMessage, chatSenderId);
                                 }
                                 break;
@@ -772,11 +743,6 @@ public class GameSession implements Serializable {
         setBroadcastSent(broadcastType, false);
     }
 
-    @FunctionalInterface
-    interface BotAction {
-        void performAction(BasicBot bot);
-    }
-
     private void handleBotAction(UUID playerId, BotAction action) {
         ServerPlayer player = serverTable.getPlayer(playerId);
         if (player.isBot()) {
@@ -786,15 +752,11 @@ public class GameSession implements Serializable {
                     BasicBot bot = (BasicBot) player;
                     action.performAction(bot);
                     break;
-                case "Medium":
-                    // TODO: Implement MediumBot's action
-                    //MediumBot bot = (MediumBot) player;
-                    // action.performAction(bot);
-                    break;
+
                 case "Hard":
                     // TODO: Implement HardBot's action
-                    //HardBot bot = (HardBot) player;
-                    // action.performAction(bot);
+                    HardBot hardBot = (HardBot) player;
+                    action.performAction(hardBot);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown bot difficulty");
@@ -802,6 +764,11 @@ public class GameSession implements Serializable {
 
 
         }
+    }
+
+    @FunctionalInterface
+    interface BotAction {
+        void performAction(BasicBot bot);
     }
 
 }
