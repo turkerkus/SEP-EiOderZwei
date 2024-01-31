@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
@@ -19,7 +20,14 @@ public class Spieler extends ServerPlayer {
 
     private Label playerLabel;
 
+    Color playerColor = null;
+    public Color getPlayerColor() {
+        return playerColor;
+    }
 
+    public void setPlayerColor(Color playerColor) {
+        this.playerColor = playerColor;
+    }
 
     public Label getPlayerPointlabel() {
         return playerPointlabel;

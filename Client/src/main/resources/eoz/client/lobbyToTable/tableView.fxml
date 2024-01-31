@@ -24,7 +24,7 @@
             <TextArea fx:id="input" accessibleRole="PARENT" layoutX="-4.0" layoutY="929.0" onKeyPressed="#enterChatHandle" prefHeight="51.0" prefWidth="223.0" promptText="Type text here" wrapText="true" />
             <ScrollPane fx:id="scrollPane" accessibleRole="PARENT" layoutX="-6.0" prefHeight="931.0" prefWidth="260.0" vvalue="1.0">
                 <content>
-                    <VBox fx:id="chatBox" alignment="TOP_RIGHT" prefHeight="451.0" prefWidth="257.0" />
+                    <VBox fx:id="chatBox" alignment="TOP_RIGHT" prefHeight="929.0" prefWidth="257.0" />
                 </content>
             </ScrollPane>
             <Button fx:id="btnSend" accessibleRole="PARENT" layoutX="219.0" layoutY="933.0" mnemonicParsing="false" onAction="#sendAction" prefHeight="44.0" prefWidth="33.0" />

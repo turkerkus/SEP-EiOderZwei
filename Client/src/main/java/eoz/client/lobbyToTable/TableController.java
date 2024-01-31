@@ -19,6 +19,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -148,9 +150,10 @@ public class TableController implements Serializable, Initializable {
             String playerName = players.get(playerId).getServerPlayerName();
             Text chatText = new Text("   " + playerName+ ": " + message);
             chatText.wrappingWidthProperty().bind(chatBox.widthProperty());
+            chatText.setFill(players.get(playerId).getPlayerColor());
+            chatText.setFont(Font.font("Verdana", FontPosture.REGULAR, 18));
             chatBox.getChildren().add(chatText);
         });
-
     }
 
 
@@ -241,6 +244,15 @@ public class TableController implements Serializable, Initializable {
                 {pt3, pt4, pt5, pt6},  // Case 5
                 {pt2, pt3, pt4, pt5, pt6}  // Case 6
         };
+        Color[][]  chatColor = {
+                {},  // Case 0 (unused)
+                {},  // Case 1 (unused)
+                {Color.YELLOWGREEN},  // Case 2
+                {Color.PURPLE, Color.ORANGE},  // Case 3
+                {Color.PURPLE, Color.YELLOWGREEN, Color.ORANGE},  // Case 4
+                {Color.GREEN, Color.PURPLE, Color.YELLOWGREEN, Color.ORANGE},  // Case 5
+                {Color.WHITE, Color.GREEN, Color.PURPLE, Color.YELLOWGREEN, Color.ORANGE}  // Case 6
+        };
 
         boolean[][] setStartingRowIndex = {
                 {},  // Case 0 (unused)
@@ -304,6 +316,7 @@ public class TableController implements Serializable, Initializable {
                 player.setCardGridPane(player1GridPane);
                 player.setPlayerLabelGrid(player1LabelGrid);
                 player.setPlayerPointlabel(pt1);
+                player.setPlayerColor(Color.RED);
 
             } else {
                 // Handle non-host players
@@ -323,7 +336,7 @@ public class TableController implements Serializable, Initializable {
                     pointLabels[numPlayers][nonHostPlayerIndex].setText("Pt: 0");
 
                     player.setPlayerPointlabel(pointLabels[numPlayers][nonHostPlayerIndex]);
-
+                    player.setPlayerColor(chatColor[numPlayers][nonHostPlayerIndex]); //This is to set the color of the player/chat
 
                     //add the Labels and GridPane to their respective list to be able to distribute the cards respectively
                     labelList.add(labelCases[numPlayers][nonHostPlayerIndex]);

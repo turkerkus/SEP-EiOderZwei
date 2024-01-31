@@ -5,10 +5,13 @@ import sharedClasses.Hand;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
+import java.io.Serial;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HardBot extends BasicBot {
+    @Serial
+    private static final long serialVersionUID = 4650222820820902059L;
 
     BioCardCombinator bioCardCombinator;
     CornCardCombinator cornCardCombinator;
