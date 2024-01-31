@@ -1387,6 +1387,55 @@ public class TableController implements Serializable, Initializable {
         });
     }
 
+    public void leaveGameSession(){
+
+        client.disconnectFromServer(true);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
+            root = loader.load();
+
+            LobbyController2 LobbyController2 = loader.getController();
+
+            LobbyController2.welcome.setText("Welcome " + client.getClientName());
+            LobbyController2.username = client.getClientName();
+            LobbyController2.setClient(this.client);
+
+
+            Scene scene2 = new Scene(root, 800, 800);
+            stage.setScene(scene2);
+            stage.show();
+            stage.setTitle("Lobby");
+
+            // Assuming the ImageView has the fx:id="backgroundView" in your FXML file
+            ImageView backgroundView = (ImageView) root.lookup("#backgroundView");
+
+            // Ensure the image covers the entire StackPane area
+            backgroundView.fitWidthProperty().bind(stage.widthProperty());
+            backgroundView.fitHeightProperty().bind(stage.heightProperty());
+
+            // Remove the preserveRatio to allow the image to cover the entire area
+            backgroundView.setPreserveRatio(false);
+
+            // Set preferred window size
+            stage.setMinWidth(800); // Minimum width of the window
+            stage.setMinHeight(600); // Minimum height of the window
+
+            // Adjust the stage size after the scene is shown to ensure proper layout
+            stage.sizeToScene();
+            AnchorPane card = (AnchorPane) scene2.lookup("#card");
+            if (card != null) {
+                // Bind the card's layoutXProperty to keep it centered
+                card.layoutXProperty().bind(scene2.widthProperty().subtract(card.widthProperty()).divide(2));
+                // Bind the card's layoutYProperty to keep it at the same relative position from the top
+                card.layoutYProperty().bind(scene2.heightProperty().multiply(599.0 / 1080.0));
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
 
 }

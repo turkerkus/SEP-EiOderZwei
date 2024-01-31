@@ -48,15 +48,23 @@ public class BasicBot extends ServerPlayer {
     }
 
     public void takeTurn() {
+        // Before scheduling the task, check if the game session is still active.
+        if (!callback.isGameSessionActive(gameId)) {
+            // If the game session is not active, don't schedule new tasks and exit the method.
+            return;
+        }
+
         timer = new CustomTimer();
         timer.schedule(() -> {
-
-            try {
-                performActions();  // Implement this method as needed
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
+            // Inside the task, check again if the game session is still active.
+            if (callback.isGameSessionActive(gameId)) {
+                try {
+                    performActions(); // Implement this method as needed
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
             }
-
+            // If the game session is no longer active, do not perform actions.
         }, 3);
     }
 

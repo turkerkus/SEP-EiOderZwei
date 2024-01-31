@@ -52,6 +52,12 @@ public class GameSession implements Serializable {
     private UUID thiefID;
     private ServerCard foxCard;
 
+    public boolean isActive() {
+        return active;
+    }
+
+    private boolean active;
+
     public GameSession(GameSessionCallback callback, UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
         this.callback = callback;
         this.serverTable = new ServerTable();
@@ -158,6 +164,7 @@ public class GameSession implements Serializable {
     }
 
     public void startGameTable() throws RemoteException {
+        this.active = true;
         if (getNumberOfHumanPlayersPresent() < maxNumOfPlayers) {
             int botsToAdd = getMaxNumOfPlayers() - getNumberOfHumanPlayersPresent();
             addBots(botsToAdd);
@@ -398,6 +405,7 @@ public class GameSession implements Serializable {
      * this method end the game session by removing it form the Game Map
      */
     public void endGameSession() {
+        this.active = false;
         System.out.println("Game session with the id : " + this.gameId + " has been ended");
         callback.endGameSession(this.gameId);
     }

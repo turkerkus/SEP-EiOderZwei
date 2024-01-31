@@ -213,10 +213,10 @@ public class Client implements ClientInter {
         }
     }
 
-    public void disconnectFromServer() {
+    public void disconnectFromServer(boolean isLeavingGameSession) {
         try {
             if (serverStub != null) {
-                serverStub.unregisterClient(this.clientId, gameId);
+                serverStub.unregisterClient(this.clientId, gameId, isLeavingGameSession);
             }
         } catch (RemoteException e) {
             throw  new RuntimeException(e);

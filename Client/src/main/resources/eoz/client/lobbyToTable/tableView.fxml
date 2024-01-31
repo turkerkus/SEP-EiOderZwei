@@ -448,7 +448,7 @@
                     <rowConstraints>
                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                     </rowConstraints>
-                    <Button fx:id="leaveLobbyButton" mnemonicParsing="false" prefHeight="33.0" prefWidth="201.0" text="Leave Game" textAlignment="CENTER" GridPane.columnIndex="3" />
+                    <Button fx:id="leaveLobbyButton" mnemonicParsing="false" onAction="#leaveGameSession" prefHeight="33.0" prefWidth="201.0" text="Leave Game" textAlignment="CENTER" GridPane.columnIndex="3" />
                     <Button fx:id="startButton" mnemonicParsing="false" onAction="#startGame" prefHeight="33.0" prefWidth="201.0" text="Start" textAlignment="CENTER" GridPane.columnIndex="4" />
                     <Button fx:id="takeRoosterButton" mnemonicParsing="false" onAction="#stealRooster" prefHeight="33.0" prefWidth="201.0" text="Take Rooster" textAlignment="CENTER" GridPane.columnIndex="2" />
                     <Button fx:id="getEggsButton" mnemonicParsing="false" onAction="#getEggs" prefHeight="33.0" prefWidth="201.0" text="Get Eggs" textAlignment="CENTER" GridPane.columnIndex="1" />

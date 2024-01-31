@@ -83,6 +83,13 @@ public class GameSessionManager implements Serializable {
             public void stealingInProgress(UUID gameId, UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) {
                 getGameSession(gameId).stealingInProgress(playerId,targetId,selectedCards);
             }
+
+            @Override
+            public boolean isGameSessionActive(UUID gameId) {
+                GameSession gameSession = getGameSession(gameId);
+                if(gameSession == null) return false;
+                return gameSession.isActive();
+            }
         };
     }
 

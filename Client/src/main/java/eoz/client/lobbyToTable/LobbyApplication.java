@@ -65,7 +65,7 @@ public class LobbyApplication extends Application {
         try {
             // Close RMI connections or other network connections
             if (client != null) {
-                client.disconnectFromServer(); // Ensure this method closes all RMI resources
+                client.disconnectFromServer(false); // Ensure this method closes all RMI resources
             }
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception

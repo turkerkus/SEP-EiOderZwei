@@ -157,7 +157,7 @@ public class Server implements Remote, ServerInter {
     }
 
     @Override
-    public void unregisterClient(UUID clientId, UUID gameID) throws RemoteException {
+    public void unregisterClient(UUID clientId, UUID gameID, boolean isLeavingGameSession) throws RemoteException {
 
         if (gameID != null && gameSessionManager.doesGameExit(gameID)){
 
@@ -165,7 +165,7 @@ public class Server implements Remote, ServerInter {
         }
 
         ClientUIUpdateListener listener = clientListeners.get(clientId);
-        if (listener != null) {
+        if (listener != null && !isLeavingGameSession) {
             clientListeners.remove(clientId);
         }
 

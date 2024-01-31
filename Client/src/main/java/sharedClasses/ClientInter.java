@@ -162,7 +162,7 @@ public interface ClientInter extends Remote, Serializable {
 
     ServerPlayer getRoosterPlayer() throws  RemoteException;
 
-    void disconnectFromServer() throws RemoteException;
+    void disconnectFromServer(boolean isLeavingGameSession) throws RemoteException;
 
     void sendChatMessage(String content) throws RemoteException;
 
