@@ -1158,7 +1158,7 @@ public class TableController implements Serializable, Initializable {
                 String dialogTitle = "Fox Card Drawn!";
                 String dialogHeader = player.getServerPlayerName() + " has decided to steal all your cards! " +
                         "\n you have to choose one card you want to keep";
-                auswahl(targetId,false,dialogTitle,dialogHeader);
+                auswahl(targetId,true,dialogTitle,dialogHeader);
                 if (selectedCards.isEmpty()){
                     alert.setTitle("Illegal Move");
                     alert.setHeaderText("You have to select one cared");
