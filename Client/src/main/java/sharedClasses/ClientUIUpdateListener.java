@@ -1,5 +1,6 @@
 package sharedClasses;
 
+import eoz.client.lobbyToTable.JoinGameController;
 import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.TableController;
 
@@ -56,4 +57,7 @@ public interface ClientUIUpdateListener extends Remote {
     void addPlayerToLobby(String playerName, Integer numOfPlayersPresent) throws RemoteException;
 
 
+    void updateGameSessionList() throws RemoteException;
+
+    void setJoinGameController(JoinGameController joinGameController) throws RemoteException;
 }

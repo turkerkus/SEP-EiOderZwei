@@ -1,9 +1,11 @@
 package rmi;
 
+import sharedClasses.ClientUIUpdateListener;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.UUID;
@@ -28,4 +30,5 @@ public interface GameSessionCallback extends Serializable {
 
     void stealingInProgress(UUID gameId, UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards);
     boolean isGameSessionActive(UUID gameId);
+    void updateGameSessionList(ClientUIUpdateListener hostListener) throws RemoteException ;
 }

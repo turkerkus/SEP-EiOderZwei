@@ -1,30 +1,40 @@
 package sharedClasses;
 
-import java.io.Serializable;
-import java.rmi.server.UnicastRemoteObject;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.UUID;
-
+import eoz.client.lobbyToTable.JoinGameController;
 import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.TableController;
 import javafx.application.Platform;
 
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.UUID;
+
 public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements ClientUIUpdateListener, Serializable {
+
+    private LobbyRoomController lobbyRoomController;
+    private TableController tableController;
+    private String clientName;
+    private Integer numOfPlayers;
+
+    public void setJoinGameController(JoinGameController joinGameController) {
+        this.joinGameController = joinGameController;
+    }
+
+    private JoinGameController joinGameController;
+
+    public ClientUIUpdateListenerImpl() throws RemoteException {
+
+    }
 
     public void setLobbyRoomController(LobbyRoomController lobbyRoomController) {
         this.lobbyRoomController = lobbyRoomController;
     }
 
-    private LobbyRoomController lobbyRoomController;
-
-
     public void setTableController(TableController tableController) {
         this.tableController = tableController;
     }
-
-
 
     @Override
     public void setCurrentPlayerID(UUID playerID) throws RemoteException {
@@ -36,63 +46,50 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
         this.tableController.updateTimerLabel(timeLeft);
     }
 
-    private TableController tableController;
+    public String getClientName() {
+        return clientName;
+    }
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
-    }
-
-
-
-    private String clientName;
-
-    public String getClientName() {
-        return clientName;
     }
 
     public Integer getNumOfPlayers() {
         return numOfPlayers;
     }
 
-
-
-    private Integer numOfPlayers;
-    public ClientUIUpdateListenerImpl() throws RemoteException {
-
-    }
-
-
     @Override
     public void setNumOfPlayers(int numOfPlayers) throws RemoteException {
         this.numOfPlayers = numOfPlayers;
-        if(lobbyRoomController != null){
+        if (lobbyRoomController != null) {
             lobbyRoomController.setNumOfPlayers(numOfPlayers);
         }
 
     }
 
     @Override
-    public void hahnKarteGeben(UUID playerId) throws RemoteException{
+    public void hahnKarteGeben(UUID playerId) throws RemoteException {
         tableController.hahnKarteGeben(playerId);
     }
+
     @Override
-    public void playerLeftGameSession(UUID disconnectedPlayerID, String botName) throws RemoteException{
-        if(tableController != null){
-            tableController.playerLeftGameSession(disconnectedPlayerID,botName);
-        } else if (lobbyRoomController != null ){
+    public void playerLeftGameSession(UUID disconnectedPlayerID, String botName) throws RemoteException {
+        if (tableController != null) {
+            tableController.playerLeftGameSession(disconnectedPlayerID, botName);
+        } else if (lobbyRoomController != null) {
             lobbyRoomController.removePLayer(botName);
         }
 
     }
 
     @Override
-    public void hasDrawnACard(UUID playerId, ServerCard serverCard) throws RemoteException{
-        tableController.hasDrawnACard(playerId,serverCard);
+    public void hasDrawnACard(UUID playerId, ServerCard serverCard) throws RemoteException {
+        tableController.hasDrawnACard(playerId, serverCard);
     }
 
     @Override
     public void changeRoosterPlayer(UUID oldRoosterPlayerID, UUID newRoosterPlayerID) throws RemoteException {
-        tableController.changeRoosterPlayer(oldRoosterPlayerID,newRoosterPlayerID);
+        tableController.changeRoosterPlayer(oldRoosterPlayerID, newRoosterPlayerID);
     }
 
 
@@ -117,13 +114,13 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     }
 
     @Override
-    public void drawnFoxCard (UUID playerID, ServerCard foxCard) throws RemoteException {
+    public void drawnFoxCard(UUID playerID, ServerCard foxCard) throws RemoteException {
         tableController.drawnFoxCard(playerID, foxCard);
     }
 
     @Override
     public void cardDiscarded(UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException {
-        tableController.cardDiscarded(playerID, discardedCard,eggPoints,selectedCards);
+        tableController.cardDiscarded(playerID, discardedCard, eggPoints, selectedCards);
     }
 
     @Override
@@ -138,8 +135,9 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
     @Override
     public void updateChat(String message, UUID playerId) throws RemoteException {
-            tableController.updateChat(message, playerId);
+        tableController.updateChat(message, playerId);
     }
+
     @Override
     public void switchToResultTable(ServerPlayer winner) throws RemoteException {
         tableController.switchToResults(winner);
@@ -147,7 +145,7 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
     @Override
     public void stealingCardCompleted(UUID target, UUID thief, ArrayList<ServerCard> stollenCards) throws RemoteException {
-        tableController.stealingCardCompleted(target,thief,stollenCards);
+        tableController.stealingCardCompleted(target, thief, stollenCards);
     }
 
     @Override
@@ -157,7 +155,12 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
     @Override
     public void addPlayerToLobby(String playerName, Integer numOfPlayersPresent) throws RemoteException {
-        lobbyRoomController.addPlayerToLobby(playerName,numOfPlayersPresent);
+        lobbyRoomController.addPlayerToLobby(playerName, numOfPlayersPresent);
+    }
+
+    @Override
+    public void updateGameSessionList() throws RemoteException {
+        joinGameController.updateGameSessionList();
     }
 }
 

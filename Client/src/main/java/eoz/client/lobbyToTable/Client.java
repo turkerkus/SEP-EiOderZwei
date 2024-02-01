@@ -165,7 +165,7 @@ public class Client implements ClientInter {
     }
 
     // Method to check if a game is ready
-    public boolean isGameReady() throws RemoteException {
+    public boolean isGameReady(UUID gameId) throws RemoteException {
         try {
             return serverStub.isGameReady(gameId);
         } catch (RemoteException e) {
@@ -292,5 +292,23 @@ public class Client implements ClientInter {
     @Override
     public void leaveLobbyRoom() throws RemoteException {
         serverStub.leaveLobbyRoom(gameId,clientId);
+    }
+
+    @Override
+    public Map<String, UUID> getGameSessionIds() throws RemoteException {
+        return serverStub.getGameSessionIds();
+    }
+
+    public void setJoinGameController(JoinGameController joinGameController) {
+        try {
+            updateListener.setJoinGameController(joinGameController);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public boolean isGameFull(UUID gameId) throws RemoteException {
+        return serverStub.isGameFull(gameId);
     }
 }

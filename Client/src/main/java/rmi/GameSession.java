@@ -58,6 +58,7 @@ public class GameSession implements Serializable {
 
     private boolean active;
     private String joinPlayerName;
+    private ClientUIUpdateListener hostPlayerListener;
 
     public GameSession(GameSessionCallback callback, UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
         this.callback = callback;
@@ -66,6 +67,7 @@ public class GameSession implements Serializable {
         this.maxNumOfPlayers = numOfHumanPlayersRequired;
         this.hostPlayerName = hostPlayerName;
         this.joinPlayerName = hostPlayerName;
+        this.hostPlayerListener = listener;
         setGameName(gameName);
 
         addPlayer(clientID, listener, hostPlayerName);
@@ -209,6 +211,7 @@ public class GameSession implements Serializable {
 
     public boolean isFull() {
         Map<UUID, ServerPlayer> players = serverTable.getPlayers();
+        System.out.println(players.size());
         return players.size() == getMaxNumOfPlayers();
     }
 
@@ -285,7 +288,7 @@ public class GameSession implements Serializable {
             setBroadcastSent(BroadcastType.SWITCH_TO_RESULTS, true);
             try {
                 broadcastSafeCommunication(BroadcastType.SWITCH_TO_RESULTS);
-                endGameSession();
+                endGameSession(null);
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -391,8 +394,8 @@ public class GameSession implements Serializable {
         numOfBotPlayers++;
         if (clientListeners.isEmpty()) {  // meaning there is no human player left, so you end the game
             timer.cancel();
-            endGameSession();
-        } else if (!player.isBot()) {
+            endGameSession(null);
+        } else if (player!= null &&!player.isBot()) {
             String botName = generateFunnyBotName() + "_@Bot" + numOfBotPlayers;
             // remove the player listener
             clientListeners.remove(disconnectedPlayerId);
@@ -437,7 +440,7 @@ public class GameSession implements Serializable {
             if(timer != null && gameStarted){
                 timer.cancel();
             }
-            endGameSession();
+            endGameSession(hostPlayerListener);
         }
 
 
@@ -446,9 +449,15 @@ public class GameSession implements Serializable {
     /**
      * this method end the game session by removing it form the Game Map
      */
-    public void endGameSession() {
+    public void endGameSession(ClientUIUpdateListener hostPlayerListener) {
         this.active = false;
         System.out.println("Game session with the id : " + this.gameId + " has been ended");
+
+        try {
+            if(hostPlayerListener != null) callback.updateGameSessionList(hostPlayerListener);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         callback.endGameSession(this.gameId);
     }
 

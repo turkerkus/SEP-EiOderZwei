@@ -10,14 +10,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.Objects;
 
 public class LobbyController2 {
 
@@ -57,14 +55,6 @@ public class LobbyController2 {
         this.client = client;
     }
 
-
-    public void switchBackToScene1(ActionEvent event) throws IOException {
-        root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource(("lobbyStage2.fxml"))));
-        stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        scene = new Scene(root);
-        stage.setScene(scene);
-        stage.show();
-    }
 
     public void switchToScene3(ActionEvent event) {
 
@@ -132,10 +122,14 @@ public class LobbyController2 {
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
             joinGameController.setStage(stage);
 
-            Scene scene3 = new Scene(root,800,800);
+
+            Scene scene3 = new Scene(root);
             stage.setScene(scene3);
             stage.show();
             stage.setTitle("Join Game");
+            client.setJoinGameController(joinGameController);
+
+            joinGameController.updateGameSessionList();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

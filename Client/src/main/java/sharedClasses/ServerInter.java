@@ -163,4 +163,8 @@ public interface ServerInter extends Remote {
     List<UUID> getPlayerIDList(UUID gameId) throws RemoteException;
 
     void leaveLobbyRoom(UUID gameId, UUID clientId)throws RemoteException;
+
+    Map<String, UUID> getGameSessionIds() throws RemoteException;
+
+    boolean isGameFull(UUID gameId) throws RemoteException;
 }

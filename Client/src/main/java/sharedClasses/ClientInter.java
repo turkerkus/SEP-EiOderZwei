@@ -1,5 +1,6 @@
 package sharedClasses;
 
+import eoz.client.lobbyToTable.JoinGameController;
 import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.TableController;
 
@@ -77,7 +78,7 @@ public interface ClientInter extends Remote, Serializable {
      * @return True if the game is ready, false otherwise.
      * @throws RemoteException if a remote communication error occurs.
      */
-    boolean isGameReady() throws RemoteException;
+    boolean isGameReady(UUID gameId) throws RemoteException;
 
     /**
      * Get the players in the game.
@@ -180,4 +181,10 @@ public interface ClientInter extends Remote, Serializable {
     List<UUID> getPlayerIDList() throws RemoteException;
 
     void leaveLobbyRoom() throws  RemoteException;
+
+    Map<String, UUID> getGameSessionIds() throws RemoteException;
+
+    void setJoinGameController(JoinGameController joinGameController) throws RemoteException;
+
+    boolean isGameFull(UUID gameId) throws RemoteException;
 }

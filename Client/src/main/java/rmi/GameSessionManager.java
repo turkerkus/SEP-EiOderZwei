@@ -1,6 +1,7 @@
 package rmi;
 
 import sharedClasses.ClientUIUpdateListener;
+import sharedClasses.CustomTimer;
 import sharedClasses.ServerCard;
 import sharedClasses.ServerPlayer;
 
@@ -14,11 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class GameSessionManager implements Serializable {
     private Map<UUID, GameSession> gameSessions = new ConcurrentHashMap<>();
     private GameSessionCallback callback;
+    private ServerCallback severCallBack;
 
-    public GameSessionManager() {
+    public GameSessionManager(ServerCallback callBack) {
+        severCallBack = callBack;
         this.callback = new GameSessionCallback() {
             @Override
             public void endGameSession(UUID gameId) {
+                GameSession gameSession = gameSessions.get(gameId);
+                gameSessionIds.remove(gameSession.getGameName());
                 gameSessions.remove(gameId);
             }
 
@@ -90,14 +95,32 @@ public class GameSessionManager implements Serializable {
                 if(gameSession == null) return false;
                 return gameSession.isActive();
             }
+
+            @Override
+            public void updateGameSessionList(ClientUIUpdateListener hostListener) throws RemoteException {
+                severCallBack.updateGameSessionList(hostListener);
+
+            }
         };
     }
+
+    public Map<String, UUID> getGameSessionIds() {
+        return gameSessionIds;
+    }
+
+    private Map<String,UUID>gameSessionIds = new ConcurrentHashMap<>();
 
 
     public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfHumanPlayersRequired) {
         UUID gameId = UUID.randomUUID();
         GameSession gameSession = new GameSession(this.callback, clientID,listener, gameName,gameId, playerName, numOfHumanPlayersRequired);
         gameSessions.put(gameId, gameSession);
+        gameSessionIds.put(gameName,gameId);
+        try {
+            severCallBack.updateGameSessionList(listener);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
         return gameId;
     }
 

@@ -2,6 +2,7 @@ package rmi;
 
 import sharedClasses.*;
 
+import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -22,6 +23,7 @@ public class Server implements Remote, ServerInter {
     private GameSessionManager gameSessionManager;
 
     private Map<UUID, ClientUIUpdateListener> clientListeners = new ConcurrentHashMap<>();
+    private ServerCallback callBack;
 
 
     // Die Registry wird erstellt
@@ -32,7 +34,8 @@ public class Server implements Remote, ServerInter {
     // Der Server muss konstruiert werden
     public Server() throws RemoteException {
         super();
-        gameSessionManager = new GameSessionManager();
+        callBack = new ServerCallback(clientListeners) ;
+        gameSessionManager = new GameSessionManager(callBack);
     }
 
     // Methods
@@ -99,6 +102,7 @@ public class Server implements Remote, ServerInter {
 
     public void registerClient(UUID clientId, ClientUIUpdateListener listener) {
         clientListeners.put(clientId, listener);
+        callBack.addClientListeners(clientId,listener);
     }
 
     // Draw card
@@ -165,10 +169,28 @@ public class Server implements Remote, ServerInter {
     @Override
     public void leaveLobbyRoom(UUID gameId, UUID clientId) {
         try {
-            gameSessionManager.getGameSession(gameId).handleDisconnectedClient(clientId);
+            if (gameId != null && gameSessionManager.doesGameExit(gameId)){
+
+                gameSessionManager.getGameSession(gameId).handleDisconnectedClient(clientId);
+            }
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Map<String, UUID> getGameSessionIds() throws RemoteException {
+        return gameSessionManager.getGameSessionIds();
+    }
+
+    @Override
+    public boolean isGameFull(UUID gameId) throws RemoteException {
+        System.out.println("checking");
+        if (gameSessionManager.doesGameExit(gameId)){
+            System.out.println("gameSessionManager.getGameSession(gameId).isFull();");
+            return gameSessionManager.getGameSession(gameId).isFull();
+        }
+        return false;
     }
 
     @Override
@@ -182,6 +204,7 @@ public class Server implements Remote, ServerInter {
         ClientUIUpdateListener listener = clientListeners.get(clientId);
         if (listener != null && !isLeavingGameSession) {
             clientListeners.remove(clientId);
+            callBack.removeClientListener(clientId);
         }
 
     }

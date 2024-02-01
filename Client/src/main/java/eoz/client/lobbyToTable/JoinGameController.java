@@ -1,6 +1,8 @@
 package eoz.client.lobbyToTable;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,30 +11,35 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import sharedClasses.ServerPlayer;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Map;
+import java.util.UUID;
 
 public class JoinGameController {
+    public ListView gameSessionList;
+    Map<String, UUID> gameSessionIds;
     @FXML
     private TextField gameIdField;
-
     @FXML
     private Button joinGameButton;
+    private String username;
+    private Parent root;
+    private Stage stage;
+    private UUID gameId;
+    private Scene scene;
+    private Client client;
+    private ObservableList<String> gameSessions = FXCollections.observableArrayList();
 
     public void setUsername(String username) {
         this.username = username;
     }
-
-    private String username;
-    private Parent root;
 
     public void setRoot(Parent root) {
         this.root = root;
@@ -42,19 +49,20 @@ public class JoinGameController {
         this.stage = stage;
     }
 
-    private Stage stage;
-    private UUID gameId;
-
-
-
-    private Client client;
+    public void setScene(Scene scene) {
+        this.scene = scene;
+    }
 
     public void setClient(Client client) {
         this.client = client;
     }
+
+
+
     @FXML
     private void joinGame(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
+
         gameId = UUID.fromString(gameIdField.getText().trim()); // Get the entered game ID
         System.out.println("Game ID  @ " + gameId);
         try {
@@ -63,10 +71,11 @@ public class JoinGameController {
             if (client.isConnectedToServer) {
                 // Check if the game ID exists (you'll need to implement this logic)
                 boolean gameExists = client.doesGameExist(gameId);
-                System.out.println("GameExist: "+ gameExists);
+                boolean gameIsFull = client.isGameFull(gameId);
+                System.out.println("GameExist: " + gameExists);
 
 
-                if (gameExists) {
+                if (gameExists && !gameIsFull ) {
                     client.setGameId(gameId);
 
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));
@@ -75,7 +84,7 @@ public class JoinGameController {
 
                     // Setup lobbyRoomController
                     client.setLobbyRoomController(lobbyRoomController);
-                    client.addPlayer(username,gameId);
+                    client.addPlayer(username, gameId);
                     lobbyRoomController.setClient(client);
                     lobbyRoomController.setGameName(client.getGameName(gameId));
                     lobbyRoomController.setUsername(username);
@@ -91,15 +100,23 @@ public class JoinGameController {
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
                     stage.show();
-                    stage.setTitle("Lobby Room@_"+ client.getGameName(gameId));
+                    stage.setTitle("Lobby Room@_" + client.getGameName(gameId));
 
                 } else {
                     // Show an alert if the game ID doesn't exist
+                    if(gameIsFull){
+                        alert.setTitle("Joining Error");
+                        alert.setHeaderText("Game Session is Full");
+                        alert.setContentText("The Game Session You are trying to join is Full");
+                        alert.showAndWait();
+                    } else  {
+                        alert.setTitle("Invalid Game ID");
+                        alert.setHeaderText("The entered Game ID does not exist.");
+                        alert.setContentText("Please check the Game ID and try again.");
+                        alert.showAndWait();
+                    }
 
-                    alert.setTitle("Invalid Game ID");
-                    alert.setHeaderText("The entered Game ID does not exist.");
-                    alert.setContentText("Please check the Game ID and try again.");
-                    alert.showAndWait();
+
                 }
 
             } else {
@@ -115,9 +132,10 @@ public class JoinGameController {
 
     }
 
-    public void backToLobby(){
+    public void backToLobby() {
 
         try {
+            client.leaveLobbyRoom();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
             root = loader.load();
 
@@ -126,7 +144,6 @@ public class JoinGameController {
             LobbyController2.welcome.setText("Welcome " + client.getClientName());
             LobbyController2.username = client.getClientName();
             LobbyController2.setClient(this.client);
-
 
 
             Scene scene2 = new Scene(root, 800, 800);
@@ -156,6 +173,42 @@ public class JoinGameController {
 
     }
 
+    public void updateGameSessionList() {
+        // Add a listener to the scene's width property
+        Platform.runLater(() -> {
+            try {
+                gameSessions.clear();
+                gameSessionIds = client.getGameSessionIds();
+                gameSessionIds.keySet().forEach(gameName -> {
+                    System.out.println(gameName);
+                    UUID gameId = gameSessionIds.get(gameName);
+                    try {
+                        System.out.println(!client.isGameReady(gameId));
+                        System.out.println(!client.isGameFull(gameId));
+                        if (!client.isGameReady(gameId) && !client.isGameFull(gameId)) {
+                            gameSessions.add(gameName); // Add the game name to the list if the game is not ready
+                        }
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                gameSessionList.setItems(gameSessions);
+                gameSessionList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        // Update the Game ID field with the selected game session
+                        UUID gameId = gameSessionIds.get(newValue);
+                        System.out.println("Joining game session: " + newValue);
+                        gameIdField.setText(gameId.toString());
+                    }
+                });
+
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+    }
 
 
 }
