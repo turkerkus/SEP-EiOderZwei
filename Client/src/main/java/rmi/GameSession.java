@@ -47,7 +47,7 @@ public class GameSession implements Serializable {
 
     // Remaining time
     private UUID chatSenderId;
-    private volatile boolean isTimerPaused = false;
+
     private UUID eggLayer;
     private UUID thiefID;
     private ServerCard foxCard;
@@ -57,6 +57,7 @@ public class GameSession implements Serializable {
     }
 
     private boolean active;
+    private String joinPlayerName;
 
     public GameSession(GameSessionCallback callback, UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
         this.callback = callback;
@@ -64,6 +65,7 @@ public class GameSession implements Serializable {
         this.gameId = gameId;
         this.maxNumOfPlayers = numOfHumanPlayersRequired;
         this.hostPlayerName = hostPlayerName;
+        this.joinPlayerName = hostPlayerName;
         setGameName(gameName);
 
         addPlayer(clientID, listener, hostPlayerName);
@@ -125,9 +127,35 @@ public class GameSession implements Serializable {
         if (!gameStarted && players.size() < getMaxNumOfPlayers()) {
             serverTable.addplayer(clientID, new ServerPlayer(clientID, playerName, false));
             clientListeners.put(clientID, listener);
+            joinPlayerName = playerName;
             this.numberOfHumanPlayersPresent++;
+            if(playerName != hostPlayerName) updateLobbyRoomPlayerList(listener);
+            setBroadcastSent(BroadcastType.PLAYER_JOINED_GAME, true);
+            try {
+                broadcastSafeCommunication(BroadcastType.PLAYER_JOINED_GAME);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+
+
         }
 
+    }
+    public void updateLobbyRoomPlayerList(ClientUIUpdateListener listener){
+        int playerCount = 1;
+        for (UUID playerId : serverTable.getPlayerIdList()){
+            ServerPlayer player = serverTable.getPlayer(playerId);
+            String playerName = player.getServerPlayerName();
+            if(listener != null && playerName != joinPlayerName) {
+                try {
+                    listener.addPlayerToLobby(playerName,playerCount);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            playerCount++;
+
+        }
     }
 
     public void addBots(Integer numOfBots) {
@@ -359,7 +387,7 @@ public class GameSession implements Serializable {
      */
     public void handleDisconnectedClient(UUID disconnectedPlayerId) throws RemoteException {
         ServerPlayer player = serverTable.getPlayer(disconnectedPlayerId);
-        System.out.println("Player " + player.getServerPlayerName() + " has left the game and has been replaced by a bot.");
+
         numOfBotPlayers++;
         if (clientListeners.isEmpty()) {  // meaning there is no human player left, so you end the game
             timer.cancel();
@@ -370,9 +398,17 @@ public class GameSession implements Serializable {
             clientListeners.remove(disconnectedPlayerId);
 
             //swap the player with bot
+            if (isGameSessionReady ){
+                serverTable.swapPlayerWithBot(disconnectedPlayerId, gameId, botName, callback, botDifficulty);
+                System.out.println("Player " + player.getServerPlayerName() + " has left the game and has been replaced by a bot.");
+            }
+            // then player might be in the lobby Room
+            else{
+                serverTable.removePLayer(disconnectedPlayerId);
+                System.out.println("Player " + player.getServerPlayerName() + " has left the LobbyRoom");
+                numberOfHumanPlayersPresent--;
 
-            serverTable.swapPlayerWithBot(disconnectedPlayerId, gameId, botName, callback, botDifficulty);
-
+            }
 
             //Broadcast to the other players that the player has left the gameSession
             Map<UUID, ServerPlayer> players = serverTable.getPlayers();
@@ -382,19 +418,25 @@ public class GameSession implements Serializable {
                 // Now use safeClientCommunication for each player
                 safeClientCommunication(serverPlayer, listener -> {
                     try {
-                        listener.playerLeftGameSession(disconnectedPlayerId, botName);
+                        if(isGameSessionReady) listener.playerLeftGameSession(disconnectedPlayerId, botName);
+                        else if(player.getServerPlayerName().equals(hostPlayerName)){
+                            listener.playerLeftGameSession(disconnectedPlayerId, "isHostPlayer");
+                        } else listener.playerLeftGameSession(disconnectedPlayerId, "isNotHostPlayer");
                     } catch (RemoteException e) {
                         throw new RuntimeException(e);
                     }
                 });
             }
             if(player.hasTakenTurn()) endPlayerTurn();
-            else {
+            else if(isGameStarted()){
                 handleBotAction(disconnectedPlayerId,bot -> bot.takeTurn());
             }
         }
-        if (clientListeners.isEmpty()) {  // meaning there is no human player left, so you end the game
-            timer.cancel();
+        if (clientListeners.isEmpty() ) {  // meaning there is no human player left, so you end the game
+
+            if(timer != null && gameStarted){
+                timer.cancel();
+            }
             endGameSession();
         }
 
@@ -699,6 +741,9 @@ public class GameSession implements Serializable {
                             case UPDATE_TIMER_LABEL:
                                 listener.setTimeLeft(timeLeft);
                                 break;
+                            case PLAYER_JOINED_GAME:
+                                listener.addPlayerToLobby(joinPlayerName,numberOfHumanPlayersPresent);
+                                break;
                             case HAS_DRAWN_A_CARD:
                                 listener.hasDrawnACard(activePlayerId, serverTable.getDrawnCard());
                                 break;
@@ -781,6 +826,10 @@ public class GameSession implements Serializable {
 
 
         }
+    }
+
+    public List<UUID> getPlayerIDList() {
+        return serverTable.getPlayerIdList();
     }
 
     @FunctionalInterface

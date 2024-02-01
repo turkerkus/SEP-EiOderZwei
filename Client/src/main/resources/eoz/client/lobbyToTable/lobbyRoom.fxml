@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="536.0" prefWidth="660.0" style="-fx-background-color: #1f4594;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.LobbyRoomController">
+<AnchorPane prefHeight="536.0" prefWidth="712.0" style="-fx-background-color: #1f4594;" stylesheets="@lobbyRoom.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.LobbyRoomController">
 
     <Label fx:id="playerLabel" layoutX="411.0" layoutY="14.0" prefHeight="62.0" prefWidth="234.0" text="Player" textFill="AQUA">
         <font>
@@ -18,6 +18,7 @@
         <HBox prefHeight="18.0" prefWidth="522.0" spacing="10.0" />
         <VBox fx:id="playerList" spacing="5.0">
             <!-- Player avatars and names can be dynamically added here -->
+
         </VBox>
         <VBox fx:id="gameSettings" spacing="5.0">
             <!-- Game settings elements can be dynamically added here -->
@@ -39,5 +40,6 @@
          <Font name="System Bold" size="14.0" />
       </font>
    </Label>
-   <Button fx:id="copyGameID" layoutX="385.0" layoutY="480.0" mnemonicParsing="false" onAction="#copyGameID" prefHeight="26.0" prefWidth="205.0" text="Copy Game ID" />
+   <Button fx:id="copyGameID" layoutX="492.0" layoutY="480.0" mnemonicParsing="false" onAction="#copyGameID" prefHeight="26.0" prefWidth="205.0" text="Copy Game ID" />
+   <Button fx:id="backButton" layoutX="248.0" layoutY="480.0" mnemonicParsing="false" onAction="#backToLobby" prefHeight="26.0" prefWidth="205.0" text="Back" />
 </AnchorPane>

@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,12 +43,19 @@ public class Client implements ClientInter {
     public void setClientName(String playerName) {
         this.playerName = playerName;
         try {
-            updateListener = new ClientUIUpdateListenerImpl();
             updateListener.setClientName(playerName);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
 
+    }
+
+    public Client(){
+        try {
+            updateListener = new ClientUIUpdateListenerImpl();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -274,5 +282,15 @@ public class Client implements ClientInter {
     @Override
     public void removeFoxCard(ServerCard foxCard) throws RemoteException {
         serverStub.removeFoxCard(gameId,foxCard);
+    }
+
+    @Override
+    public List<UUID> getPlayerIDList() throws RemoteException {
+        return serverStub.getPlayerIDList(gameId);
+    }
+
+    @Override
+    public void leaveLobbyRoom() throws RemoteException {
+        serverStub.leaveLobbyRoom(gameId,clientId);
     }
 }

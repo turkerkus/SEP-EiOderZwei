@@ -32,4 +32,6 @@ public enum BroadcastType {
 
     REMOVE_FOX_CARD,
 
+    PLAYER_JOINED_GAME,
+
 }

@@ -22,6 +22,10 @@ public class ServerTable implements Serializable {
         return players.get(playerID);
     }
 
+    public List<UUID> getPlayerIdList() {
+        return playerIdList;
+    }
+
     private List<UUID> playerIdList;
     private int moveCount = 0;
     private Deck nachzieheDeck = new Deck(true); //This is the deck from which the players draw cards.
@@ -84,6 +88,11 @@ public class ServerTable implements Serializable {
             }
         }
 
+    }
+
+    public void removePLayer(UUID playerId){
+        players.remove(playerId);
+        playerIdList.remove(playerId);
     }
 
     private UUID spielerMitHahnKarte;

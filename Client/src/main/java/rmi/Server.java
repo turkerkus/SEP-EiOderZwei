@@ -8,6 +8,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -154,6 +155,20 @@ public class Server implements Remote, ServerInter {
     @Override
     public void removeFoxCard(UUID gameId, ServerCard foxCard) throws RemoteException {
         gameSessionManager.getGameSession(gameId).removeFoxCard(foxCard);
+    }
+
+    @Override
+    public List<UUID> getPlayerIDList(UUID gameId) throws RemoteException {
+        return gameSessionManager.getGameSession(gameId).getPlayerIDList();
+    }
+
+    @Override
+    public void leaveLobbyRoom(UUID gameId, UUID clientId) {
+        try {
+            gameSessionManager.getGameSession(gameId).handleDisconnectedClient(clientId);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

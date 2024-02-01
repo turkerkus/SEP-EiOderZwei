@@ -14,6 +14,6 @@
       </font></Label>
     <TextField fx:id="gameIdField" layoutX="130.0" layoutY="158.0" onAction="#joinGame" prefHeight="50.0" prefWidth="326.0" promptText="Enter Game ID" style="-fx-font-family: Quicksand; -fx-border-color: grey; -fx-border-width: 5; -fx-border-radius: 5; -fx-background-color: transparent;" />
     <Button fx:id="joinGameButton" layoutX="349.0" layoutY="287.0" onAction="#joinGame" text="Join Game" />
-   <Button fx:id="backToGameLobby" layoutX="165.0" layoutY="287.0" text="Back" />
+   <Button fx:id="backToGameLobby" layoutX="165.0" layoutY="287.0" onAction="#backToLobby" text="Back" />
 
 </AnchorPane>

@@ -3,6 +3,7 @@ package sharedClasses;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -158,4 +159,8 @@ public interface ServerInter extends Remote {
     void stealingInProgress(UUID gameId, UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCard)throws RemoteException;
 
     void removeFoxCard(UUID gameId, ServerCard foxCard) throws RemoteException;
+
+    List<UUID> getPlayerIDList(UUID gameId) throws RemoteException;
+
+    void leaveLobbyRoom(UUID gameId, UUID clientId)throws RemoteException;
 }

@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -175,4 +176,8 @@ public interface ClientInter extends Remote, Serializable {
     void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) throws RemoteException;
 
     void removeFoxCard(ServerCard foxCard) throws  RemoteException;
+
+    List<UUID> getPlayerIDList() throws RemoteException;
+
+    void leaveLobbyRoom() throws  RemoteException;
 }

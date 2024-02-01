@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 import eoz.client.lobbyToTable.LobbyRoomController;
@@ -76,7 +77,12 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     }
     @Override
     public void playerLeftGameSession(UUID disconnectedPlayerID, String botName) throws RemoteException{
-        tableController.playerLeftGameSession(disconnectedPlayerID,botName);
+        if(tableController != null){
+            tableController.playerLeftGameSession(disconnectedPlayerID,botName);
+        } else if (lobbyRoomController != null ){
+            lobbyRoomController.removePLayer(botName);
+        }
+
     }
 
     @Override
@@ -147,6 +153,11 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
     @Override
     public void removeFoxCard(ServerCard foxCard) throws RemoteException {
         tableController.removeFoxCard(foxCard);
+    }
+
+    @Override
+    public void addPlayerToLobby(String playerName, Integer numOfPlayersPresent) throws RemoteException {
+        lobbyRoomController.addPlayerToLobby(playerName,numOfPlayersPresent);
     }
 }
 

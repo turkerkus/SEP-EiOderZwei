@@ -1,5 +1,6 @@
 package eoz.client.lobbyToTable;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -9,10 +10,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import sharedClasses.ServerPlayer;
 
 import java.io.IOException;
-import java.util.UUID;
+import java.rmi.RemoteException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class JoinGameController {
     @FXML
@@ -27,6 +33,15 @@ public class JoinGameController {
 
     private String username;
     private Parent root;
+
+    public void setRoot(Parent root) {
+        this.root = root;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
     private Stage stage;
     private UUID gameId;
 
@@ -53,12 +68,14 @@ public class JoinGameController {
 
                 if (gameExists) {
                     client.setGameId(gameId);
-                    client.addPlayer(username,gameId);
+
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));
                     root = loader.load();
                     LobbyRoomController lobbyRoomController = loader.getController();
 
                     // Setup lobbyRoomController
+                    client.setLobbyRoomController(lobbyRoomController);
+                    client.addPlayer(username,gameId);
                     lobbyRoomController.setClient(client);
                     lobbyRoomController.setGameName(client.getGameName(gameId));
                     lobbyRoomController.setUsername(username);
@@ -70,7 +87,7 @@ public class JoinGameController {
                     // set up the stage
                     stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     lobbyRoomController.setStage(stage);
-                    client.setLobbyRoomController(lobbyRoomController);
+
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
                     stage.show();
@@ -97,5 +114,48 @@ public class JoinGameController {
         }
 
     }
+
+    public void backToLobby(){
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyStage2.fxml"));
+            root = loader.load();
+
+            LobbyController2 LobbyController2 = loader.getController();
+
+            LobbyController2.welcome.setText("Welcome " + client.getClientName());
+            LobbyController2.username = client.getClientName();
+            LobbyController2.setClient(this.client);
+
+
+
+            Scene scene2 = new Scene(root, 800, 800);
+            stage.setScene(scene2);
+            stage.show();
+            stage.setTitle("Lobby");
+
+            Platform.runLater(() -> {
+                // Lookup and position the card and background image after the new scene is rendered
+                ImageView backgroundView = (ImageView) scene2.lookup("#backgroundView");
+                if (backgroundView != null) {
+                    backgroundView.fitWidthProperty().bind(scene2.widthProperty());
+                    backgroundView.fitHeightProperty().bind(scene2.heightProperty());
+                    backgroundView.setPreserveRatio(false);
+                }
+
+                AnchorPane card = (AnchorPane) scene2.lookup("#card");
+                if (card != null) {
+                    card.setLayoutX((scene2.getWidth() - card.getWidth()) / 2);
+                    card.setLayoutY(scene2.getHeight() * 599.0 / 1080.0);
+                }
+            });
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+
 
 }

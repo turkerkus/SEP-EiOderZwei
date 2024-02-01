@@ -1,5 +1,6 @@
 package eoz.client.lobbyToTable;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -75,30 +76,21 @@ public class GameSetupController implements Initializable {
             stage.show();
             stage.setTitle("Lobby");
 
-            // Assuming the ImageView has the fx:id="backgroundView" in your FXML file
-            ImageView backgroundView = (ImageView) root.lookup("#backgroundView");
+            Platform.runLater(() -> {
+                // Lookup and position the card and background image after the new scene is rendered
+                ImageView backgroundView = (ImageView) scene2.lookup("#backgroundView");
+                if (backgroundView != null) {
+                    backgroundView.fitWidthProperty().bind(scene2.widthProperty());
+                    backgroundView.fitHeightProperty().bind(scene2.heightProperty());
+                    backgroundView.setPreserveRatio(false);
+                }
 
-            // Ensure the image covers the entire StackPane area
-            backgroundView.fitWidthProperty().bind(stage.widthProperty());
-            backgroundView.fitHeightProperty().bind(stage.heightProperty());
-
-            // Remove the preserveRatio to allow the image to cover the entire area
-            backgroundView.setPreserveRatio(false);
-
-            // Set preferred window size
-            stage.setMinWidth(800); // Minimum width of the window
-            stage.setMinHeight(600); // Minimum height of the window
-
-            // Adjust the stage size after the scene is shown to ensure proper layout
-            stage.sizeToScene();
-
-            AnchorPane card = (AnchorPane) scene2.lookup("#card");
-            if (card != null) {
-                // Bind the card's layoutXProperty to keep it centered
-                card.layoutXProperty().bind(scene2.widthProperty().subtract(card.widthProperty()).divide(2));
-                // Bind the card's layoutYProperty to keep it at the same relative position from the top
-                card.layoutYProperty().bind(scene2.heightProperty().multiply(599.0 / 1080.0));
-            }
+                AnchorPane card = (AnchorPane) scene2.lookup("#card");
+                if (card != null) {
+                    card.setLayoutX((scene2.getWidth() - card.getWidth()) / 2);
+                    card.setLayoutY(scene2.getHeight() * 599.0 / 1080.0);
+                }
+            });
 
 
         } catch (IOException e) {
@@ -125,14 +117,16 @@ public class GameSetupController implements Initializable {
                 if (client.isConnectedToServer) {
                     client.setGameName(gameName.getText());
                     client.setNumOfPlayers((int) numOfPlayers.getValue());
-                    client.createGameSession();
-                    System.out.println("Game Id : " + client.getGameId());
+
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));
                     root = loader.load();
                     LobbyRoomController lobbyRoomController = loader.getController();
 
                     // Setup lobbyRoomController
                     lobbyRoomController.setClient(client);
+                    client.setLobbyRoomController(lobbyRoomController);
+                    client.createGameSession();
+                    System.out.println("Game Id : " + client.getGameId());
                     lobbyRoomController.setGameName(gameName.getText());
                     lobbyRoomController.setNumOfPlayers((int) numOfPlayers.getValue());
                     lobbyRoomController.setUsername(username);
@@ -144,7 +138,7 @@ public class GameSetupController implements Initializable {
                     // set up the stage
                     stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     lobbyRoomController.setStage(stage);
-                    client.setLobbyRoomController(lobbyRoomController);
+
                     Scene scene = new Scene(root);
                     stage.setScene(scene);
                     stage.show();

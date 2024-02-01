@@ -126,9 +126,11 @@ public class LobbyController2 {
             JoinGameController joinGameController = loader.getController();
             joinGameController.setUsername(username);
             joinGameController.setClient(this.client);
+            joinGameController.setStage(stage);
 
 
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+            joinGameController.setStage(stage);
 
             Scene scene3 = new Scene(root,800,800);
             stage.setScene(scene3);
