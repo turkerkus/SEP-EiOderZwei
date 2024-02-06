@@ -10,10 +10,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import sharedClasses.LobbyRoomControllerInterface;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,23 +28,20 @@ public class GameSetupController implements Initializable {
     public ImageView backgroundView;
     @FXML
     public TextField gameName;
+    public String username;
+    ObservableList<String> botOptions = FXCollections.observableArrayList("Easy", "Hard", "Random");
     @FXML
     private Slider numOfPlayers;
     @FXML
     private ChoiceBox<String> botDifficulty;
-    ObservableList<String> botOptions = FXCollections.observableArrayList("Easy", "Hard", "Random");
-    public String username;
-
-
     private Stage stage;
 
     private Parent root;
+    private Client client;
 
     public void setClient(Client client) {
         this.client = client;
     }
-
-    private Client client;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

@@ -21,23 +21,23 @@ public class Client implements ClientInter {
 
     // Attributes
     private final UUID clientId = UUID.randomUUID();
-
+    boolean isConnectedToServer = false;
     private ServerInter serverStub;
+    private String playerName;
+    private String gameName;
+    private UUID gameId;
+    private final ClientUIUpdateListener updateListener;
+    public Client() {
+        try {
+            updateListener = new ClientUIUpdateListenerImpl();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public String getClientName() {
         return playerName;
     }
-
-    @Override
-    public void setTableController(TableController tableController) throws RemoteException {
-        updateListener.setTableController(tableController);
-    }
-
-    private String playerName;
-    private String gameName;
-    private UUID gameId;
-    private ClientUIUpdateListener updateListener;
-    boolean isConnectedToServer = false;
 
     // Constructor for initializing with player name only
     public void setClientName(String playerName) {
@@ -50,12 +50,9 @@ public class Client implements ClientInter {
 
     }
 
-    public Client(){
-        try {
-            updateListener = new ClientUIUpdateListenerImpl();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public void setTableController(TableController tableController) throws RemoteException {
+        updateListener.setTableController(tableController);
     }
 
     @Override
@@ -67,7 +64,6 @@ public class Client implements ClientInter {
     public UUID getClientId() {
         return clientId;
     }
-
 
 
     // Getter and setter for number of players
@@ -84,7 +80,7 @@ public class Client implements ClientInter {
     }
 
 
-    public void setLobbyRoomController(LobbyRoomController lobbyRoomController) {
+    public void setLobbyRoomController(LobbyRoomControllerInterface lobbyRoomController) {
         try {
             updateListener.setLobbyRoomController(lobbyRoomController);
         } catch (RemoteException e) {
@@ -119,7 +115,7 @@ public class Client implements ClientInter {
     // Method to add a player to a game
     public void addPlayer(String playerName, UUID gameId) throws RemoteException {
         try {
-            serverStub.addPlayer(this.clientId,updateListener,playerName, gameId);
+            serverStub.addPlayer(this.clientId, updateListener, playerName, gameId);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -137,7 +133,7 @@ public class Client implements ClientInter {
     // Method to create or join a game session
     public void createGameSession() {
         try {
-            gameId = serverStub.createGameSession(clientId,updateListener,gameName, playerName, updateListener.getNumOfPlayers());
+            gameId = serverStub.createGameSession(clientId, updateListener, gameName, playerName, updateListener.getNumOfPlayers());
             System.out.println("Game session created/joined.");
         } catch (Exception e) {
             System.err.println("Error creating/joining game session: ");
@@ -150,11 +146,11 @@ public class Client implements ClientInter {
         try {
             boolean isStartTableGameAllowed = serverStub.checkStartTable(gameId, playerName);
             if (isStartTableGameAllowed) {
-                serverStub.startGameTable( gameId);
+                serverStub.startGameTable(gameId);
                 System.out.println("Running");
                 int numOfPlayers = updateListener.getNumOfPlayers();
                 updateListener.setNumOfPlayers(numOfPlayers);
-                return  true;
+                return true;
             }
             return false;
         } catch (Exception e) {
@@ -209,7 +205,7 @@ public class Client implements ClientInter {
             // Store and print the response from the server
             String response = serverStub.sayHello();
             System.out.println("Server says: " + response);
-            serverStub.registerClient(clientId,updateListener);
+            serverStub.registerClient(clientId, updateListener);
             this.isConnectedToServer = true;
 
 
@@ -227,11 +223,9 @@ public class Client implements ClientInter {
                 serverStub.unregisterClient(this.clientId, gameId, isLeavingGameSession);
             }
         } catch (RemoteException e) {
-            throw  new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
-
-
 
 
     // DrawCard
@@ -242,15 +236,14 @@ public class Client implements ClientInter {
     }
 
 
-
     @Override
     public void hahnKlauen() throws RemoteException {
         serverStub.hahnKlauen(clientId, gameId);
     }
 
     @Override
-    public void karteUmtauschen( Integer eggPoints, ArrayList<ServerCard> selectedCards ) throws RemoteException {
-        serverStub.karteUmtauschen(clientId, gameId,eggPoints,selectedCards);
+    public void karteUmtauschen(Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException {
+        serverStub.karteUmtauschen(clientId, gameId, eggPoints, selectedCards);
     }
 
     @Override
@@ -276,12 +269,12 @@ public class Client implements ClientInter {
 
     @Override
     public void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) throws RemoteException {
-        serverStub.stealingInProgress(gameId,playerId,targetId,selectedCards);
+        serverStub.stealingInProgress(gameId, playerId, targetId, selectedCards);
     }
 
     @Override
     public void removeFoxCard(ServerCard foxCard) throws RemoteException {
-        serverStub.removeFoxCard(gameId,foxCard);
+        serverStub.removeFoxCard(gameId, foxCard);
     }
 
     @Override
@@ -291,7 +284,7 @@ public class Client implements ClientInter {
 
     @Override
     public void leaveLobbyRoom() throws RemoteException {
-        serverStub.leaveLobbyRoom(gameId,clientId);
+        serverStub.leaveLobbyRoom(gameId, clientId);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package sharedClasses;
 
 import eoz.client.lobbyToTable.JoinGameController;
-import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.TableController;
 
 import java.io.Serializable;
@@ -119,7 +118,7 @@ public interface ClientInter extends Remote, Serializable {
      *
      * @param lobbyRoomController The LobbyRoomController to set.
      */
-    void setLobbyRoomController(LobbyRoomController lobbyRoomController);
+    void setLobbyRoomController(LobbyRoomControllerInterface lobbyRoomController);
 
     /**
      * Get the client's name.
@@ -140,8 +139,8 @@ public interface ClientInter extends Remote, Serializable {
     /**
      * Let a player draw a card as a round action.
      *
-     * @  The UUID of the current Client drawing the card.
      * @throws RemoteException if a remote communication error occurs.
+     * @ The UUID of the current Client drawing the card.
      */
     void drawCard() throws RemoteException;
 
@@ -149,38 +148,38 @@ public interface ClientInter extends Remote, Serializable {
     /**
      * Let a player draw a card as a round action.
      *
-     * @  The UUID of the current Client drawing the card.
      * @throws RemoteException if a remote communication error occurs.
+     * @ The UUID of the current Client drawing the card.
      */
     void hahnKlauen() throws RemoteException;
 
     /**
      * Lets a player change card .
      *
-     * @param eggPoints  contains the eggPoint, rest
+     * @param eggPoints contains the eggPoint, rest
      * @throws RemoteException if a remote communication error occurs.
      */
-    void karteUmtauschen( Integer eggPoints,ArrayList<ServerCard> selectedCards ) throws RemoteException;
+    void karteUmtauschen(Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException;
 
-    ServerPlayer getRoosterPlayer() throws  RemoteException;
+    ServerPlayer getRoosterPlayer() throws RemoteException;
 
     void disconnectFromServer(boolean isLeavingGameSession) throws RemoteException;
 
     void sendChatMessage(String content) throws RemoteException;
 
     void stealOneCard(UUID target, ArrayList<ServerCard> selectedCards) throws RemoteException;
-    
+
     void stealAllCards(UUID target) throws RemoteException;
 
     void endPlayerTurn() throws RemoteException;
 
     void stealingInProgress(UUID playerId, UUID targetId, ArrayList<ServerCard> selectedCards) throws RemoteException;
 
-    void removeFoxCard(ServerCard foxCard) throws  RemoteException;
+    void removeFoxCard(ServerCard foxCard) throws RemoteException;
 
     List<UUID> getPlayerIDList() throws RemoteException;
 
-    void leaveLobbyRoom() throws  RemoteException;
+    void leaveLobbyRoom() throws RemoteException;
 
     Map<String, UUID> getGameSessionIds() throws RemoteException;
 

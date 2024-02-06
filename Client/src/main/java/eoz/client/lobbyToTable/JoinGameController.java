@@ -16,13 +16,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import sharedClasses.JoinGameControllerInterface;
+import sharedClasses.LobbyRoomControllerInterface;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.UUID;
 
-public class JoinGameController {
+public class JoinGameController implements JoinGameControllerInterface {
     public ListView gameSessionList;
     Map<String, UUID> gameSessionIds;
     @FXML
@@ -35,7 +37,7 @@ public class JoinGameController {
     private UUID gameId;
     private Scene scene;
     private Client client;
-    private ObservableList<String> gameSessions = FXCollections.observableArrayList();
+    private final ObservableList<String> gameSessions = FXCollections.observableArrayList();
 
     public void setUsername(String username) {
         this.username = username;
@@ -58,7 +60,6 @@ public class JoinGameController {
     }
 
 
-
     @FXML
     private void joinGame(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -75,7 +76,7 @@ public class JoinGameController {
                 System.out.println("GameExist: " + gameExists);
 
 
-                if (gameExists && !gameIsFull ) {
+                if (gameExists && !gameIsFull) {
                     client.setGameId(gameId);
 
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));
@@ -104,12 +105,12 @@ public class JoinGameController {
 
                 } else {
                     // Show an alert if the game ID doesn't exist
-                    if(gameIsFull){
+                    if (gameIsFull) {
                         alert.setTitle("Joining Error");
                         alert.setHeaderText("Game Session is Full");
                         alert.setContentText("The Game Session You are trying to join is Full");
                         alert.showAndWait();
-                    } else  {
+                    } else {
                         alert.setTitle("Invalid Game ID");
                         alert.setHeaderText("The entered Game ID does not exist.");
                         alert.setContentText("Please check the Game ID and try again.");

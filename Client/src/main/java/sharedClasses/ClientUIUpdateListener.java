@@ -1,7 +1,5 @@
 package sharedClasses;
 
-import eoz.client.lobbyToTable.JoinGameController;
-import eoz.client.lobbyToTable.LobbyRoomController;
 import eoz.client.lobbyToTable.TableController;
 
 import java.rmi.Remote;
@@ -11,14 +9,16 @@ import java.util.UUID;
 
 public interface ClientUIUpdateListener extends Remote {
     void updateUI(String command) throws RemoteException;
+
     String getClientName() throws RemoteException;
+
     void setClientName(String clientName) throws RemoteException;
 
-
-    void setNumOfPlayers(int numOfPlayers)throws RemoteException;
-
     Integer getNumOfPlayers() throws RemoteException;
-    void setLobbyRoomController(LobbyRoomController lobbyRoomController) throws RemoteException;
+
+    void setNumOfPlayers(int numOfPlayers) throws RemoteException;
+
+    void setLobbyRoomController(LobbyRoomControllerInterface lobbyRoomController) throws RemoteException;
 
 
     void setTableController(TableController tableController) throws RemoteException;
@@ -39,13 +39,14 @@ public interface ClientUIUpdateListener extends Remote {
 
     void drawnKuckuckCard(UUID playerID, ServerCard kuckuckCard) throws RemoteException;
 
-    void drawnFoxCard (UUID playerID, ServerCard foxCard) throws RemoteException;
+    void drawnFoxCard(UUID playerID, ServerCard foxCard) throws RemoteException;
 
-    void cardDiscarded (UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException;
+    void cardDiscarded(UUID playerID, ServerCard discardedCard, Integer eggPoints, ArrayList<ServerCard> selectedCards) throws RemoteException;
 
     void oneCardStolen(UUID target, ServerCard stolenCard, UUID activeSpielerID) throws RemoteException;
 
     void allCardsStolen(UUID target, UUID playerId) throws RemoteException;
+
     void updateChat(String message, UUID playerId) throws RemoteException;
 
     void switchToResultTable(ServerPlayer winner) throws RemoteException;
@@ -59,5 +60,5 @@ public interface ClientUIUpdateListener extends Remote {
 
     void updateGameSessionList() throws RemoteException;
 
-    void setJoinGameController(JoinGameController joinGameController) throws RemoteException;
+    void setJoinGameController(JoinGameControllerInterface joinGameController) throws RemoteException;
 }

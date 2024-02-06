@@ -1,6 +1,5 @@
 package rmi;
 
-import javafx.application.Platform;
 import sharedClasses.CustomTimer;
 import sharedClasses.Hand;
 import sharedClasses.ServerCard;
@@ -476,10 +475,15 @@ public class BasicBot extends ServerPlayer {
 
         // Schedule the card removal with a delay
         int delay = 0; // Initial delay
-        for (ServerCard card : discardedCards) { // No need to create a new ArrayList here
-            executorService.schedule(() -> Platform.runLater(() -> remove(card.getServeCardID(), card.getType())), delay, TimeUnit.SECONDS);
+        for (ServerCard card : discardedCards) {
+            executorService.schedule(
+                    () -> remove(card.getServeCardID(), card.getType()),
+                    delay,
+                    TimeUnit.SECONDS
+            );
             delay += 1; // Increment delay for the next card
         }
+
 
     }
 

@@ -2,11 +2,8 @@ package eoz.client.lobbyToTable;
 
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -19,6 +16,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import sharedClasses.LobbyRoomControllerInterface;
 import sharedClasses.ServerPlayer;
 
 import java.io.IOException;
@@ -27,7 +25,7 @@ import java.rmi.RemoteException;
 import java.util.Map;
 import java.util.UUID;
 
-public class LobbyRoomController implements Serializable {
+public class LobbyRoomController implements Serializable, LobbyRoomControllerInterface {
 
 
     public Button startGameSession;
@@ -54,13 +52,15 @@ public class LobbyRoomController implements Serializable {
     private Stage stage;
 
 
-
     public void initialize() {
 
     }
 
     public void setUiUpdateFromServer(boolean uiUpdateFromServer) {
-        this.uiUpdateFromServer = uiUpdateFromServer;
+        Platform.runLater(() -> {
+            this.uiUpdateFromServer = uiUpdateFromServer;
+        });
+
     }
 
     public void setPlayerLabel(String playerLabel) {
@@ -76,7 +76,10 @@ public class LobbyRoomController implements Serializable {
     }
 
     public void setNumOfPlayers(Integer numOfPlayers) {
-        this.numOfPlayers = numOfPlayers;
+        Platform.runLater(() -> {
+            this.numOfPlayers = numOfPlayers;
+        });
+
     }
 
     public void setUsername(String username) {
@@ -87,8 +90,8 @@ public class LobbyRoomController implements Serializable {
         this.gameName = gameName;
     }
 
-    public void addPlayerToLobby(String playerName, Integer numOfPlayersPresent )  {
-        Label playerLabel = new Label(numOfPlayersPresent +". " +playerName);
+    public void addPlayerToLobby(String playerName, Integer numOfPlayersPresent) {
+        Label playerLabel = new Label(numOfPlayersPresent + ". " + playerName);
         // Customize the label if needed
         playerLabel.setFont(new Font("Arial", 16));
         Platform.runLater(() -> {
@@ -96,15 +99,15 @@ public class LobbyRoomController implements Serializable {
         });
     }
 
-    public void removePLayer(String isHostPlayer){
-        if("isNotHostPlayer".equals(isHostPlayer)){
+    public void removePLayer(String isHostPlayer) {
+        if ("isNotHostPlayer".equals(isHostPlayer)) {
             Platform.runLater(() -> {
                 try {
                     Map<UUID, ServerPlayer> players = client.getPlayers();
                     playerList.getChildren().clear();
                     int playerCount = 1;
-                    for(ServerPlayer player : players.values()){
-                        addPlayerToLobby(player.getServerPlayerName(),playerCount);
+                    for (ServerPlayer player : players.values()) {
+                        addPlayerToLobby(player.getServerPlayerName(), playerCount);
                     }
 
                 } catch (RemoteException e) {
@@ -126,52 +129,54 @@ public class LobbyRoomController implements Serializable {
     }
 
 
-
     public void switchSceneToTable() {
-        if (client.startGameTable() || uiUpdateFromServer) {
+        Platform.runLater(() -> {
 
-            // If gameName is not empty, proceed to switch scenes
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
-            try {
-                root = loader.load();
-                //create the ServerTable Application and TableController
-                TableApplication tableApplication = new TableApplication();
-                TableController tableController = loader.getController();
-                tableController.setClient(client);
-                tableController.setStage(this.stage);
-                tableController.setRoot(this.root);
-                tableController.setGameName(gameName);
+            if (client.startGameTable() || uiUpdateFromServer) {
+
+                // If gameName is not empty, proceed to switch scenes
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("tableView.fxml"));
                 try {
-                    // assign the ServerCard Grid Pane
-                    tableController.assignCardGridPane();
-                } catch (RemoteException e) {
-                    e.getMessage();
+                    root = loader.load();
+                    //create the ServerTable Application and TableController
+                    TableApplication tableApplication = new TableApplication();
+                    TableController tableController = loader.getController();
+                    tableController.setClient(client);
+                    tableController.setStage(this.stage);
+                    tableController.setRoot(this.root);
+                    tableController.setGameName(gameName);
+                    try {
+                        // assign the ServerCard Grid Pane
+                        tableController.assignCardGridPane();
+                    } catch (RemoteException e) {
+                        e.getMessage();
 
+                    }
+                    // Setup players in the TableController
+                    client.setTableController(tableController);
+
+
+                    // set up the stage
+                    Scene scene = new Scene(root);
+                    stage.setScene(scene);
+                    stage.show();
+                    stage.setTitle(gameName + "@gameId:  " + client.getGameId());
+
+                    // bind the elements of the table to the window
+                    tableApplication.initializeBind(tableController, root);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                // Setup players in the TableController
-                client.setTableController(tableController);
 
 
-                // set up the stage
-                Scene scene = new Scene(root);
-                stage.setScene(scene);
-                stage.show();
-                stage.setTitle(gameName + "@gameId:  " + client.getGameId());
-
-                // bind the elements of the table to the window
-                tableApplication.initializeBind(tableController, root);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Starting Game Session");
+                alert.setHeaderText("Player : " + username + " not allowed to Start Game ServerTable");
+                alert.setContentText("The host must start Game");
+                alert.show();
             }
-
-
-        } else {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Starting Game Session");
-            alert.setHeaderText("Player : " + username + " not allowed to Start Game ServerTable");
-            alert.setContentText("The host must start Game");
-            alert.show();
-        }
+        });
 
 
     }
@@ -227,12 +232,6 @@ public class LobbyRoomController implements Serializable {
             throw new RuntimeException(e);
         }
     }
-
-
-
-
-
-
 
 
 }

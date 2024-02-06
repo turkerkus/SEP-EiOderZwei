@@ -25,10 +25,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import sharedClasses.CustomTimer;
-import sharedClasses.Hand;
-import sharedClasses.ServerCard;
-import sharedClasses.ServerPlayer;
+import sharedClasses.*;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -41,7 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class TableController implements Serializable, Initializable {
+public class TableController implements Serializable, Initializable, TableControllerInterface {
     //chat Vars start
 
     @FXML
@@ -400,39 +397,43 @@ public class TableController implements Serializable, Initializable {
      * Also, stops the glowing effect for all other player labels.
      */
     public void startGameUiUpdate() {
-        Spieler currentPlayer = players.get(this.currentPlayerID);
-        Label currentPlayerLabel = currentPlayer.getPlayerLabel();
-        if (currentPlayerLabel != null) {
-            // Create a glow effect
-            DropShadow dropShadow = new DropShadow();
-            dropShadow.setColor(Color.CYAN);
-            dropShadow.setRadius(20);
-            dropShadow.setSpread(0.5);
+        Platform.runLater(() -> {
 
-            // Create an animation to pulse the drop shadow effect
-            Timeline shadowAnimation = new Timeline(
-                    new KeyFrame(Duration.ZERO, new KeyValue(dropShadow.radiusProperty(), 10)),
-                    new KeyFrame(Duration.seconds(0.5), new KeyValue(dropShadow.radiusProperty(), 20)),
-                    new KeyFrame(Duration.seconds(1), new KeyValue(dropShadow.radiusProperty(), 10))
-            );
-            shadowAnimation.setCycleCount(Timeline.INDEFINITE);
-            shadowAnimation.setAutoReverse(true);
-            shadowAnimation.play();
+            Spieler currentPlayer = players.get(this.currentPlayerID);
+            Label currentPlayerLabel = currentPlayer.getPlayerLabel();
+            if (currentPlayerLabel != null) {
+                // Create a glow effect
+                DropShadow dropShadow = new DropShadow();
+                dropShadow.setColor(Color.CYAN);
+                dropShadow.setRadius(20);
+                dropShadow.setSpread(0.5);
 
-            // Apply the effect and animation to the label
-            currentPlayerLabel.setEffect(dropShadow);
-            currentPlayerLabel.setUserData(shadowAnimation);
+                // Create an animation to pulse the drop shadow effect
+                Timeline shadowAnimation = new Timeline(
+                        new KeyFrame(Duration.ZERO, new KeyValue(dropShadow.radiusProperty(), 10)),
+                        new KeyFrame(Duration.seconds(0.5), new KeyValue(dropShadow.radiusProperty(), 20)),
+                        new KeyFrame(Duration.seconds(1), new KeyValue(dropShadow.radiusProperty(), 10))
+                );
+                shadowAnimation.setCycleCount(Timeline.INDEFINITE);
+                shadowAnimation.setAutoReverse(true);
+                shadowAnimation.play();
 
-            // Change background color in animation
-            ColorAnimation(currentPlayerLabel, Duration.seconds(1));
-        }
+                // Apply the effect and animation to the label
+                currentPlayerLabel.setEffect(dropShadow);
+                currentPlayerLabel.setUserData(shadowAnimation);
 
-        // Ensure other player labels are not glowing
-        for (Label label : getAllPlayerLabels()) {
-            if (label != currentPlayerLabel) {
-                stopLabelGlow(label);
+                // Change background color in animation
+                ColorAnimation(currentPlayerLabel, Duration.seconds(1));
             }
-        }
+
+            // Ensure other player labels are not glowing
+            for (Label label : getAllPlayerLabels()) {
+                if (label != currentPlayerLabel) {
+                    stopLabelGlow(label);
+                }
+            }
+        });
+
     }
 
     private void ColorAnimation(Label label, Duration duration) {

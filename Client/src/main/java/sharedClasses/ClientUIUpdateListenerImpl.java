@@ -1,9 +1,7 @@
 package sharedClasses;
 
-import eoz.client.lobbyToTable.JoinGameController;
-import eoz.client.lobbyToTable.LobbyRoomController;
+
 import eoz.client.lobbyToTable.TableController;
-import javafx.application.Platform;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -13,27 +11,26 @@ import java.util.UUID;
 
 public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements ClientUIUpdateListener, Serializable {
 
-    private LobbyRoomController lobbyRoomController;
-    private TableController tableController;
+    private LobbyRoomControllerInterface lobbyRoomController;
+    private TableControllerInterface tableController;
     private String clientName;
     private Integer numOfPlayers;
-
-    public void setJoinGameController(JoinGameController joinGameController) {
-        this.joinGameController = joinGameController;
-    }
-
-    private JoinGameController joinGameController;
+    private JoinGameControllerInterface joinGameController;
 
     public ClientUIUpdateListenerImpl() throws RemoteException {
 
     }
 
-    public void setLobbyRoomController(LobbyRoomController lobbyRoomController) {
+    public void setJoinGameController(JoinGameControllerInterface joinGameController) {
+        this.joinGameController = joinGameController;
+    }
+
+    public void setLobbyRoomController(LobbyRoomControllerInterface lobbyRoomController) {
         this.lobbyRoomController = lobbyRoomController;
     }
 
     public void setTableController(TableController tableController) {
-        this.tableController = tableController;
+        this.tableController = (TableControllerInterface) tableController;
     }
 
     @Override
@@ -95,7 +92,6 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
 
     @Override
     public void updateUI(String command) throws RemoteException {
-        Platform.runLater(() -> {
 
             if ("switchToTable".equals(command)) {
                 lobbyRoomController.setUiUpdateFromServer(true);
@@ -104,8 +100,6 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
             } else if ("startPlayerTurn".equals(command)) {
                 tableController.startGameUiUpdate();
             }
-
-        });
     }
 
     @Override
