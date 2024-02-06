@@ -1348,6 +1348,11 @@ public class TableController implements Serializable, Initializable, TableContro
     private String gameName;
 
     public void switchToResults(ServerPlayer winner) {
+        try {
+            serverPlayers = this.client.getPlayers();
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
 
         Platform.runLater(() -> {
             // If gameName is not empty, proceed to switch scenes
@@ -1373,9 +1378,10 @@ public class TableController implements Serializable, Initializable, TableContro
                 //create the ServerTable Application and TableController
                 //SpielauswertungApplication spielauswertungApplication = new SpielauswertungApplication();
                 SpielauswertungController spielauswertungController = loader.getController();
-                spielauswertungController.setClient(client);
+                spielauswertungController.Sortieren(serverPlayers); // Call Sortieren before initialize
+                spielauswertungController.initialize(null, null);
+                //spielauswertungController.setClient(client);
                 // assign the ServerCard Grid Pane
-                // spielauswertungController.getPlayers();
 
                 // set up the stage
                 Scene scene = new Scene(root);

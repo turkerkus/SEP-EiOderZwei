@@ -67,54 +67,32 @@ public class SpielauswertungController implements Initializable {
         backlobby.start(stage);
 
     }
-    /*
-    public void getPlayers() {
-        try {
-            serverPlayers = this.client.getPlayers();
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+    public void Sortieren(Map<UUID, ServerPlayer> tableplayers) {
 
         // Convert the map entries to a list of Map.Entry
-        List<Map.Entry<UUID, ServerPlayer>> entryList = new ArrayList<>(serverPlayers.entrySet());
+        List<Map.Entry<UUID, ServerPlayer>> entryList = new ArrayList<>(tableplayers.entrySet());
 
         // Sort the list in descending order based on ServerPlayer's getPunkte()
         entryList.sort(Comparator.comparing(entry -> entry.getValue().getPunkte(), Comparator.reverseOrder()));
 
         // Create a new LinkedHashMap to maintain the order
-        serverPlayers  = entryList.stream()
+        tableplayers  = entryList.stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 
 
         // Now, sortedMap contains the serverPlayers sorted by getPunkte() in descending order
-        for (Map.Entry<UUID, ServerPlayer> entry : serverPlayers.entrySet()) {
+        for (Map.Entry<UUID, ServerPlayer> entry : tableplayers.entrySet()) {
             spie.add(entry.getValue());
         }
     }
-    ObservableList<ServerPlayer> data = FXCollections.observableArrayList(spie);
-    */
-    UUID id1 = UUID.randomUUID();       //test
-    UUID id2 = UUID.randomUUID();       //test
-    UUID id3 = UUID.randomUUID();       //test
-    ServerPlayer test1 = new ServerPlayer(id1, "test1", false);  //test
-    ServerPlayer test2 = new ServerPlayer(id2, "test2", false);  //test
-    ServerPlayer test3 = new ServerPlayer(id3, "test3", false);  //test
-
-
-    ObservableList<ServerPlayer> data = FXCollections.observableArrayList(
-        test1,test2,test3
-    );
 
     public void initialize(URL url, ResourceBundle rb) {
+        ObservableList<ServerPlayer> data = FXCollections.observableArrayList(spie);
         int i = 1;
-        int j = 50;  //test
         for(ServerPlayer sp: data){
-            sp.setServerPlayerName("a");
-            sp.setPunkte(j); //test
             sp.setRank(i);
             i += 1;
-            j -= 1; //test
         }
 // Associate TableColumn with Spieler class properties
         platz.setCellValueFactory(new PropertyValueFactory<>("rank"));
