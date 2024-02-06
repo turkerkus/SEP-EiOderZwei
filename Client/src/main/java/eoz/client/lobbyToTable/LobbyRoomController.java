@@ -18,6 +18,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import sharedClasses.LobbyRoomControllerInterface;
 import sharedClasses.ServerPlayer;
+import sharedClasses.TableControllerInterface;
 
 import java.io.IOException;
 import java.io.Serializable;

@@ -51,7 +51,7 @@ public class Client implements ClientInter {
     }
 
     @Override
-    public void setTableController(TableController tableController) throws RemoteException {
+    public void setTableController(TableControllerInterface tableController) throws RemoteException {
         updateListener.setTableController(tableController);
     }
 
@@ -196,6 +196,8 @@ public class Client implements ClientInter {
         try {
             // Connect to the server's registry
             Registry registry = LocateRegistry.getRegistry(15000);
+            //Registry registry = LocateRegistry.getRegistry("192.168.2.104", 15000);
+
             System.out.println("Verbindung zum Server hergestellt");
 
             // Compare the client's interface with the server's registry
@@ -292,7 +294,7 @@ public class Client implements ClientInter {
         return serverStub.getGameSessionIds();
     }
 
-    public void setJoinGameController(JoinGameController joinGameController) {
+    public void setJoinGameController(JoinGameControllerInterface joinGameController) {
         try {
             updateListener.setJoinGameController(joinGameController);
         } catch (RemoteException e) {

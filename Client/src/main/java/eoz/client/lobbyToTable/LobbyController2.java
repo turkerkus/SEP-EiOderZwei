@@ -14,6 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import sharedClasses.JoinGameControllerInterface;
 
 import java.io.IOException;
 
@@ -127,7 +128,7 @@ public class LobbyController2 {
             stage.setScene(scene3);
             stage.show();
             stage.setTitle("Join Game");
-            client.setJoinGameController(joinGameController);
+            client.setJoinGameController((JoinGameControllerInterface)joinGameController);
 
             joinGameController.updateGameSessionList();
         } catch (IOException e) {

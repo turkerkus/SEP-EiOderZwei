@@ -1,6 +1,5 @@
 package sharedClasses;
 
-import eoz.client.lobbyToTable.TableController;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -21,7 +20,7 @@ public interface ClientUIUpdateListener extends Remote {
     void setLobbyRoomController(LobbyRoomControllerInterface lobbyRoomController) throws RemoteException;
 
 
-    void setTableController(TableController tableController) throws RemoteException;
+    void setTableController(TableControllerInterface tableController) throws RemoteException;
 
 
     void setCurrentPlayerID(UUID playerID) throws RemoteException;

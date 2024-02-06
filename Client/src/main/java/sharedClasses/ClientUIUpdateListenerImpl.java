@@ -1,8 +1,6 @@
 package sharedClasses;
 
 
-import eoz.client.lobbyToTable.TableController;
-
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -29,8 +27,8 @@ public class ClientUIUpdateListenerImpl extends UnicastRemoteObject implements C
         this.lobbyRoomController = lobbyRoomController;
     }
 
-    public void setTableController(TableController tableController) {
-        this.tableController = (TableControllerInterface) tableController;
+    public void setTableController(TableControllerInterface tableController) {
+        this.tableController =  tableController;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package sharedClasses;
 
-import eoz.client.lobbyToTable.JoinGameController;
-import eoz.client.lobbyToTable.TableController;
+
 
 import java.io.Serializable;
 import java.rmi.Remote;
@@ -134,7 +133,7 @@ public interface ClientInter extends Remote, Serializable {
      * @param tableController The TableController to set.
      * @throws RemoteException if a remote communication error occurs.
      */
-    void setTableController(TableController tableController) throws RemoteException;
+    void setTableController(TableControllerInterface tableController) throws RemoteException;
 
     /**
      * Let a player draw a card as a round action.
@@ -183,7 +182,7 @@ public interface ClientInter extends Remote, Serializable {
 
     Map<String, UUID> getGameSessionIds() throws RemoteException;
 
-    void setJoinGameController(JoinGameController joinGameController) throws RemoteException;
+    void setJoinGameController(JoinGameControllerInterface joinGameController) throws RemoteException;
 
     boolean isGameFull(UUID gameId) throws RemoteException;
 }
