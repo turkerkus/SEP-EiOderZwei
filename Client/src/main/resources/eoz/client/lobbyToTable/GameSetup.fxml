@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" stylesheets="@lobby.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.GameSetupController">
@@ -40,6 +41,12 @@
         </Label>
         <TextField fx:id="gameName" layoutX="42.0" layoutY="160.0" />
         <Button fx:id="goToTable" layoutX="172.0" layoutY="400.0" onAction="#switchToScene4" prefHeight="37.0" prefWidth="110.0" styleClass="sign-in-button" text="Create Game" />
-      <ChoiceBox fx:id="botDifficulty" layoutX="40.0" layoutY="347.0" prefWidth="150.0" />
+      <HBox alignment="CENTER_LEFT" layoutX="42.0" layoutY="345.0" prefHeight="30.0" prefWidth="214.0" spacing="20.0">
+         <children>
+            <CheckBox fx:id="EasyBox" mnemonicParsing="false" onAction="#handleEasyBox" text="Easy" />
+            <CheckBox fx:id="HardBox" mnemonicParsing="false" onAction="#handleHardBox" text="Hard" />
+            <CheckBox fx:id="RandomBox" mnemonicParsing="false" onAction="#handleRandomBox" text="Random" />
+         </children>
+      </HBox>
     </AnchorPane>
 </AnchorPane>

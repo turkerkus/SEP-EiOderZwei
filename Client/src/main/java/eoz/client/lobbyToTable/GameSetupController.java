@@ -10,10 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -29,11 +26,15 @@ public class GameSetupController implements Initializable {
     @FXML
     public TextField gameName;
     public String username;
-    ObservableList<String> botOptions = FXCollections.observableArrayList("Easy", "Hard", "Random");
+    @FXML
+    private CheckBox EasyBox;
+    @FXML
+    private CheckBox HardBox;
+    @FXML
+    private CheckBox RandomBox;
+
     @FXML
     private Slider numOfPlayers;
-    @FXML
-    private ChoiceBox<String> botDifficulty;
     private Stage stage;
 
     private Parent root;
@@ -53,8 +54,31 @@ public class GameSetupController implements Initializable {
                 gameName.setText(limitedText);
             }
         });
-        botDifficulty.setValue("Hard"); // it has to be an element in the ObservableList
-        botDifficulty.setItems(botOptions);
+
+    }
+
+    @FXML
+    private void handleEasyBox() {
+        if (EasyBox.isSelected()) {
+            HardBox.setSelected(false);
+            RandomBox.setSelected(false);
+        }
+    }
+
+    @FXML
+    private void handleHardBox() {
+        if (HardBox.isSelected()) {
+            EasyBox.setSelected(false);
+            RandomBox.setSelected(false);
+        }
+    }
+
+    @FXML
+    private void handleRandomBox() {
+        if (RandomBox.isSelected()) {
+            HardBox.setSelected(false);
+            EasyBox.setSelected(false);
+        }
     }
 
 
