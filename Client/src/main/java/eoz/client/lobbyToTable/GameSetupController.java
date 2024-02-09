@@ -39,6 +39,7 @@ public class GameSetupController implements Initializable {
 
     private Parent root;
     private Client client;
+    private String botLevel;
 
     public void setClient(Client client) {
         this.client = client;
@@ -58,26 +59,20 @@ public class GameSetupController implements Initializable {
     }
 
     @FXML
-    private void handleEasyBox() {
+    private void handleBotLevel() {
         if (EasyBox.isSelected()) {
+            botLevel = "Easy";
             HardBox.setSelected(false);
             RandomBox.setSelected(false);
-        }
-    }
-
-    @FXML
-    private void handleHardBox() {
-        if (HardBox.isSelected()) {
+        } else if (HardBox.isSelected()) {
+            botLevel = "Hard";
             EasyBox.setSelected(false);
             RandomBox.setSelected(false);
-        }
-    }
-
-    @FXML
-    private void handleRandomBox() {
-        if (RandomBox.isSelected()) {
+        } else if (RandomBox.isSelected()) {
             HardBox.setSelected(false);
             EasyBox.setSelected(false);
+        } else {
+            botLevel = "Easy";
         }
     }
 
@@ -142,6 +137,9 @@ public class GameSetupController implements Initializable {
                 if (client.isConnectedToServer) {
                     client.setGameName(gameName.getText());
                     client.setNumOfPlayers((int) numOfPlayers.getValue());
+                    handleBotLevel();
+
+
 
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("lobbyRoom.fxml"));
                     root = loader.load();
@@ -149,8 +147,9 @@ public class GameSetupController implements Initializable {
 
                     // Setup lobbyRoomController
                     lobbyRoomController.setClient(client);
+
                     client.setLobbyRoomController(lobbyRoomController);
-                    client.createGameSession();
+                    client.createGameSession(botLevel);
                     System.out.println("Game Id : " + client.getGameId());
                     lobbyRoomController.setGameName(gameName.getText());
                     lobbyRoomController.setNumOfPlayers((int) numOfPlayers.getValue());
@@ -158,6 +157,8 @@ public class GameSetupController implements Initializable {
                     lobbyRoomController.setPlayerLabel(username + "@Host");
                     lobbyRoomController.roomName.setText("Room :" + gameName.getText());
                     lobbyRoomController.gameID.setText("Game ID: " + client.getGameId());
+
+
 
 
                     // set up the stage

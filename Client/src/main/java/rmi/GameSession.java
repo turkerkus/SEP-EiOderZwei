@@ -29,7 +29,7 @@ public class GameSession implements Serializable {
             "Zorro"
             // Add more funny names as needed
     };
-    String botDifficulty = "Hard";
+    String botLevel = "Easy";
     ArrayList<ServerCard> stollenCards;
     UUID kuckuckPlayer;
     private boolean gameStarted = false;
@@ -60,7 +60,7 @@ public class GameSession implements Serializable {
     private String joinPlayerName;
     private ClientUIUpdateListener hostPlayerListener;
 
-    public GameSession(GameSessionCallback callback, UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired) {
+    public GameSession(GameSessionCallback callback, UUID clientID, ClientUIUpdateListener listener, String gameName, UUID gameId, String hostPlayerName, Integer numOfHumanPlayersRequired, String botLevel) {
         this.callback = callback;
         this.serverTable = new ServerTable();
         this.gameId = gameId;
@@ -69,6 +69,9 @@ public class GameSession implements Serializable {
         this.joinPlayerName = hostPlayerName;
         this.hostPlayerListener = listener;
         setGameName(gameName);
+        this.botLevel = botLevel;
+        System.out.println(botLevel + " is chosen and gameName is "  + gameName);
+
 
         addPlayer(clientID, listener, hostPlayerName);
         setBroadcastSent(BroadcastType.SWITCH_TO_TABLE, true);
@@ -169,7 +172,7 @@ public class GameSession implements Serializable {
             // Check if the game is already started or the maximum number of players is reached
             if (!isGameSessionReady && players.size() < getMaxNumOfPlayers()) {
                 // Create a new BasicBot
-                switch (botDifficulty) {
+                switch (botLevel) {
                     case "Easy":
                         BasicBot bot = new BasicBot(gameId, botId, botName, false, callback);
 
@@ -402,7 +405,7 @@ public class GameSession implements Serializable {
 
             //swap the player with bot
             if (isGameSessionReady ){
-                serverTable.swapPlayerWithBot(disconnectedPlayerId, gameId, botName, callback, botDifficulty);
+                serverTable.swapPlayerWithBot(disconnectedPlayerId, gameId, botName, callback, botLevel);
                 System.out.println("Player " + player.getServerPlayerName() + " has left the game and has been replaced by a bot.");
             }
             // then player might be in the lobby Room
@@ -820,7 +823,7 @@ public class GameSession implements Serializable {
         ServerPlayer player = serverTable.getPlayer(playerId);
         if (player.isBot()) {
 
-            switch (botDifficulty) {
+            switch (botLevel) {
                 case "Easy":
                     BasicBot bot = (BasicBot) player;
                     action.performAction(bot);

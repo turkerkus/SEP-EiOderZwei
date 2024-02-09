@@ -55,9 +55,9 @@ public class Server implements Remote, ServerInter {
     }
 
     @Override
-    public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfPlayers) throws RemoteException {
+    public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfPlayers, String botLevel) throws RemoteException {
         // Generate or retrieve a unique Game ID
-        UUID gameId = gameSessionManager.createGameSession(clientID, listener, gameName, playerName, numOfPlayers);
+        UUID gameId = gameSessionManager.createGameSession(clientID, listener, gameName, playerName, numOfPlayers, botLevel);
         return gameId;
     }
 

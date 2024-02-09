@@ -43,9 +43,9 @@
         <Button fx:id="goToTable" layoutX="172.0" layoutY="400.0" onAction="#switchToScene4" prefHeight="37.0" prefWidth="110.0" styleClass="sign-in-button" text="Create Game" />
       <HBox alignment="CENTER_LEFT" layoutX="42.0" layoutY="345.0" prefHeight="30.0" prefWidth="214.0" spacing="20.0">
          <children>
-            <CheckBox fx:id="EasyBox" mnemonicParsing="false" onAction="#handleEasyBox" text="Easy" />
-            <CheckBox fx:id="HardBox" mnemonicParsing="false" onAction="#handleHardBox" text="Hard" />
-            <CheckBox fx:id="RandomBox" mnemonicParsing="false" onAction="#handleRandomBox" text="Random" />
+            <CheckBox fx:id="EasyBox" mnemonicParsing="false" onAction="#handleBotLevel" text="Easy" />
+            <CheckBox fx:id="HardBox" mnemonicParsing="false" onAction="#handleBotLevel" text="Hard" />
+            <CheckBox fx:id="RandomBox" mnemonicParsing="false" onAction="#handleBotLevel" text="Random" />
          </children>
       </HBox>
     </AnchorPane>

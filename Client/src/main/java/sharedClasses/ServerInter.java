@@ -41,7 +41,7 @@ public interface ServerInter extends Remote {
      * @return The UUID of the created game session.
      * @throws RemoteException if a remote communication error occurs.
      */
-    UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfPlayers) throws RemoteException;
+    UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfPlayers, String botLevel) throws RemoteException;
 
     /**
      * Checks if a game session identified by its game ID is ready to start.

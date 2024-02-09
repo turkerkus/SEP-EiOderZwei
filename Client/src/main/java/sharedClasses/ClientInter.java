@@ -60,7 +60,7 @@ public interface ClientInter extends Remote, Serializable {
      *
      * @throws RemoteException if a remote communication error occurs.
      */
-    void createGameSession() throws RemoteException;
+    void createGameSession(String botLevel) throws RemoteException;
 
     /**
      * Start the game table.

@@ -26,6 +26,7 @@ public class Client implements ClientInter {
     private String playerName;
     private String gameName;
     private UUID gameId;
+    private String botLevel;
     private final ClientUIUpdateListener updateListener;
     public Client() {
         try {
@@ -53,6 +54,7 @@ public class Client implements ClientInter {
     @Override
     public void setTableController(TableControllerInterface tableController) throws RemoteException {
         updateListener.setTableController(tableController);
+
     }
 
     @Override
@@ -131,9 +133,9 @@ public class Client implements ClientInter {
     }
 
     // Method to create or join a game session
-    public void createGameSession() {
+    public void createGameSession(String botLevel) {
         try {
-            gameId = serverStub.createGameSession(clientId, updateListener, gameName, playerName, updateListener.getNumOfPlayers());
+            gameId = serverStub.createGameSession(clientId, updateListener, gameName, playerName, updateListener.getNumOfPlayers(), botLevel);
             System.out.println("Game session created/joined.");
         } catch (Exception e) {
             System.err.println("Error creating/joining game session: ");

@@ -111,9 +111,9 @@ public class GameSessionManager implements Serializable {
     private Map<String,UUID>gameSessionIds = new ConcurrentHashMap<>();
 
 
-    public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfHumanPlayersRequired) {
+    public UUID createGameSession(UUID clientID, ClientUIUpdateListener listener, String gameName, String playerName, Integer numOfHumanPlayersRequired, String botLevel) {
         UUID gameId = UUID.randomUUID();
-        GameSession gameSession = new GameSession(this.callback, clientID,listener, gameName,gameId, playerName, numOfHumanPlayersRequired);
+        GameSession gameSession = new GameSession(this.callback, clientID,listener, gameName,gameId, playerName, numOfHumanPlayersRequired, botLevel);
         gameSessions.put(gameId, gameSession);
         gameSessionIds.put(gameName,gameId);
         try {
