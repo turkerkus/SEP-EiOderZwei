@@ -4,24 +4,31 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #397efa;" stylesheets="@SpielauswertungStyle.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.SpielauswertungController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" stylesheets="@SpielauswertungStyle.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="eoz.client.lobbyToTable.SpielauswertungController">
    <children>
+      <ImageView fitHeight="600.0" fitWidth="1000.0" pickOnBounds="true">
+         <image>
+            <Image url="@images/bg.png" />
+         </image>
+      </ImageView>
       <Label layoutX="233.0" layoutY="44.0" style="-fx-text-fill: #F9F9F7;" text="Das Spiel ist vorbei!">
          <font>
             <Font name="Lucida Bright Demibold Italic" size="54.0" />
          </font>
       </Label>
-       <TableView fx:id="table" layoutY="137.0" prefHeight="410.0" prefWidth="1000.0" style="-fx-background-color: #9E9A9A;">
+       <TableView fx:id="table" layoutY="137.0" prefHeight="369.0" prefWidth="1000.0">
            <columns>
                <TableColumn fx:id="platz" editable="false" prefWidth="100.0" sortable="false" text="Platz" />
                <TableColumn fx:id="spieler" editable="false" prefWidth="700.0" sortable="false" text="Spieler" />
                <TableColumn fx:id="punkte" editable="false" minWidth="20.0" prefWidth="200.0" sortType="DESCENDING" text="Score" />
            </columns>
        </TableView>
-      <Button fx:id="blobby" layoutX="350.0" layoutY="561.0" mnemonicParsing="false" onAction="#backtolobby" text="Zurück zur Lobby" />
-      <Button fx:id="newgame" layoutX="550.0" layoutY="561.0" mnemonicParsing="false" text="Neues Spiel starten" />
+      <Button fx:id="blobby" layoutX="297.0" layoutY="543.0" mnemonicParsing="false" onAction="#backtolobby" styleClass="buttons" text="Zurück zur Lobby" />
+      <Button fx:id="newgame" layoutX="551.0" layoutY="543.0" mnemonicParsing="false" text="Neues Spiel starten" />
    </children>
 </Pane>

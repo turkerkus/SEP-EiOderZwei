@@ -1,6 +1,6 @@
 .table-view .column-header,
 .table-view .column-header-background .filler {
-    -fx-background-color: #6fa2ff;
+    -fx-background-color: #8b4513;
     -fx-border-width: 2;
     -fx-border-color: #F9F9F7;
     -fx-border-radius: 1;
@@ -10,6 +10,10 @@
     -fx-font-weight: bold;
     -fx-font-size: 30;
     -fx-alignment: CENTER;
+
+}
+.label{
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.8), 10, 0, 0, 0);
 }
 .table-view .cell{
     -fx-background-color: #9E9A9A;
@@ -19,4 +23,17 @@
     -fx-alignment: CENTER;
     -fx-border-width: 0.2;
     -fx-border-color: #F9F9F7;
+}
+
+.button{
+    -fx-background-color: #ff9900;
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-font-size: 14;
+    -fx-background-radius: 15;
+    -fx-padding: 10 20;
+}
+
+.button:hover{
+    -fx-background-color: #e68a00;
 }
