@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -31,6 +32,8 @@ public class LobbyApplication extends Application {
             stage.setScene(scene1);
             stage.show();
             stage.setTitle("Lobby");
+            stage.getIcons().add(new Image(String.valueOf(getClass().getResource("eiicon.png"))));
+
 
             // The ImageView has the fx:id="backgroundView" in my FXML file
             ImageView backgroundView = (ImageView) root.lookup("#backgroundView");
