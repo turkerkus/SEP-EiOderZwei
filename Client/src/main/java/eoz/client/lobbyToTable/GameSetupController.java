@@ -18,6 +18,9 @@ import sharedClasses.LobbyRoomControllerInterface;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.ResourceBundle;
 
 public class GameSetupController implements Initializable {
@@ -60,6 +63,8 @@ public class GameSetupController implements Initializable {
 
     @FXML
     private void handleBotLevel() {
+        List<String> levels = new ArrayList<>();
+        levels.add("Easy"); levels.add("Hard");
         if (EasyBox.isSelected()) {
             botLevel = "Easy";
             HardBox.setSelected(false);
@@ -69,12 +74,15 @@ public class GameSetupController implements Initializable {
             EasyBox.setSelected(false);
             RandomBox.setSelected(false);
         } else if (RandomBox.isSelected()) {
+            Random rand = new Random();
+            botLevel = levels.get(rand.nextInt(levels.size()));
             HardBox.setSelected(false);
             EasyBox.setSelected(false);
         } else {
             botLevel = "Easy";
         }
     }
+
 
 
     public void switchBackToScene2(ActionEvent event) {
