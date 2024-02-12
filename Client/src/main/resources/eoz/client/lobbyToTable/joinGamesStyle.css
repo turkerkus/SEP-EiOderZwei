@@ -1,0 +1,6 @@
+#joinGameButton:hover{
+    -fx-background-color: #e68a00;
+}
+#joinGameButton{
+    -fx-background-color: #ff9900
+}

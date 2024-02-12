@@ -121,6 +121,7 @@ public class LobbyController2 {
 
 
             stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+            stage.setResizable(false);
             joinGameController.setStage(stage);
 
 
