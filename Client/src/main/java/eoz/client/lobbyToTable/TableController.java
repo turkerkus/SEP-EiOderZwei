@@ -1384,7 +1384,8 @@ public class TableController implements Serializable, Initializable, TableContro
                 // assign the ServerCard Grid Pane
 
                 // set up the stage
-                Scene scene = new Scene(root);
+                Scene scene = new Scene(root, 1000, 600);
+                stage.setResizable(false);
                 stage.setScene(scene);
                 stage.show();
                 stage.setTitle(gameName + "@gameId:  " + client.getGameId());

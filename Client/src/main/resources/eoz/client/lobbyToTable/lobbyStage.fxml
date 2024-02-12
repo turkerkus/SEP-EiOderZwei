@@ -13,9 +13,8 @@
     </ImageView>
     <AnchorPane fx:id="card" layoutX="661.0" layoutY="600.0" prefHeight="296.0" prefWidth="484.0" styleClass="card">
         <TextField fx:id="usernameField" layoutX="78.0" layoutY="74.0" prefWidth="444" promptText="Username" />
-        <Button fx:id="sign_in" layoutX="78.0" layoutY="118.0" onAction="#switchToScene2" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Log in" />
+        <Button fx:id="sign_in" layoutX="156.0" layoutY="119.0" onAction="#switchToScene2" prefHeight="38.0" prefWidth="107.0" styleClass="sign-in-button" text="Log in" />
         <Button fx:id="exit" layoutX="180.0" layoutY="199.0" onMouseClicked="#exitGame" styleClass="sign-in-button" text="Exit" />
-        <Button fx:id="guest" layoutX="258.0" layoutY="119.0" onMouseClicked="#switchToScene2" styleClass="sign-in-button" text="Play as a Guest" />
       <Label layoutX="78.0" layoutY="48.0" prefHeight="18.0" prefWidth="107.0" text="Enter Username:" />
     </AnchorPane>
 </AnchorPane>
